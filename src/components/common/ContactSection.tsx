@@ -5,6 +5,44 @@ import '@fontsource/hanken-grotesk/400.css'
 import '@fontsource/hanken-grotesk/500.css'
 import '@fontsource/hanken-grotesk/700.css'
 
+function ChevronRight({ className = '' }: { className?: string }) {
+  return (
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden="true"
+    >
+      <path d="M10 6l6 6-6 6" />
+    </svg>
+  )
+}
+
+function ChevronDown({ className = '' }: { className?: string }) {
+  return (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden="true"
+    >
+      <path d="M6 9l6 6 6-6" />
+    </svg>
+  )
+}
+
 export function ContactSection() {
   const [copiedType, setCopiedType] = useState<string | null>(null)
   const [formData, setFormData] = useState({
@@ -303,7 +341,7 @@ export function ContactSection() {
                     <select
                       value={formData.projectType}
                       onChange={(e) => setFormData({ ...formData, projectType: e.target.value })}
-                      className="w-full appearance-none bg-transparent text-[0.875rem] font-medium leading-[1.25rem] text-[#403D39] outline-none cursor-pointer pr-[1.5rem]"
+                      className="w-full appearance-none bg-transparent text-[0.875rem] font-medium leading-[1.25rem] text-[#403D39] outline-none cursor-pointer pr-[2rem]"
                     >
                       <option value="" disabled className="text-gray-400">
                         Select project type
@@ -314,12 +352,8 @@ export function ContactSection() {
                       <option value="Commercial">Commercial</option>
                       <option value="Other">Other Structure</option>
                     </select>
-                    <div className="pointer-events-none absolute right-[1rem] flex size-[1.25rem] items-center justify-center">
-                      <img
-                        src="/assets/icons/home/contact/chevron-down.svg"
-                        alt=""
-                        className="size-[1.25rem]"
-                      />
+                    <div className="pointer-events-none absolute right-[1rem] flex items-center justify-center text-[#403D39]">
+                      <ChevronDown className="size-[20px]" />
                     </div>
                   </div>
                 </div>
@@ -344,14 +378,12 @@ export function ContactSection() {
               {/* Submit Button */}
               <button
                 type="submit"
-                className="mt-[0.5rem] flex h-[3.25rem] w-full items-center justify-center gap-[0.5rem] rounded-[0.5rem] bg-[#6F1D1B] px-[1.5rem] py-[0.75rem] text-[1.125rem] font-bold leading-[1.75rem] tracking-[-0.0225rem] text-white transition-all hover:bg-[#5C1715] active:scale-[0.99] cursor-pointer shadow-md"
+                className="relative mt-[0.5rem] flex h-[3.25rem] w-full items-center justify-center rounded-[0.5rem] bg-[#6F1D1B] px-[1.5rem] py-[0.75rem] text-[1.125rem] font-bold leading-[1.75rem] tracking-[-0.0225rem] text-white transition-all hover:bg-[#5C1715] active:scale-[0.99] cursor-pointer shadow-md"
               >
                 <span>Submit Enquiry</span>
-                <img
-                  src="/assets/icons/home/contact/chevron-right.svg"
-                  alt=""
-                  className="size-[1.5rem]"
-                />
+                <span className="absolute right-[1.25rem] flex items-center justify-center">
+                  <ChevronRight className="size-[24px]" />
+                </span>
               </button>
             </form>
           )}
