@@ -73,66 +73,66 @@ export function ContactSection() {
 
       {/* Main Content Container with standard 96px (6rem) horizontal padding */}
       <div className="relative z-10 mx-auto flex w-full flex-col lg:flex-row items-center justify-between gap-[3rem] lg:gap-[5rem] px-6 md:px-12 lg:px-[6rem] py-[4rem] lg:py-[5rem]">
-        {/* Left Column: Intro & Contact Options */}
-        <div className="flex flex-1 flex-col items-start gap-[2rem] w-full max-w-[40.5rem]">
+        {/* Left Column: Intro & Contact Options (Figma Node 211:5478) */}
+        <div className="flex flex-1 flex-col items-start gap-[32px] w-full max-w-[40.5rem]">
           {/* Headline & Subtitle Block */}
-          <div className="flex flex-col items-start gap-[1rem] w-full">
-            <p className="text-[1.125rem] sm:text-[1.25rem] leading-[1.75rem] font-normal text-white m-0">
+          <div className="flex flex-col items-start gap-[16px] w-full">
+            <p className="text-[20px] leading-[28px] font-normal text-white m-0">
               Every strong structure starts with
               <br className="hidden sm:inline" /> the right conversation.
             </p>
 
             <h2
               style={{ fontFamily: '"Bai Jamjuree", sans-serif' }}
-              className="text-[2.25rem] sm:text-[2.75rem] lg:text-[3rem] font-bold uppercase leading-[1.2] text-[#FFFCF2] tracking-normal m-0"
+              className="text-[2.25rem] sm:text-[2.75rem] lg:text-[48px] font-bold uppercase leading-[1.2] text-[#FFFCF2] tracking-normal m-0"
             >
               Begin Your Construction Journey
             </h2>
 
-            <p className="text-[1rem] leading-[1.5rem] font-normal text-white/90 m-0">
+            <p className="text-[16px] leading-[24px] font-normal text-white m-0">
               Tell us what you&apos;re planning. We answer with proof.
             </p>
           </div>
 
           {/* Contact Cards */}
-          <div className="flex flex-col gap-[0.75rem] items-start w-full">
+          <div className="flex flex-col gap-[12px] items-start w-full">
             {/* 1. Phone Card */}
             <div
               onClick={() => window.open('tel:+919002339920')}
-              className="group flex w-full max-w-[18.75rem] items-center gap-[1rem] rounded-[0.5rem] bg-[#252422]/60 p-[0.75rem] backdrop-blur-sm transition-all hover:bg-[#252422]/80 cursor-pointer border border-white/5 hover:border-white/20"
+              className="group flex w-[300px] max-w-full h-[70px] p-[12px] items-center gap-[16px] rounded-[8px] bg-[#252422]/60 backdrop-blur-sm transition-all hover:bg-[#252422]/80 cursor-pointer border border-white/5 hover:border-white/20 shrink-0"
             >
-              <div className="flex size-[1.5rem] shrink-0 items-center justify-center">
+              <div className="flex size-[24px] shrink-0 items-center justify-center">
                 <img
                   src="/assets/icons/contact-phone.svg"
                   alt=""
-                  className="size-[1.5rem] object-contain"
+                  className="size-[24px] object-contain"
                 />
               </div>
 
-              <div className="flex flex-col gap-[0.125rem] items-start">
-                <div className="flex items-center gap-[0.25rem]">
-                  <span className="text-[0.875rem] font-medium leading-[1.25rem] text-[#FFFCF2]">
+              <div className="flex flex-col gap-[2px] items-start min-w-0">
+                <div className="flex items-center gap-[4px]">
+                  <span className="text-[14px] font-medium leading-[20px] text-[#FFFCF2] whitespace-nowrap">
                     Call +91 90023 39920
                   </span>
                   <button
                     type="button"
                     onClick={(e) => handleCopy('+91 90023 39920', 'phone', e)}
                     aria-label="Copy phone number"
-                    className="p-1 text-white/70 hover:text-white transition-colors"
+                    className="p-0.5 text-white/70 hover:text-white transition-colors"
                   >
                     <img
                       src="/assets/icons/contact-copy.svg"
                       alt=""
-                      className="size-[0.875rem]"
+                      className="size-[14px]"
                     />
                   </button>
                   {copiedType === 'phone' && (
-                    <span className="text-[0.6875rem] font-semibold text-[#FFE6A7] animate-pulse">
+                    <span className="text-[11px] font-semibold text-[#FFE6A7] animate-pulse">
                       Copied!
                     </span>
                   )}
                 </div>
-                <span className="text-[1rem] font-normal leading-[1.5rem] text-[#FFFCF2]/60">
+                <span className="text-[16px] font-normal leading-[24px] text-[#FFFCF2]/60 whitespace-nowrap">
                   Speak to an engineer directly
                 </span>
               </div>
@@ -143,21 +143,21 @@ export function ContactSection() {
               href="https://wa.me/919002339920"
               target="_blank"
               rel="noopener noreferrer"
-              className="group flex w-full max-w-[18.75rem] items-center gap-[1rem] rounded-[0.5rem] bg-[#252422]/60 p-[0.75rem] backdrop-blur-sm transition-all hover:bg-[#252422]/80 cursor-pointer border border-white/5 hover:border-white/20"
+              className="group flex w-[300px] max-w-full h-[70px] p-[12px] items-center gap-[16px] rounded-[8px] bg-[#252422]/60 backdrop-blur-sm transition-all hover:bg-[#252422]/80 cursor-pointer border border-white/5 hover:border-white/20 shrink-0"
             >
-              <div className="flex size-[1.5rem] shrink-0 items-center justify-center">
+              <div className="flex size-[24px] shrink-0 items-center justify-center">
                 <img
                   src="/assets/icons/contact-whatsapp.svg"
                   alt=""
-                  className="size-[1.5rem] object-contain"
+                  className="size-[24px] object-contain"
                 />
               </div>
 
-              <div className="flex flex-col gap-[0.125rem] items-start">
-                <span className="text-[0.875rem] font-medium leading-[1.25rem] text-[#FFFCF2]">
+              <div className="flex flex-col gap-[2px] items-start min-w-0">
+                <span className="text-[14px] font-medium leading-[20px] text-[#FFFCF2] whitespace-nowrap">
                   Whatsapp
                 </span>
-                <span className="text-[1rem] font-normal leading-[1.5rem] text-[#FFFCF2]/60">
+                <span className="text-[16px] font-normal leading-[24px] text-[#FFFCF2]/60 whitespace-nowrap">
                   Quick updates on your project
                 </span>
               </div>
@@ -166,40 +166,40 @@ export function ContactSection() {
             {/* 3. Email Card */}
             <div
               onClick={() => window.open('mailto:contact@gcc.com')}
-              className="group flex w-full max-w-[18.75rem] items-center gap-[1rem] rounded-[0.5rem] bg-[#252422]/60 p-[0.75rem] backdrop-blur-sm transition-all hover:bg-[#252422]/80 cursor-pointer border border-white/5 hover:border-white/20"
+              className="group flex w-[300px] max-w-full h-[70px] p-[12px] items-center gap-[16px] rounded-[8px] bg-[#252422]/60 backdrop-blur-sm transition-all hover:bg-[#252422]/80 cursor-pointer border border-white/5 hover:border-white/20 shrink-0"
             >
-              <div className="flex size-[1.5rem] shrink-0 items-center justify-center">
+              <div className="flex size-[24px] shrink-0 items-center justify-center">
                 <img
                   src="/assets/icons/contact-email.svg"
                   alt=""
-                  className="size-[1.5rem] object-contain"
+                  className="size-[24px] object-contain"
                 />
               </div>
 
-              <div className="flex flex-col gap-[0.125rem] items-start">
-                <div className="flex items-center gap-[0.25rem]">
-                  <span className="text-[0.875rem] font-medium leading-[1.25rem] text-[#FFFCF2]">
+              <div className="flex flex-col gap-[2px] items-start min-w-0">
+                <div className="flex items-center gap-[4px]">
+                  <span className="text-[14px] font-medium leading-[20px] text-[#FFFCF2] whitespace-nowrap">
                     Email contact@gcc.com
                   </span>
                   <button
                     type="button"
                     onClick={(e) => handleCopy('contact@gcc.com', 'email', e)}
                     aria-label="Copy email address"
-                    className="p-1 text-white/70 hover:text-white transition-colors"
+                    className="p-0.5 text-white/70 hover:text-white transition-colors"
                   >
                     <img
                       src="/assets/icons/contact-copy.svg"
                       alt=""
-                      className="size-[0.875rem]"
+                      className="size-[14px]"
                     />
                   </button>
                   {copiedType === 'email' && (
-                    <span className="text-[0.6875rem] font-semibold text-[#FFE6A7] animate-pulse">
+                    <span className="text-[11px] font-semibold text-[#FFE6A7] animate-pulse">
                       Copied!
                     </span>
                   )}
                 </div>
-                <span className="text-[1rem] font-normal leading-[1.5rem] text-[#FFFCF2]/60">
+                <span className="text-[16px] font-normal leading-[24px] text-[#FFFCF2]/60 whitespace-nowrap">
                   Send us your project brief
                 </span>
               </div>
@@ -316,7 +316,7 @@ export function ContactSection() {
                     </select>
                     <div className="pointer-events-none absolute right-[1rem] flex size-[1.25rem] items-center justify-center">
                       <img
-                        src="/assets/icons/chevron-down.svg"
+                        src="/assets/icons/arrow.svg"
                         alt=""
                         className="size-[1.25rem]"
                       />
@@ -348,7 +348,7 @@ export function ContactSection() {
               >
                 <span>Submit Enquiry</span>
                 <img
-                  src="/assets/icons/chevron-right.svg"
+                  src="/assets/icons/arrow.svg"
                   alt=""
                   className="size-[1.5rem]"
                 />
