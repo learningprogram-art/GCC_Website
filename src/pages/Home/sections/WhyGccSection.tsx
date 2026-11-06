@@ -1,810 +1,243 @@
-import { useCallback, useRef, useState } from "react"
-import "@fontsource/hanken-grotesk/400.css"
-import "@fontsource/hanken-grotesk/600.css"
+import { useState } from 'react'
+import '@fontsource/bai-jamjuree/300.css'
+import '@fontsource/bai-jamjuree/500.css'
+import '@fontsource/bai-jamjuree/600.css'
+import '@fontsource/bai-jamjuree/700.css'
+import '@fontsource/hanken-grotesk/400.css'
+import '@fontsource/hanken-grotesk/500.css'
+import '@fontsource/hanken-grotesk/600.css'
 
-// Figma node: 211:5198 — Why GCC
-const CARDS = [
+interface WhyItem {
+  id: string
+  number: string
+  title: string
+  titleLines: [string, string]
+  shortDesc: string
+  fullDesc: string
+  image: string
+}
+
+const whyItems: WhyItem[] = [
   {
-    id: "01",
-    tab: "Engineering Strength",
-    title: ["Engineering", "Strength"],
-    body: "Structural engineering and detailed drawings that ensure the design is built right from the start.",
-    image: "/assets/images/card-01.png",
-    alt: "Worker on a concrete beam while a crane lifts a concrete block",
+    id: 'engineering-strength',
+    number: '01',
+    title: 'Engineering Strength',
+    titleLines: ['Engineering', 'Strength'],
+    shortDesc: 'Precision structural drawings and licensed engineering protocols.',
+    fullDesc:
+      'Structural engineering and detailed drawings that ensure the design is built right from the start.',
+    image: '/assets/images/card-01.png',
   },
   {
-    id: "02",
-    tab: "Built for the Long Term",
-    title: ["Built for", "the Long Term"],
-    body: "Construction focused on durability, quality, reliability and lasting value.",
-    image: "/assets/images/card-02.png",
-    alt: "Clock on a pink wall beside a terracotta arch and yellow stairs",
+    id: 'built-for-long-term',
+    number: '02',
+    title: 'Built for the Long Term',
+    titleLines: ['Built for', 'the Long Term'],
+    shortDesc: 'Construction focused on durability, quality, reliability and lasting value.',
+    fullDesc:
+      'Construction focused on durability, quality, reliability and lasting value.',
+    image: '/assets/images/card-02.png',
   },
   {
-    id: "03",
-    tab: "End-to-End Ownership",
-    title: ["End-to-End", "Ownership"],
-    body: "One team taking responsibility from the first plan to final handover.",
-    image: "/assets/images/card-03.png",
-    alt: "A winding cream path with a ball at the bottom",
+    id: 'end-to-end-ownership',
+    number: '03',
+    title: 'End-to-End Ownership',
+    titleLines: ['End-to-End', 'Ownership'],
+    shortDesc: 'One team taking responsibility from the first plan to final handover.',
+    fullDesc:
+      'One team taking responsibility from the first plan to final handover.',
+    image: '/assets/images/card-03.png',
   },
   {
-    id: "04",
-    tab: "Transparent Execution",
-    title: ["Transparent", "Execution"],
-    body: "Clear processes and communication that keep every stage visible.",
-    image: "/assets/images/card-04.png",
-    alt: "Hand holding a phone showing a 3D building model at a construction site",
+    id: 'transparent-execution',
+    number: '04',
+    title: 'Transparent Execution',
+    titleLines: ['Transparent', 'Execution'],
+    shortDesc: 'Clear milestone schedules, material specs, and real-time site updates.',
+    fullDesc:
+      'Complete visibility into costs, timelines, material grades, and construction milestones without hidden surprises.',
+    image: '/assets/images/card-04.png',
   },
 ]
 
-const N = CARDS.length
-const TOTAL = String(N).padStart(2, "0")
-const LAST = N - 1
-
 export function WhyGccSection() {
-  // Active card index: 0 → N-1, no wrapping
-  const [index, setIndex] = useState(0)
-  const touchStartX = useRef<number | null>(null)
+  const [activeIndex, setActiveIndex] = useState(0)
 
-  const atStart = index === 0
-  const atEnd = index === LAST
+  const activeItem = whyItems[activeIndex]
 
-  // Navigate to next card (stops at the last)
-  const goNext = useCallback(() => {
-    setIndex((prev) => Math.min(prev + 1, LAST))
-  }, [])
-
-  // Navigate to previous card (stops at the first)
-  const goPrev = useCallback(() => {
-    setIndex((prev) => Math.max(prev - 1, 0))
-  }, [])
-
-  // Navigate to a specific tab / dot
-  const goToCard = useCallback((target: number) => {
-    setIndex(Math.min(Math.max(target, 0), LAST))
-  }, [])
-
-  // Keyboard navigation
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
-      if (e.key === "ArrowLeft") {
-        goPrev()
-      } else if (e.key === "ArrowRight") {
-        goNext()
-      }
-    },
-    [goPrev, goNext]
-  )
-
-  // Touch swipe (mobile)
-  const handleTouchStart = (e: React.TouchEvent) => {
-    touchStartX.current = e.touches[0].clientX
+  const handlePrev = () => {
+    setActiveIndex((prev) => (prev === 0 ? whyItems.length - 1 : prev - 1))
   }
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    if (touchStartX.current === null) return
-    const dx = e.changedTouches[0].clientX - touchStartX.current
-    touchStartX.current = null
-    if (Math.abs(dx) > 40) {
-      if (dx < 0) goNext()
-      else goPrev()
-    }
+
+  const handleNext = () => {
+    setActiveIndex((prev) => (prev === whyItems.length - 1 ? 0 : prev + 1))
   }
 
   return (
     <section
       id="why-gcc"
-      aria-label="Why GCC"
-      className="why-gcc-sec py-20 px-6 border-b border-slate-900"
-      onKeyDown={handleKeyDown}
+      className="relative w-full overflow-hidden bg-[#6F1D1B] text-[#FFFCF2] py-[5rem] md:py-[7rem] px-[1.5rem] md:px-[3rem] lg:px-[6rem]"
+      style={{ fontFamily: '"Hanken Grotesk", sans-serif' }}
     >
-      {/* Background radial warm ambient glow */}
-      <div className="why-gcc-glow" aria-hidden />
+      {/* Background Radial Glow */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[65rem] h-[35rem] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(251,139,36,0.18)_0%,rgba(111,29,27,0)_70%)] blur-[60px]"
+      />
 
-      {/* Background animated dots pattern */}
-      <div className="why-gcc-dots" aria-hidden />
+      <div className="relative mx-auto flex w-full max-w-[90rem] flex-col items-center">
+        {/* Header Block */}
+        <div className="flex flex-col items-center gap-[1.5rem] text-center mb-[3rem] md:mb-[4rem]">
+          {/* Eyebrow */}
+          <div className="flex items-center gap-[0.75rem]">
+            <div className="size-[0.375rem] rounded-full bg-[#FB8B24]" />
+            <span className="text-[0.75rem] font-semibold uppercase leading-[1rem] tracking-[0.06rem] text-[#FFE6A7]">
+              Why GCC
+            </span>
+            <div className="size-[0.375rem] rounded-full bg-[#FB8B24]" />
+          </div>
 
-      <div className="max-w-7xl mx-auto relative z-10">
-        {/* Heading */}
-        <div className="why-gcc-head">
-          <p className="why-gcc-eyebrow">
-            <span className="why-gcc-dot" aria-hidden />
-            WHY GCC
-            <span className="why-gcc-dot why-gcc-dot--end" aria-hidden />
-          </p>
-          <h2 className="why-gcc-title">The GCC Difference</h2>
-        </div>
-
-        {/* Tabs (hidden on mobile) */}
-        <div className="why-gcc-tabs" role="tablist" aria-label="Why GCC tabs">
-          {CARDS.map((c, i) => {
-            const isActive = i === index
-            return (
-              <button
-                key={c.id}
-                type="button"
-                role="tab"
-                aria-selected={isActive}
-                data-active={isActive}
-                onClick={() => goToCard(i)}
-                className="why-gcc-tab"
-              >
-                <span className="why-gcc-tab__n">{c.id}</span>
-                <span>{c.tab}</span>
-              </button>
-            )
-          })}
-        </div>
-
-        {/* Carousel Slider */}
-        <div className="why-gcc">
-          <div
-            className="why-gcc__viewport"
-            onTouchStart={handleTouchStart}
-            onTouchEnd={handleTouchEnd}
+          {/* Title */}
+          <h2
+            style={{ fontFamily: '"Bai Jamjuree", sans-serif' }}
+            className="text-[2rem] sm:text-[2.625rem] font-medium leading-[1.15] tracking-[-0.04rem] text-[#FFFCF2]"
           >
-            <div
-              className="why-gcc__track"
-              style={{
-                transform: `translateX(calc(var(--x0) - ${index} * (var(--w) + var(--gap))))`,
-                transition: "transform 0.65s cubic-bezier(0.22, 1, 0.36, 1)",
-              }}
-            >
-              {CARDS.map((card, i) => {
-                const isActive = i === index
-                const distFromActive = Math.abs(i - index)
-                const isSide = distFromActive === 1
-                const isFar = distFromActive > 1
+            The GCC Difference
+          </h2>
 
-                return (
-                  <div
-                    key={card.id}
-                    data-active={isActive}
-                    data-side={isSide}
-                    data-far={isFar}
-                    tabIndex={isActive ? 0 : -1}
-                    aria-hidden={!isActive}
-                    onClick={() => {
-                      if (!isActive) goToCard(i)
-                    }}
-                    className="why-gcc__card"
-                  >
-                    {/* Left text column */}
-                    <div className="why-gcc__text">
-                      <span className="why-gcc__num">{card.id}</span>
-                      <div className="why-gcc__text-content">
-                        <h3 className="why-gcc__ctitle">
-                          {card.title[0]}{" "}
-                          <br />
-                          {card.title[1]}
-                        </h3>
-                        <p className="why-gcc__body">{card.body}</p>
-
-                        {/* Footer (mobile only) */}
-                        <div className="why-gcc__foot">
-                          <a href="#projects" className="why-gcc__more">
-                            See our work
-                            <svg
-                              width="20"
-                              height="20"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              aria-hidden="true"
-                            >
-                              <path d="M10 6l6 6-6 6" />
-                            </svg>
-                          </a>
-                          <span className="why-gcc__count">
-                            {card.id} / {TOTAL}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Right image column */}
-                    <div className="why-gcc__img">
-                      <img src={card.image} alt={card.alt} draggable={false} />
-                      {/* Red overlay tint on inactive side cards */}
-                      <div className="why-gcc__img-tint" />
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          </div>
-
-          {/* Bottom row: dots (mobile only) + navigation arrows */}
-          <div className="why-gcc__arrows">
-            <div className="why-gcc__dots" role="tablist" aria-label="Choose card">
-              {CARDS.map((c, i) => (
+          {/* Index Navigation Pills */}
+          <div className="flex flex-wrap items-center justify-center gap-[0.5rem] pt-[0.5rem]">
+            {whyItems.map((item, idx) => {
+              const isActive = idx === activeIndex
+              return (
                 <button
-                  key={c.id}
-                  type="button"
-                  role="tab"
-                  aria-selected={i === index}
-                  aria-label={`Go to ${c.tab}`}
-                  data-active={i === index}
-                  onClick={() => goToCard(i)}
-                  className="why-gcc__pip"
-                />
-              ))}
+                  key={item.id}
+                  onClick={() => setActiveIndex(idx)}
+                  className={`flex items-center gap-[0.5rem] px-[1rem] py-[0.625rem] rounded-[0.5rem] text-[0.875rem] font-medium leading-[1.25rem] transition-all cursor-pointer ${
+                    isActive
+                      ? 'bg-[#FFFCF2] text-[#6F1D1B] shadow-md'
+                      : 'bg-[#6F1D1B] border border-white/20 text-[#FFFCF2] hover:bg-[#5C1715]'
+                  }`}
+                >
+                  <span
+                    className={`font-semibold ${
+                      isActive ? 'text-[#E06422]' : 'text-[#FFE6A7]'
+                    }`}
+                  >
+                    {item.number}
+                  </span>
+                  <span>{item.title}</span>
+                </button>
+              )
+            })}
+          </div>
+        </div>
+
+        {/* Carousel / Active Card Presentation */}
+        <div className="w-full flex justify-center items-center">
+          {/* Main Card (Figma Node 211:5223 - w: 860px, rounded: 8px) */}
+          <div className="w-full max-w-[53.75rem] rounded-[0.5rem] overflow-hidden bg-[#FFFCF2] text-[#252422] shadow-2xl flex flex-col md:flex-row items-stretch">
+            {/* Left: Text Panel */}
+            <div className="w-full md:w-1/2 p-[2rem] sm:p-[2.5rem] lg:pt-[2.75rem] lg:pb-[2.5rem] lg:px-[3rem] flex flex-col justify-between gap-[2.5rem]">
+              <div className="flex flex-col gap-[1.5rem]">
+                {/* Big Index Numeral */}
+                <div
+                  style={{ fontFamily: '"Bai Jamjuree", sans-serif' }}
+                  className="text-[5rem] sm:text-[7.5rem] font-light leading-none tracking-[-0.15rem] text-[#6F1D1B]"
+                >
+                  {activeItem.number}
+                </div>
+
+                {/* Card Title */}
+                <h3
+                  style={{ fontFamily: '"Bai Jamjuree", sans-serif' }}
+                  className="text-[1.75rem] sm:text-[2.25rem] font-semibold leading-[2.75rem] tracking-[-0.02rem] text-[#252422]"
+                >
+                  {activeItem.title}
+                </h3>
+
+                {/* Card Description */}
+                <p className="text-[1rem] sm:text-[1.25rem] font-normal leading-[1.75rem] text-[#403D39]">
+                  {activeItem.fullDesc}
+                </p>
+              </div>
+
+              {/* Progress Indicator Dots */}
+              <div className="flex items-center gap-[0.5rem] pt-[1rem]">
+                {whyItems.map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setActiveIndex(i)}
+                    aria-label={`Go to slide ${i + 1}`}
+                    className={`h-[0.375rem] rounded-full transition-all cursor-pointer ${
+                      i === activeIndex
+                        ? 'w-[2rem] bg-[#6F1D1B]'
+                        : 'w-[0.5rem] bg-[#403D39]/30 hover:bg-[#403D39]/60'
+                    }`}
+                  />
+                ))}
+              </div>
             </div>
 
-            <div className="why-gcc__arrow-group">
-              <button
-                type="button"
-                onClick={goPrev}
-                disabled={atStart}
-                aria-label="Previous card"
-                className="why-gcc__arrow why-gcc__arrow--prev"
-              >
-                <svg
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  aria-hidden="true"
-                >
-                  <path d="M15 18l-6-6 6-6" />
-                </svg>
-              </button>
-              <button
-                type="button"
-                onClick={goNext}
-                disabled={atEnd}
-                aria-label="Next card"
-                className="why-gcc__arrow why-gcc__arrow--next"
-              >
-                <svg
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  aria-hidden="true"
-                >
-                  <path d="M9 18l6-6-6-6" />
-                </svg>
-              </button>
+            {/* Right: Image Panel */}
+            <div className="w-full md:w-1/2 min-h-[16rem] md:min-h-auto relative overflow-hidden bg-white">
+              <img
+                src={activeItem.image}
+                alt={activeItem.title}
+                className="absolute inset-0 size-full object-cover"
+                loading="lazy"
+              />
             </div>
           </div>
+        </div>
+
+        {/* Carousel Prev / Next Controls */}
+        <div className="flex items-center gap-[1.5rem] mt-[2.5rem] md:mt-[3rem]">
+          {/* Prev Button */}
+          <button
+            onClick={handlePrev}
+            aria-label="Previous reason"
+            className="flex items-center justify-center p-[0.875rem] rounded-[0.5rem] bg-[#6F1D1B] border border-white/20 text-[#FFE6A7] hover:bg-[#5C1715] hover:text-white transition-colors cursor-pointer"
+          >
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="size-[1.5rem]"
+            >
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+          </button>
+
+          {/* Next Button */}
+          <button
+            onClick={handleNext}
+            aria-label="Next reason"
+            className="flex items-center justify-center p-[0.875rem] rounded-[0.5rem] bg-[#FFFCF2] text-[#6F1D1B] hover:bg-[#FFE6A7] transition-colors shadow-md cursor-pointer"
+          >
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="size-[1.5rem]"
+            >
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
+          </button>
         </div>
       </div>
-
-      <style>{`
-        .why-gcc-sec {
-          font-family: "Bai Jamjuree", sans-serif;
-          position: relative;
-          overflow: hidden;
-          background-color: #5b1311;
-        }
-
-        /* Ambient bottom glow */
-        .why-gcc-glow {
-          position: absolute;
-          inset: 0;
-          pointer-events: none;
-          background: radial-gradient(
-            ellipse 65% 35% at 50% 88%,
-            rgba(232, 118, 30, 0.85) 0%,
-            rgba(205, 92, 26, 0.45) 35%,
-            rgba(91, 19, 17, 0) 75%
-          );
-          z-index: 0;
-        }
-
-        /* Subtle animated dot grid background */
-        .why-gcc-dots {
-          position: absolute;
-          inset: -30px;
-          pointer-events: none;
-          background-image: radial-gradient(rgba(255, 245, 230, 0.16) 1.5px, transparent 1.6px);
-          background-size: 36px 36px;
-          animation: why-gcc-dots-float 8s ease-in-out infinite alternate;
-          z-index: 0;
-        }
-
-        @keyframes why-gcc-dots-float {
-          0% {
-            opacity: 0.65;
-            transform: translateY(0);
-          }
-          50% {
-            opacity: 0.95;
-            transform: translateY(-3px);
-          }
-          100% {
-            opacity: 0.7;
-            transform: translateY(0);
-          }
-        }
-
-        /* Headings */
-        .why-gcc-head {
-          text-align: center;
-          margin-bottom: 24px;
-        }
-        .why-gcc-eyebrow {
-          display: inline-flex;
-          align-items: center;
-          gap: 10px;
-          font-size: 11px;
-          font-weight: 600;
-          letter-spacing: 0.22em;
-          color: #f2c98a;
-          margin-bottom: 14px;
-          text-transform: uppercase;
-        }
-        .why-gcc-dot {
-          width: 5px;
-          height: 5px;
-          background-color: #f2c98a;
-          border-radius: 1px;
-          display: inline-block;
-        }
-        .why-gcc-title {
-          font-size: clamp(28px, 4vw, 42px);
-          font-weight: 500;
-          line-height: 1.15;
-          color: #fff6e6;
-        }
-
-        /* Tabs — solid fills so the dot grid and glow never show through */
-        .why-gcc-tabs {
-          display: flex;
-          flex-wrap: wrap;
-          justify-content: center;
-          gap: 8px;
-          margin-bottom: 44px;
-        }
-        .why-gcc-tab {
-          display: inline-flex;
-          align-items: center;
-          gap: 8px;
-          padding: 8px 16px;
-          font-size: 12px;
-          font-family: inherit;
-          border-radius: 8px;
-          color: #f6e4cf;
-          background-color: #4a110e; /* solid */
-          border: 1px solid #7a3a33; /* solid, replaces white/16% */
-          cursor: pointer;
-          transition: background-color 0.35s ease, color 0.35s ease, border-color 0.35s ease, transform 0.2s ease;
-        }
-        .why-gcc-tab:hover {
-          background-color: #5a1713;
-          border-color: #94504a;
-        }
-        .why-gcc-tab__n {
-          opacity: 0.65;
-          font-size: 11px;
-        }
-        .why-gcc-tab[data-active="true"] {
-          background-color: #fffdf2;
-          color: #252422;
-          border-color: #fffdf2;
-          font-weight: 500;
-        }
-        .why-gcc-tab[data-active="true"] .why-gcc-tab__n {
-          opacity: 0.85;
-        }
-
-        /* Carousel container */
-        .why-gcc {
-          --w: min(86vw, 760px);
-          --h: clamp(320px, 42vw, 430px);
-          --gap: 28px;
-          --x0: calc(50% - var(--w) / 2); /* active card centered */
-          position: relative;
-          width: 100%;
-        }
-
-        .why-gcc__viewport {
-          position: relative;
-          width: 100%;
-          overflow: visible;
-        }
-
-        /* Sliding track */
-        .why-gcc__track {
-          display: flex;
-          align-items: center;
-          gap: var(--gap);
-          will-change: transform;
-        }
-
-        /* Card */
-        .why-gcc__card {
-          flex: 0 0 var(--w);
-          width: var(--w);
-          height: var(--h);
-          display: flex;
-          overflow: hidden;
-          border-radius: 16px;
-          text-align: left;
-          cursor: pointer;
-          user-select: none;
-          background: #521410;
-          color: #d48d80;
-          box-shadow: 0 14px 40px rgba(30, 5, 3, 0.35);
-          transform: scale(0.96);
-          opacity: 0.82;
-          transition:
-            transform 0.65s cubic-bezier(0.22, 1, 0.36, 1),
-            background-color 0.5s ease,
-            color 0.5s ease,
-            box-shadow 0.5s ease,
-            opacity 0.5s ease;
-        }
-
-        /* Active center card */
-        .why-gcc__card[data-active="true"] {
-          background: #fffdf2;
-          color: #252422;
-          cursor: default;
-          transform: scale(1);
-          opacity: 1;
-          box-shadow: 0 24px 60px rgba(30, 5, 3, 0.45);
-          z-index: 2;
-        }
-
-        /* Distant cards hidden from layout attention */
-        .why-gcc__card[data-far="true"] {
-          opacity: 0.35;
-        }
-
-        /* Card text column */
-        .why-gcc__text {
-          flex: 0 0 44%;
-          display: flex;
-          flex-direction: column;
-          justify-content: space-between;
-          padding: clamp(20px, 3.2vw, 40px);
-          position: relative;
-          z-index: 1;
-        }
-
-        /* Card number */
-        .why-gcc__num {
-          font-family: "Bai Jamjuree", sans-serif;
-          font-size: 22px;
-          font-weight: 500;
-          line-height: 1;
-          color: #d48d80;
-          transition: font-size 0.65s cubic-bezier(0.22, 1, 0.36, 1), color 0.5s ease;
-        }
-        .why-gcc__card[data-active="true"] .why-gcc__num {
-          font-size: clamp(68px, 9vw, 116px);
-          font-weight: 300;
-          letter-spacing: -0.02em;
-          color: #6f1d1b;
-        }
-
-        /* Card title */
-        .why-gcc__ctitle {
-          font-family: "Bai Jamjuree", sans-serif;
-          font-size: 19px;
-          font-weight: 600;
-          line-height: 1.22;
-          letter-spacing: -0.01em;
-          color: #d48d80;
-          margin-bottom: 12px;
-          transition: font-size 0.65s cubic-bezier(0.22, 1, 0.36, 1), color 0.5s ease;
-        }
-        .why-gcc__card[data-active="true"] .why-gcc__ctitle {
-          font-size: clamp(22px, 2.6vw, 35px);
-          color: #252422;
-        }
-
-        /* Card body */
-        .why-gcc__body {
-          font-size: 12px;
-          line-height: 1.5;
-          color: #b56f64;
-          max-width: 32ch;
-          transition: font-size 0.5s ease, color 0.5s ease;
-        }
-        .why-gcc__card[data-active="true"] .why-gcc__body {
-          font-size: 14px;
-          line-height: 1.55;
-          color: #55524e;
-        }
-
-        /* Mobile-only footer (hidden on desktop) */
-        .why-gcc__foot {
-          display: none;
-        }
-
-        /* Card image column */
-        .why-gcc__img {
-          position: relative;
-          flex: 1;
-          min-width: 0;
-          height: 100%;
-        }
-        .why-gcc__img img {
-          position: absolute;
-          inset: 0;
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          display: block;
-        }
-
-        /* Red tint overlay on inactive card images */
-        .why-gcc__img-tint {
-          position: absolute;
-          inset: 0;
-          background-color: #521410;
-          opacity: 0.72;
-          pointer-events: none;
-          transition: opacity 0.5s ease;
-        }
-        .why-gcc__card[data-active="true"] .why-gcc__img-tint {
-          opacity: 0;
-        }
-
-        /* Navigation Arrows */
-        .why-gcc__arrows {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          gap: 12px;
-          margin-top: 36px;
-          position: relative;
-          z-index: 10;
-        }
-        .why-gcc__dots {
-          display: none; /* mobile only */
-        }
-        .why-gcc__arrow-group {
-          display: contents; /* desktop: arrows behave exactly as before */
-        }
-        .why-gcc__arrow {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          width: 42px;
-          height: 42px;
-          border-radius: 8px;
-          cursor: pointer;
-          transition: transform 0.2s ease, background-color 0.2s ease, opacity 0.2s ease;
-        }
-        .why-gcc__arrow:not(:disabled):hover {
-          transform: scale(1.06);
-        }
-        .why-gcc__arrow:not(:disabled):active {
-          transform: scale(0.94);
-        }
-        .why-gcc__arrow:disabled {
-          opacity: 0.35;
-          cursor: not-allowed;
-        }
-        .why-gcc__arrow--prev {
-          background: #4a110e;
-          color: #f6e4cf;
-          border: 1px solid #7a3a33;
-        }
-        .why-gcc__arrow--prev:not(:disabled):hover {
-          background: #5b1612;
-        }
-        .why-gcc__arrow--next {
-          background: #fffdf2;
-          color: #252422;
-          border: 1px solid #fffdf2;
-        }
-        .why-gcc__arrow--next:not(:disabled):hover {
-          background: #ffffff;
-        }
-
-        .why-gcc__card:focus-visible,
-        .why-gcc__arrow:focus-visible,
-        .why-gcc__pip:focus-visible,
-        .why-gcc-tab:focus-visible {
-          outline: 2px solid #f2c98a;
-          outline-offset: 3px;
-        }
-
-        /* ───────────── Mobile layout ───────────── */
-        @media (max-width: 640px) {
-          section.why-gcc-sec {
-            padding: 72px 20px 64px;
-          }
-
-          /* Heading: left-aligned, single orange square */
-          .why-gcc-head {
-            text-align: left;
-            margin-bottom: 28px;
-          }
-          .why-gcc-eyebrow {
-            font-size: 12px;
-            letter-spacing: 0.12em;
-            gap: 12px;
-            margin-bottom: 16px;
-          }
-          .why-gcc-dot {
-            width: 8px;
-            height: 8px;
-            background-color: #ff9a2e;
-          }
-          .why-gcc-dot--end {
-            display: none;
-          }
-
-          /* Tabs are replaced by dots */
-          .why-gcc-tabs {
-            display: none;
-          }
-
-          /* Carousel: card left-aligned with the next one peeking in */
-          .why-gcc {
-            --w: 84vw;
-            --h: auto;
-            --gap: 12px;
-            --x0: 0px;
-          }
-          .why-gcc__viewport {
-            overflow: hidden; /* hides the previous card on the left */
-            width: calc(100% + 20px); /* bleed to the screen edge on the right */
-            touch-action: pan-y;
-          }
-          .why-gcc__track {
-            align-items: flex-start;
-          }
-
-          /* Card: image on top, text below */
-          .why-gcc__card,
-          .why-gcc__card[data-active="true"],
-          .why-gcc__card[data-far="true"] {
-            flex-direction: column-reverse;
-            transform: none;
-            opacity: 1;
-            box-shadow: none;
-            min-height: 0;
-            background: #c8531d; /* inactive peek card */
-          }
-          .why-gcc__card[data-active="true"] {
-            background: #fffdf2;
-          }
-
-          .why-gcc__img {
-            flex: none;
-            height: calc(var(--w) * 0.64);
-          }
-          .why-gcc__img-tint {
-            background-color: #1b0d0c;
-            opacity: 0.85;
-          }
-          .why-gcc__card[data-active="true"] .why-gcc__img-tint {
-            opacity: 0;
-          }
-
-          .why-gcc__text {
-            flex: none;
-            justify-content: flex-start;
-            padding: 20px 20px 24px;
-          }
-
-          .why-gcc__num {
-            color: #ffd9c2;
-            margin-bottom: 12px;
-          }
-          .why-gcc__card[data-active="true"] .why-gcc__num {
-            font-size: 60px;
-          }
-
-          .why-gcc__ctitle {
-            color: #ffe9da;
-            margin-bottom: 8px;
-          }
-          .why-gcc__ctitle br {
-            display: none; /* one line on mobile */
-          }
-          .why-gcc__card[data-active="true"] .why-gcc__ctitle {
-            font-size: 22px;
-          }
-
-          .why-gcc__body {
-            font-family: "Hanken Grotesk", sans-serif;
-            color: #ffcfb4;
-            max-width: none;
-          }
-          .why-gcc__card[data-active="true"] .why-gcc__body {
-            font-size: 15px;
-            line-height: 1.6;
-            min-height: calc(15px * 1.6 * 3); /* keeps card height steady between cards */
-          }
-
-          /* Footer: only on the active card */
-          .why-gcc__card[data-active="true"] .why-gcc__foot {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-top: 20px;
-            padding-top: 16px;
-            border-top: 1px solid #cfc9bc;
-          }
-          .why-gcc__more {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            font-size: 18px;
-            font-weight: 600;
-            color: #6f1d1b;
-            text-decoration: none;
-          }
-          .why-gcc__count {
-            font-family: "Hanken Grotesk", sans-serif;
-            font-size: 14px;
-            font-weight: 600;
-            color: #403d39;
-          }
-
-          /* Bottom row: dots left, arrows right */
-          .why-gcc__arrows {
-            justify-content: space-between;
-            margin-top: 28px;
-          }
-          .why-gcc__dots {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-          }
-          .why-gcc__pip {
-            position: relative;
-            width: 8px;
-            height: 8px;
-            padding: 0;
-            border: 0;
-            border-radius: 999px;
-            background: rgba(255, 246, 230, 0.4);
-            cursor: pointer;
-            transition: width 0.3s ease, background-color 0.3s ease;
-          }
-          .why-gcc__pip::after {
-            content: "";
-            position: absolute;
-            inset: -12px -4px; /* bigger tap area */
-          }
-          .why-gcc__pip[data-active="true"] {
-            width: 24px;
-            background: #ff9a2e;
-          }
-          .why-gcc__arrow-group {
-            display: flex;
-            gap: 12px;
-          }
-          .why-gcc__arrow {
-            width: 48px;
-            height: 48px;
-          }
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-          .why-gcc-dots {
-            animation: none;
-          }
-          .why-gcc__track,
-          .why-gcc__card,
-          .why-gcc__num,
-          .why-gcc__ctitle,
-          .why-gcc__pip,
-          .why-gcc-tab {
-            transition: none !important;
-          }
-        }
-      `}</style>
     </section>
   )
 }
+
+export default WhyGccSection
