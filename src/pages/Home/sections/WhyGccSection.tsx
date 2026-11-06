@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import "@fontsource/hanken-grotesk/400.css"
 import "@fontsource/hanken-grotesk/600.css"
 
@@ -40,30 +40,95 @@ const CARDS = [
 
 const N = CARDS.length
 const TOTAL = String(N).padStart(2, "0")
-const LAST = N - 1
+const REPEATS = 9
+const BASE_INDEX = Math.floor(REPEATS / 2) * N // Center cycle starts at index 16
+
+const TRACK_ITEMS = Array.from({ length: REPEATS * N }, (_, idx) => ({
+  idx,
+  cardIndex: idx % N,
+  card: CARDS[idx % N],
+}))
+
+/** Returns [ref, inView]. Flips to true once, the first time the element scrolls into view. */
+function useInViewOnce<T extends HTMLElement>(threshold = 0.2) {
+  const ref = useRef<T>(null)
+  const [inView, setInView] = useState(false)
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el || inView) return
+
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setInView(true)
+          io.disconnect()
+        }
+      },
+      { threshold }
+    )
+    io.observe(el)
+    return () => io.disconnect()
+  }, [inView, threshold])
+
+  return [ref, inView] as const
+}
 
 export function WhyGccSection() {
-  // Active card index: 0 → N-1, no wrapping
-  const [index, setIndex] = useState(0)
+  const [headRef, headIn] = useInViewOnce<HTMLDivElement>(0.3)
+  const [carouselRef, carouselIn] = useInViewOnce<HTMLDivElement>(0.15)
+
+  // Track position in infinite buffer
+  const [trackIndex, setTrackIndex] = useState(BASE_INDEX)
+  const [instant, setInstant] = useState(false)
+  const trackRef = useRef<HTMLDivElement>(null)
   const touchStartX = useRef<number | null>(null)
 
-  const atStart = index === 0
-  const atEnd = index === LAST
+  const activeCardIndex = ((trackIndex % N) + N) % N
 
-  // Navigate to next card (stops at the last)
+  // Navigate to next card (infinite loop)
   const goNext = useCallback(() => {
-    setIndex((prev) => Math.min(prev + 1, LAST))
+    setInstant(false)
+    setTrackIndex((prev) => prev + 1)
   }, [])
 
-  // Navigate to previous card (stops at the first)
+  // Navigate to previous card (infinite loop)
   const goPrev = useCallback(() => {
-    setIndex((prev) => Math.max(prev - 1, 0))
+    setInstant(false)
+    setTrackIndex((prev) => prev - 1)
   }, [])
 
-  // Navigate to a specific tab / dot
+  // Navigate to a specific tab / dot via the shortest path
   const goToCard = useCallback((target: number) => {
-    setIndex(Math.min(Math.max(target, 0), LAST))
+    setInstant(false)
+    setTrackIndex((prev) => {
+      const curMod = ((prev % N) + N) % N
+      let diff = target - curMod
+      if (diff > N / 2) diff -= N
+      if (diff < -N / 2) diff += N
+      return prev + diff
+    })
   }, [])
+
+  // Silently re-center when drifting near buffer edges
+  const handleTransitionEnd = useCallback((e: React.TransitionEvent<HTMLDivElement>) => {
+    if (e.target !== trackRef.current || e.propertyName !== "transform") return
+    setTrackIndex((current) => {
+      const curMod = ((current % N) + N) % N
+      if (current < N * 2 || current >= N * (REPEATS - 2)) {
+        setInstant(true)
+        return BASE_INDEX + curMod
+      }
+      return current
+    })
+  }, [])
+
+  useEffect(() => {
+    if (instant) {
+      const raf = requestAnimationFrame(() => setInstant(false))
+      return () => cancelAnimationFrame(raf)
+    }
+  }, [instant])
 
   // Keyboard navigation
   const handleKeyDown = useCallback(
@@ -106,7 +171,12 @@ export function WhyGccSection() {
 
       <div className="max-w-7xl mx-auto relative z-10">
         {/* Heading */}
-        <div className="why-gcc-head">
+        <div
+          ref={headRef}
+          className={`why-gcc-head transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none ${
+            headIn ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
+          }`}
+        >
           <p className="why-gcc-eyebrow">
             <span className="why-gcc-dot" aria-hidden />
             WHY GCC
@@ -116,9 +186,16 @@ export function WhyGccSection() {
         </div>
 
         {/* Tabs (hidden on mobile) */}
-        <div className="why-gcc-tabs" role="tablist" aria-label="Why GCC tabs">
+        <div
+          style={{ transitionDelay: headIn ? "120ms" : "0ms" }}
+          className={`why-gcc-tabs transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none ${
+            headIn ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
+          }`}
+          role="tablist"
+          aria-label="Why GCC tabs"
+        >
           {CARDS.map((c, i) => {
-            const isActive = i === index
+            const isActive = i === activeCardIndex
             return (
               <button
                 key={c.id}
@@ -137,48 +214,59 @@ export function WhyGccSection() {
         </div>
 
         {/* Carousel Slider */}
-        <div className="why-gcc">
+        <div
+          ref={carouselRef}
+          style={{ transitionDelay: carouselIn ? "150ms" : "0ms" }}
+          className={`why-gcc transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none ${
+            carouselIn ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
+          }`}
+        >
           <div
             className="why-gcc__viewport"
             onTouchStart={handleTouchStart}
             onTouchEnd={handleTouchEnd}
           >
             <div
+              ref={trackRef}
               className="why-gcc__track"
               style={{
-                transform: `translateX(calc(var(--x0) - ${index} * (var(--w) + var(--gap))))`,
-                transition: "transform 0.65s cubic-bezier(0.22, 1, 0.36, 1)",
+                transform: `translateX(calc(var(--x0) - ${trackIndex} * (var(--w) + var(--gap))))`,
+                transition: instant ? "none" : "transform 0.65s cubic-bezier(0.22, 1, 0.36, 1)",
               }}
+              onTransitionEnd={handleTransitionEnd}
             >
-              {CARDS.map((card, i) => {
-                const isActive = i === index
-                const distFromActive = Math.abs(i - index)
+              {TRACK_ITEMS.map((item) => {
+                const isActive = item.idx === trackIndex
+                const distFromActive = Math.abs(item.idx - trackIndex)
                 const isSide = distFromActive === 1
                 const isFar = distFromActive > 1
 
                 return (
                   <div
-                    key={card.id}
+                    key={item.idx}
                     data-active={isActive}
                     data-side={isSide}
                     data-far={isFar}
                     tabIndex={isActive ? 0 : -1}
                     aria-hidden={!isActive}
                     onClick={() => {
-                      if (!isActive) goToCard(i)
+                      if (!isActive) {
+                        setInstant(false)
+                        setTrackIndex(item.idx)
+                      }
                     }}
                     className="why-gcc__card"
                   >
                     {/* Left text column */}
                     <div className="why-gcc__text">
-                      <span className="why-gcc__num">{card.id}</span>
+                      <span className="why-gcc__num">{item.card.id}</span>
                       <div className="why-gcc__text-content">
                         <h3 className="why-gcc__ctitle">
-                          {card.title[0]}{" "}
+                          {item.card.title[0]}{" "}
                           <br />
-                          {card.title[1]}
+                          {item.card.title[1]}
                         </h3>
-                        <p className="why-gcc__body">{card.body}</p>
+                        <p className="why-gcc__body">{item.card.body}</p>
 
                         {/* Footer (mobile only) */}
                         <div className="why-gcc__foot">
@@ -199,7 +287,7 @@ export function WhyGccSection() {
                             </svg>
                           </a>
                           <span className="why-gcc__count">
-                            {card.id} / {TOTAL}
+                            {item.card.id} / {TOTAL}
                           </span>
                         </div>
                       </div>
@@ -207,7 +295,7 @@ export function WhyGccSection() {
 
                     {/* Right image column */}
                     <div className="why-gcc__img">
-                      <img src={card.image} alt={card.alt} draggable={false} />
+                      <img src={item.card.image} alt={item.card.alt} draggable={false} />
                       {/* Red overlay tint on inactive side cards */}
                       <div className="why-gcc__img-tint" />
                     </div>
@@ -225,9 +313,9 @@ export function WhyGccSection() {
                   key={c.id}
                   type="button"
                   role="tab"
-                  aria-selected={i === index}
+                  aria-selected={i === activeCardIndex}
                   aria-label={`Go to ${c.tab}`}
-                  data-active={i === index}
+                  data-active={i === activeCardIndex}
                   onClick={() => goToCard(i)}
                   className="why-gcc__pip"
                 />
@@ -238,7 +326,6 @@ export function WhyGccSection() {
               <button
                 type="button"
                 onClick={goPrev}
-                disabled={atStart}
                 aria-label="Previous card"
                 className="why-gcc__arrow why-gcc__arrow--prev"
               >
@@ -259,7 +346,6 @@ export function WhyGccSection() {
               <button
                 type="button"
                 onClick={goNext}
-                disabled={atEnd}
                 aria-label="Next card"
                 className="why-gcc__arrow why-gcc__arrow--next"
               >
@@ -473,6 +559,19 @@ export function WhyGccSection() {
           padding: clamp(20px, 3.2vw, 40px);
           position: relative;
           z-index: 1;
+        }
+
+        /* Card text pop-up reveal */
+        .why-gcc__text-content {
+          transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.5s ease;
+        }
+        .why-gcc__card[data-active="true"] .why-gcc__text-content {
+          transform: translateY(0);
+          opacity: 1;
+        }
+        .why-gcc__card:not([data-active="true"]) .why-gcc__text-content {
+          transform: translateY(12px);
+          opacity: 0.85;
         }
 
         /* Card number */
