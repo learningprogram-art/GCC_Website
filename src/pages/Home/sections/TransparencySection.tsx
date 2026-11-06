@@ -1,3 +1,4 @@
+import { useRef, useState } from 'react'
 import '@fontsource/hanken-grotesk/400.css'
 import '@fontsource/hanken-grotesk/500.css'
 import '@fontsource/hanken-grotesk/600.css'
@@ -17,6 +18,8 @@ const ICON_ONE_TEAM = `${IMG}/glyph.svg` // swap with glyph-2.svg if this shows 
 const ICON_MAINTENANCE = `${IMG}/glyph-2.svg` // swap with glyph.svg if this shows connected dots
 
 const ICONS = [ICON_LIVE_APP, ICON_QUALITY, ICON_ONE_TEAM, ICON_MAINTENANCE]
+
+const GAP = 12 // matches gap-3
 
 function ChevronRight() {
   return (
@@ -144,12 +147,32 @@ const CARDS = [
 ]
 
 export function TransparencySection() {
+  const trackRef = useRef<HTMLDivElement>(null)
+  const [active, setActive] = useState(0)
+
+  // Mobile carousel: work out the current card from the scroll position
+  const handleScroll = () => {
+    const el = trackRef.current
+    if (!el || !el.firstElementChild) return
+    const step = (el.firstElementChild as HTMLElement).offsetWidth + GAP
+    const atEnd = el.scrollLeft + el.clientWidth >= el.scrollWidth - 4
+    const index = atEnd ? CARDS.length - 1 : Math.round(el.scrollLeft / step)
+    setActive(Math.min(Math.max(index, 0), CARDS.length - 1))
+  }
+
+  const scrollToCard = (i: number) => {
+    const el = trackRef.current
+    if (!el || !el.firstElementChild) return
+    const step = (el.firstElementChild as HTMLElement).offsetWidth + GAP
+    el.scrollTo({ left: i * step, behavior: 'smooth' })
+  }
+
   return (
     <section
       id="transparency"
-      className="bg-[#FFE6A7] px-6 py-[90px] lg:px-[96px]"
+      className="bg-[#FFE6A7] px-5 py-[72px] sm:px-6 sm:py-[90px] lg:px-[96px]"
     >
-      <div className="mx-auto flex max-w-[1252px] flex-col items-center gap-[34px]">
+      <div className="mx-auto flex max-w-[1252px] flex-col items-center gap-10 sm:gap-[34px]">
         {/* Header */}
         <div className="flex w-full flex-col items-start gap-6">
           <div className="flex items-center gap-3">
@@ -163,48 +186,75 @@ export function TransparencySection() {
           </div>
           <h2
             style={bai}
-            className="max-w-[700px] text-[clamp(32px,4vw,48px)] font-bold uppercase leading-[1.2] text-[#252422]"
+            className="max-w-[700px] text-[28px] font-bold uppercase leading-[1.2] text-[#252422] sm:text-[clamp(32px,4vw,48px)]"
           >
             Confidence built through transparency.
           </h2>
         </div>
 
-        {/* Cards */}
-        <div className="flex w-full flex-wrap justify-center gap-3">
-          {CARDS.map(({ title, body, icon, Art }) => (
-            <article
-              key={title}
-              className="relative flex h-[500px] w-[304px] max-w-full flex-col justify-between overflow-hidden rounded-xl border border-solid border-[#CCC5B9] bg-white"
-            >
-              <div className="flex flex-col gap-6 p-5">
-                <IconBadge src={icon} />
-                <div className="flex flex-col gap-[10px]">
-                  <h3
-                    style={bai}
-                    className="text-[22px] font-semibold leading-7 tracking-[-0.11px] text-[#252422]"
-                  >
-                    {title}
-                  </h3>
-                  <p
-                    style={hanken}
-                    className="text-[16px] font-normal leading-[1.3] text-[#403D39]"
-                  >
-                    {body}
-                  </p>
+        {/* Cards: snap carousel on mobile, wrapped row from sm up */}
+        <div className="w-full">
+          <div
+            ref={trackRef}
+            onScroll={handleScroll}
+            className="-mx-5 flex w-auto scroll-pl-5 snap-x snap-mandatory gap-3 overflow-x-auto px-5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:w-full sm:snap-none sm:flex-wrap sm:justify-center sm:overflow-visible sm:px-0"
+          >
+            {CARDS.map(({ title, body, icon, Art }) => (
+              <article
+                key={title}
+                className="relative flex h-[500px] w-[78vw] max-w-[304px] shrink-0 snap-start flex-col justify-between overflow-hidden rounded-xl border border-solid border-[#CCC5B9] bg-white sm:w-[304px] sm:max-w-full sm:shrink"
+              >
+                <div className="flex flex-col gap-6 p-5">
+                  <IconBadge src={icon} />
+                  <div className="flex flex-col gap-[10px]">
+                    <h3
+                      style={bai}
+                      className="text-[22px] font-semibold leading-7 tracking-[-0.11px] text-[#252422]"
+                    >
+                      {title}
+                    </h3>
+                    <p
+                      style={hanken}
+                      className="text-[16px] font-normal leading-[1.3] text-[#403D39]"
+                    >
+                      {body}
+                    </p>
+                  </div>
                 </div>
-              </div>
 
-              <div className="relative flex w-full flex-col gap-[10px] p-2">
-                <Art />
-              </div>
-            </article>
-          ))}
+                <div className="relative flex w-full flex-col gap-[10px] p-2">
+                  <Art />
+                </div>
+              </article>
+            ))}
+          </div>
+
+          {/* Pagination dots (mobile only) */}
+          <div
+            className="mt-6 flex items-center gap-2 sm:hidden"
+            role="tablist"
+            aria-label="Transparency cards"
+          >
+            {CARDS.map(({ title }, i) => (
+              <button
+                key={title}
+                type="button"
+                role="tab"
+                aria-selected={active === i}
+                aria-label={`Go to ${title}`}
+                onClick={() => scrollToCard(i)}
+                className={`h-2 rounded-full transition-all duration-300 ${
+                  active === i ? 'w-6 bg-[#6F1D1B]' : 'w-2 bg-[#D9C28A]'
+                }`}
+              />
+            ))}
+          </div>
         </div>
 
         {/* Closing strip */}
-        <div className="rounded-xl bg-white/30 p-[14px]">
-          <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-4">
-            <div className="flex items-center gap-4">
+        <div className="w-full rounded-xl sm:w-auto sm:bg-white/30 sm:p-[14px]">
+          <div className="flex flex-col items-stretch gap-6 sm:flex-row sm:flex-wrap sm:items-center sm:justify-center sm:gap-x-10 sm:gap-y-4">
+            <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
               <div className="flex items-center">
                 {ICONS.map((src, i) => (
                   <IconBadge
@@ -216,10 +266,10 @@ export function TransparencySection() {
               </div>
               <p
                 style={hanken}
-                className="text-[20px] font-medium leading-[1.2] tracking-[-0.4px] text-[#252422]"
+                className="text-[18px] font-normal leading-[1.3] tracking-[-0.36px] text-[#403D39] sm:text-[20px] sm:font-medium sm:leading-[1.2] sm:tracking-[-0.4px] sm:text-[#252422]"
               >
-                All four come with every GCC home,
-                <br />
+                All four come with every GCC home,{' '}
+                <br className="hidden sm:inline" />
                 not optional add-ons.
               </p>
             </div>
@@ -227,7 +277,7 @@ export function TransparencySection() {
             <a
               href="#contact-cta"
               style={hanken}
-              className="flex items-center gap-2 whitespace-nowrap rounded-lg bg-[#6F1D1B] py-3 pl-6 pr-5 text-[18px] font-bold leading-7 tracking-[-0.36px] text-white transition-colors hover:bg-[#5a1716]"
+              className="flex w-full items-center justify-center gap-2 whitespace-nowrap rounded-lg bg-[#6F1D1B] px-5 py-4 text-[18px] font-bold leading-7 tracking-[-0.36px] text-white transition-colors hover:bg-[#5a1716] sm:w-auto sm:justify-start sm:py-3 sm:pl-6 sm:pr-5"
             >
               Book a Consultation
               <ChevronRight />
