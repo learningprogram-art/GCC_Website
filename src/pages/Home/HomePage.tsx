@@ -1,4 +1,5 @@
 import {
+  NavbarSection,
   HeroSection,
   OneTeamSection,
   StructuresWeBuildSection,
@@ -11,46 +12,53 @@ import {
   PortalAccessSection,
   TestimonialsSection,
   ContactCtaSection,
+  FooterSection,
 } from './sections'
 
 export function HomePage() {
   return (
     <div className="flex flex-col min-h-screen bg-slate-950 text-slate-100">
-      {/* 1. Hero */}
+      {/* 1. Navbar */}
+      <NavbarSection />
+
+      {/* 2. Hero */}
       <HeroSection />
 
-      {/* 2. One Team, Not 12 */}
+      {/* 3. One Team, Not 12 */}
       <OneTeamSection />
 
-      {/* 3. Structures We Build */}
+      {/* 4. Structures We Build */}
       <StructuresWeBuildSection />
 
-      {/* 4. About & Stats */}
+      {/* 5. About & Stats */}
       <AboutStatsSection />
 
-      {/* 5. Why GCC */}
+      {/* 6. Why GCC */}
       <WhyGccSection />
 
-      {/* 6. How We Build */}
+      {/* 7. How We Build */}
       <HowWeBuildSection />
 
-      {/* 7. Cost Calculator */}
+      {/* 8. Cost Calculator */}
       <CostCalculatorSection />
 
-      {/* 8. Transparency */}
+      {/* 9. Transparency */}
       <TransparencySection />
 
-      {/* 9. Our Purpose */}
+      {/* 10. Our Purpose */}
       <OurPurposeSection />
 
-      {/* 10. GCC AMC Portal Access */}
+      {/* 11. GCC AMC Portal Access */}
       <PortalAccessSection />
 
-      {/* 11. Testimonials */}
+      {/* 12. Testimonials */}
       <TestimonialsSection />
 
-      {/* 12. Contact / Journey CTA */}
+      {/* 13. Contact / Journey CTA */}
       <ContactCtaSection />
+
+      {/* 14. Footer */}
+      <FooterSection />
     </div>
   )
 }

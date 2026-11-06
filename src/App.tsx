@@ -1,12 +1,7 @@
-import { BrowserRouter } from 'react-router-dom'
-import { AppRoutes } from '@/routes/AppRoutes'
+import { HomePage } from './pages/Home'
 
 export function App() {
-  return (
-    <BrowserRouter>
-      <AppRoutes />
-    </BrowserRouter>
-  )
+  return <HomePage />
 }
 
 export default App

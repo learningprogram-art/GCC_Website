@@ -11,3 +11,4 @@ export function TransparencySection() {
     </section>
   )
 }
+
