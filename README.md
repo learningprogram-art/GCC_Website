@@ -41,3 +41,6 @@ npm run lint
 - **Language:** [TypeScript](https://www.typescriptlang.org/)
 - **Styling:** [Tailwind CSS v4](https://tailwindcss.com/)
 - **Icons:** [Lucide React](https://lucide.dev/)
+
+## 📐 Project Architecture & Structure
+For full details on the project folder structure, naming conventions, design principles, and coding standards, please see [ARCHITECTURE.md](./ARCHITECTURE.md).
