@@ -56,3 +56,29 @@ body {
   font-style: normal;
   font-display: swap;
 }
+
+@font-face {
+  font-family: "Bai Jamjuree";
+  src: url("/assets/fonts/BaiJamjuree-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Hanken Grotesk";
+  src: url("/assets/fonts/HankenGrotesk-SemiBold.ttf") format("truetype");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@theme {
+  --font-bai: "Bai Jamjuree", system-ui, sans-serif;
+  --font-hanken: "Hanken Grotesk", system-ui, sans-serif;
+
+  --color-secondary-1: #99582a;
+  --color-secondary-3: #ffe6a7;
+  --color-neutral-2: #403d39;
+  --color-neutral-3: #ccc5b9;
+}
