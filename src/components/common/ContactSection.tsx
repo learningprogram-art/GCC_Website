@@ -103,7 +103,7 @@ export function ContactSection() {
             >
               <div className="flex size-[24px] shrink-0 items-center justify-center">
                 <img
-                  src="/assets/icons/contact-phone.svg"
+                  src="/assets/icons/home/contact/contact-phone.svg"
                   alt=""
                   className="size-[24px] object-contain"
                 />
@@ -118,10 +118,10 @@ export function ContactSection() {
                     type="button"
                     onClick={(e) => handleCopy('+91 90023 39920', 'phone', e)}
                     aria-label="Copy phone number"
-                    className="p-0.5 text-white/70 hover:text-white transition-colors"
+                    className="p-0.5 text-white/70 hover:text-white transition-colors cursor-pointer"
                   >
                     <img
-                      src="/assets/icons/contact-copy.svg"
+                      src="/assets/icons/home/contact/content-copy.svg"
                       alt=""
                       className="size-[14px]"
                     />
@@ -147,7 +147,7 @@ export function ContactSection() {
             >
               <div className="flex size-[24px] shrink-0 items-center justify-center">
                 <img
-                  src="/assets/icons/contact-whatsapp.svg"
+                  src="/assets/icons/home/contact/contact-whatsapp.svg"
                   alt=""
                   className="size-[24px] object-contain"
                 />
@@ -170,7 +170,7 @@ export function ContactSection() {
             >
               <div className="flex size-[24px] shrink-0 items-center justify-center">
                 <img
-                  src="/assets/icons/contact-email.svg"
+                  src="/assets/icons/home/contact/contact-email.svg"
                   alt=""
                   className="size-[24px] object-contain"
                 />
@@ -185,10 +185,10 @@ export function ContactSection() {
                     type="button"
                     onClick={(e) => handleCopy('contact@gcc.com', 'email', e)}
                     aria-label="Copy email address"
-                    className="p-0.5 text-white/70 hover:text-white transition-colors"
+                    className="p-0.5 text-white/70 hover:text-white transition-colors cursor-pointer"
                   >
                     <img
-                      src="/assets/icons/contact-copy.svg"
+                      src="/assets/icons/home/contact/content-copy.svg"
                       alt=""
                       className="size-[14px]"
                     />
@@ -316,7 +316,7 @@ export function ContactSection() {
                     </select>
                     <div className="pointer-events-none absolute right-[1rem] flex size-[1.25rem] items-center justify-center">
                       <img
-                        src="/assets/icons/arrow.svg"
+                        src="/assets/icons/home/contact/chevron-down.svg"
                         alt=""
                         className="size-[1.25rem]"
                       />
@@ -348,7 +348,7 @@ export function ContactSection() {
               >
                 <span>Submit Enquiry</span>
                 <img
-                  src="/assets/icons/arrow.svg"
+                  src="/assets/icons/home/contact/chevron-right.svg"
                   alt=""
                   className="size-[1.5rem]"
                 />
