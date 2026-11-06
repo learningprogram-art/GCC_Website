@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import '@fontsource/hanken-grotesk/400.css'
 import '@fontsource/hanken-grotesk/500.css'
 import '@fontsource/hanken-grotesk/600.css'
@@ -20,6 +20,37 @@ const ICON_MAINTENANCE = `${IMG}/glyph-2.svg` // swap with glyph.svg if this sho
 const ICONS = [ICON_LIVE_APP, ICON_QUALITY, ICON_ONE_TEAM, ICON_MAINTENANCE]
 
 const GAP = 12 // matches gap-3
+
+/** Fades + slides an element up the first time it scrolls into view. */
+function useReveal<T extends HTMLElement>(delay = 0) {
+  const ref = useRef<T>(null)
+  const [shown, setShown] = useState(false)
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setShown(true)
+          io.disconnect()
+        }
+      },
+      { threshold: 0.2 },
+    )
+    io.observe(el)
+    return () => io.disconnect()
+  }, [])
+
+  return {
+    ref,
+    shown,
+    style: { transitionDelay: `${delay}ms` },
+    className: `transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none ${
+      shown ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
+    }`,
+  }
+}
 
 function ChevronRight() {
   return (
@@ -150,6 +181,12 @@ export function TransparencySection() {
   const trackRef = useRef<HTMLDivElement>(null)
   const [active, setActive] = useState(0)
 
+  // Scroll reveals
+  const eyebrow = useReveal<HTMLDivElement>(0)
+  const heading = useReveal<HTMLHeadingElement>(100)
+  const cards = useReveal<HTMLDivElement>(0) // one trigger for the whole card row
+  const strip = useReveal<HTMLDivElement>(0)
+
   // Mobile carousel: work out the current card from the scroll position
   const handleScroll = () => {
     const el = trackRef.current
@@ -175,7 +212,11 @@ export function TransparencySection() {
       <div className="mx-auto flex max-w-[1252px] flex-col items-center gap-10 sm:gap-[34px]">
         {/* Header */}
         <div className="flex w-full flex-col items-start gap-6">
-          <div className="flex items-center gap-3">
+          <div
+            ref={eyebrow.ref}
+            style={eyebrow.style}
+            className={`flex items-center gap-3 ${eyebrow.className}`}
+          >
             <span className="size-2 bg-[#E06422]" aria-hidden />
             <p
               style={hanken}
@@ -185,24 +226,28 @@ export function TransparencySection() {
             </p>
           </div>
           <h2
-            style={bai}
-            className="max-w-[700px] text-[28px] font-bold uppercase leading-[1.2] text-[#252422] sm:text-[clamp(32px,4vw,48px)]"
+            ref={heading.ref}
+            style={{ ...bai, ...heading.style }}
+            className={`max-w-[700px] text-[28px] font-bold uppercase leading-[1.2] text-[#252422] sm:text-[clamp(32px,4vw,48px)] ${heading.className}`}
           >
             Confidence built through transparency.
           </h2>
         </div>
 
         {/* Cards: snap carousel on mobile, wrapped row from sm up */}
-        <div className="w-full">
+        <div ref={cards.ref} className="w-full">
           <div
             ref={trackRef}
             onScroll={handleScroll}
             className="-mx-5 flex w-auto scroll-pl-5 snap-x snap-mandatory gap-3 overflow-x-auto px-5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:w-full sm:snap-none sm:flex-wrap sm:justify-center sm:overflow-visible sm:px-0"
           >
-            {CARDS.map(({ title, body, icon, Art }) => (
+            {CARDS.map(({ title, body, icon, Art }, i) => (
               <article
                 key={title}
-                className="relative flex h-[500px] w-[78vw] max-w-[304px] shrink-0 snap-start flex-col justify-between overflow-hidden rounded-xl border border-solid border-[#CCC5B9] bg-white sm:w-[304px] sm:max-w-full sm:shrink"
+                style={{ transitionDelay: `${i * 120}ms` }}
+                className={`relative flex h-[500px] w-[78vw] max-w-[304px] shrink-0 snap-start flex-col justify-between overflow-hidden rounded-xl border border-solid border-[#CCC5B9] bg-white transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none sm:w-[304px] sm:max-w-full sm:shrink ${
+                  cards.shown ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
+                }`}
               >
                 <div className="flex flex-col gap-6 p-5">
                   <IconBadge src={icon} />
@@ -252,7 +297,11 @@ export function TransparencySection() {
         </div>
 
         {/* Closing strip */}
-        <div className="w-full rounded-xl sm:w-auto sm:bg-white/30 sm:p-[14px]">
+        <div
+          ref={strip.ref}
+          style={strip.style}
+          className={`w-full rounded-xl sm:w-auto sm:bg-white/30 sm:p-[14px] ${strip.className}`}
+        >
           <div className="flex flex-col items-stretch gap-6 sm:flex-row sm:flex-wrap sm:items-center sm:justify-center sm:gap-x-10 sm:gap-y-4">
             <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
               <div className="flex items-center">

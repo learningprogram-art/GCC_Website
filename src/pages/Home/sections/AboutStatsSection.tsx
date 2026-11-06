@@ -74,6 +74,36 @@ function useCountUp<T extends HTMLElement>(
   return { ref, started, display: value.toFixed(decimals) }
 }
 
+/** Fades + slides an element up the first time it scrolls into view. */
+function useReveal<T extends HTMLElement>(delay = 0) {
+  const ref = useRef<T>(null)
+  const [shown, setShown] = useState(false)
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setShown(true)
+          io.disconnect()
+        }
+      },
+      { threshold: 0.2 },
+    )
+    io.observe(el)
+    return () => io.disconnect()
+  }, [])
+
+  return {
+    ref,
+    style: { transitionDelay: `${delay}ms` },
+    className: `transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none ${
+      shown ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
+    }`,
+  }
+}
+
 function StatRow({ stat, order }: { stat: Stat; order: number }) {
   const { ref, started, display } = useCountUp<HTMLDivElement>(stat.value, stat.decimals, {
     duration: 1000,
@@ -111,6 +141,12 @@ function StatRow({ stat, order }: { stat: Stat; order: number }) {
 }
 
 export function AboutStatsSection() {
+  const eyebrow = useReveal<HTMLDivElement>(0)
+  const line1 = useReveal<HTMLSpanElement>(100)
+  const line2 = useReveal<HTMLSpanElement>(220)
+  const link = useReveal<HTMLAnchorElement>(300)
+  const intro = useReveal<HTMLDivElement>(0)
+
   return (
     <section
       id="about-stats"
@@ -121,7 +157,11 @@ export function AboutStatsSection() {
         <div className="grid grid-cols-[1fr_auto] items-center gap-x-4 gap-y-6 sm:flex sm:flex-row sm:items-start sm:justify-between sm:gap-8">
           <div className="contents sm:flex sm:flex-col sm:gap-8">
             {/* Eyebrow */}
-            <div className="flex items-center gap-3">
+            <div
+              ref={eyebrow.ref}
+              style={eyebrow.style}
+              className={`flex items-center gap-3 ${eyebrow.className}`}
+            >
               <span className="block size-2 bg-[#FFE6A7]" />
               <p
                 style={hankenGrotesk}
@@ -131,21 +171,34 @@ export function AboutStatsSection() {
               </p>
             </div>
 
-            {/* Headline */}
+            {/* Headline – each line pops up one after another */}
             <h2
               style={baiJamjuree}
               className="col-span-2 flex flex-col gap-1.5 text-[24px] font-medium uppercase leading-[1.05] tracking-[-0.01em] sm:text-[clamp(32px,4.6vw,66px)]"
             >
-              <span className="font-light text-[#FFFCF2] sm:font-medium">Built by engineers.</span>
-              <span className="text-[#FFE6A7]">Trusted by families.</span>
+              <span
+                ref={line1.ref}
+                style={line1.style}
+                className={`font-light text-[#FFFCF2] sm:font-medium ${line1.className}`}
+              >
+                Built by engineers.
+              </span>
+              <span
+                ref={line2.ref}
+                style={line2.style}
+                className={`text-[#FFE6A7] ${line2.className}`}
+              >
+                Trusted by families.
+              </span>
             </h2>
           </div>
 
           {/* Link */}
           <a
+            ref={link.ref}
             href="/about"
-            style={hankenGrotesk}
-            className="group col-start-2 row-start-1 flex shrink-0 items-center gap-1.5 text-[16px] font-bold leading-6 tracking-[-0.02em] text-[#FFE6A7] sm:text-[18px] sm:leading-7"
+            style={{ ...hankenGrotesk, ...link.style }}
+            className={`group col-start-2 row-start-1 flex shrink-0 items-center gap-1.5 text-[16px] font-bold leading-6 tracking-[-0.02em] text-[#FFE6A7] sm:text-[18px] sm:leading-7 ${link.className}`}
           >
             Read our story
             <svg
@@ -168,8 +221,9 @@ export function AboutStatsSection() {
         {/* Stats */}
         <div className="flex flex-col gap-7 sm:gap-10 lg:flex-row lg:gap-12">
           <div
-            style={hankenGrotesk}
-            className="flex flex-col gap-4 pt-0 sm:pt-7 lg:w-[352px] lg:shrink-0"
+            ref={intro.ref}
+            style={{ ...hankenGrotesk, ...intro.style }}
+            className={`flex flex-col gap-4 pt-0 sm:pt-7 lg:w-[352px] lg:shrink-0 ${intro.className}`}
           >
             <p className="text-[12px] font-semibold uppercase leading-4 tracking-[0.96px] text-[#FFFCF2]">
               By the numbers

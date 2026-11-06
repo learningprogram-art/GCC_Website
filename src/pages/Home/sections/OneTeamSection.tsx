@@ -8,6 +8,39 @@ import '@fontsource/hanken-grotesk/600.css'
 const baiJamjuree = { fontFamily: '"Bai Jamjuree", sans-serif' }
 const hankenGrotesk = { fontFamily: '"Hanken Grotesk", sans-serif' }
 
+/** Returns [ref, inView]. Flips to true once, the first time the element scrolls into view. */
+function useInViewOnce<T extends HTMLElement>(threshold = 0.25) {
+  const ref = useRef<T>(null)
+  const [inView, setInView] = useState(false)
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setInView(true)
+          io.disconnect()
+        }
+      },
+      { threshold, rootMargin: '0px 0px -8% 0px' },
+    )
+    io.observe(el)
+    return () => io.disconnect()
+  }, [threshold])
+
+  return [ref, inView] as const
+}
+
+// Pop-up reveal: fade + slide up
+const REVEAL =
+  'transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none'
+const revealState = (inView: boolean) =>
+  inView ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
+const delay = (inView: boolean, ms: number) => ({
+  transitionDelay: inView ? `${ms}ms` : '0ms',
+})
+
 const VISUAL_W = 1248
 const VISUAL_H = 426
 const HUB_X = 936 // left edge of the GCC circle, where all lines end
@@ -609,17 +642,27 @@ function TenToOneVisualMobile() {
 }
 
 function OneTeamMobile() {
+  const [headRef, headIn] = useInViewOnce<HTMLDivElement>(0.4)
+  const [capsRef, capsIn] = useInViewOnce<HTMLDivElement>(0.2)
+
   return (
     <section className="flex flex-col items-center gap-9 bg-[#FFFCF2] px-5 py-[72px] lg:hidden">
       {/* Headline */}
       <div
+        ref={headRef}
         style={baiJamjuree}
         className="flex flex-col items-center gap-0.5 whitespace-nowrap text-center uppercase"
       >
-        <p className="text-[26px] font-light leading-[1.1] tracking-[-0.13px] text-[#403D39]">
+        <p
+          style={delay(headIn, 0)}
+          className={`text-[26px] font-light leading-[1.1] tracking-[-0.13px] text-[#403D39] ${REVEAL} ${revealState(headIn)}`}
+        >
           Your home needs
         </p>
-        <p className="text-[40px] font-bold leading-none tracking-[-0.4px] text-[#6F1D1B]">
+        <p
+          style={delay(headIn, 150)}
+          className={`text-[40px] font-bold leading-none tracking-[-0.4px] text-[#6F1D1B] ${REVEAL} ${revealState(headIn)}`}
+        >
           One team.
           <br />
           <span className="text-[#CCC5B9]">Not 10.</span>
@@ -630,8 +673,11 @@ function OneTeamMobile() {
       <TenToOneVisualMobile />
 
       {/* Captions */}
-      <div style={hankenGrotesk} className="flex w-full flex-col gap-6">
-        <div className="flex w-full flex-col gap-2.5 border-t border-[#CCC5B9] pt-5 text-[#403D39]">
+      <div ref={capsRef} style={hankenGrotesk} className="flex w-full flex-col gap-6">
+        <div
+          style={delay(capsIn, 0)}
+          className={`flex w-full flex-col gap-2.5 border-t border-[#CCC5B9] pt-5 text-[#403D39] ${REVEAL} ${revealState(capsIn)}`}
+        >
           <p className="text-[12px] font-semibold uppercase leading-4 tracking-[0.96px]">
             The challenge
           </p>
@@ -641,7 +687,10 @@ function OneTeamMobile() {
           </p>
         </div>
 
-        <div className="flex w-full flex-col gap-2.5 border-t border-[#CCC5B9] pt-5">
+        <div
+          style={delay(capsIn, 150)}
+          className={`flex w-full flex-col gap-2.5 border-t border-[#CCC5B9] pt-5 ${REVEAL} ${revealState(capsIn)}`}
+        >
           <p className="text-[12px] font-semibold uppercase leading-4 tracking-[0.96px] text-[#E06422]">
             GCC approach
           </p>
@@ -658,6 +707,9 @@ function OneTeamMobile() {
 /* ------------------------------------------------------------------ */
 
 export function OneTeamSection() {
+  const [headRef, headIn] = useInViewOnce<HTMLDivElement>(0.4)
+  const [capsRef, capsIn] = useInViewOnce<HTMLDivElement>(0.2)
+
   return (
     <div id="one-team">
       {/* Animation keyframes (shared by mobile + desktop) */}
@@ -689,16 +741,19 @@ export function OneTeamSection() {
       {/* Desktop: your original section, unchanged except `hidden … lg:flex` */}
       <section className="hidden flex-col items-center gap-16 bg-[#FFFCF2] px-6 py-16 md:px-12 lg:flex lg:gap-24 lg:px-24 lg:py-32">
         {/* Headline */}
-        <div className="flex flex-col items-center text-center uppercase">
+        <div
+          ref={headRef}
+          className="flex flex-col items-center text-center uppercase"
+        >
           <p
-            style={baiJamjuree}
-            className="text-[clamp(32px,4.45vw,64px)] font-light leading-[1.05] tracking-[-0.01em] text-[#403D39]"
+            style={{ ...baiJamjuree, ...delay(headIn, 0) }}
+            className={`text-[clamp(32px,4.45vw,64px)] font-light leading-[1.05] tracking-[-0.01em] text-[#403D39] ${REVEAL} ${revealState(headIn)}`}
           >
             Your home needs
           </p>
           <p
-            style={baiJamjuree}
-            className="text-[clamp(48px,6.67vw,96px)] font-bold leading-none tracking-[-0.01em] text-[#6F1D1B]"
+            style={{ ...baiJamjuree, ...delay(headIn, 150) }}
+            className={`text-[clamp(48px,6.67vw,96px)] font-bold leading-none tracking-[-0.01em] text-[#6F1D1B] ${REVEAL} ${revealState(headIn)}`}
           >
             One team. <span className="text-[#CCC5B9]">Not 10.</span>
           </p>
@@ -709,10 +764,14 @@ export function OneTeamSection() {
 
         {/* Captions */}
         <div
+          ref={capsRef}
           style={hankenGrotesk}
           className="flex w-full max-w-[1248px] flex-col justify-between gap-10 md:flex-row"
         >
-          <div className="flex w-full flex-col gap-3.5 text-[#403D39] md:w-[520px]">
+          <div
+            style={delay(capsIn, 0)}
+            className={`flex w-full flex-col gap-3.5 text-[#403D39] md:w-[520px] ${REVEAL} ${revealState(capsIn)}`}
+          >
             <p className="text-[12px] font-semibold uppercase leading-4 tracking-[0.96px]">
               The challenge
             </p>
@@ -722,7 +781,10 @@ export function OneTeamSection() {
             </p>
           </div>
 
-          <div className="flex w-full flex-col gap-3.5 md:w-[420px]">
+          <div
+            style={delay(capsIn, 150)}
+            className={`flex w-full flex-col gap-3.5 md:w-[420px] ${REVEAL} ${revealState(capsIn)}`}
+          >
             <p className="text-[12px] font-semibold uppercase leading-4 tracking-[0.96px] text-[#E06422]">
               GCC approach
             </p>

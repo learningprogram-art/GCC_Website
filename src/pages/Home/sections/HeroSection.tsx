@@ -177,10 +177,11 @@ export function HeroSection() {
                 e.preventDefault()
                 // TODO: submit enquiry (Supabase / API route)
               }}
-              className="flex flex-1 flex-col gap-3 rounded-lg bg-[#FFE4A0] p-2.5 shadow-lg lg:flex-row lg:items-center"
+              className="flex flex-1 flex-col gap-3 rounded-lg bg-[#FFE4A0] p-1.5 shadow-lg lg:flex-row lg:items-center lg:pl-[9px]"
             >
-              <div className="flex items-center gap-3 px-1 lg:w-64">
-                <div className="h-14 w-14 shrink-0 rounded-md bg-[#C9C5BD]" />
+              {/* Left: image placeholder + heading */}
+              <div className="flex items-center gap-[18px] lg:w-[210px] lg:shrink-0">
+                <div className="h-[60px] w-[60px] shrink-0 rounded-md bg-[#C9C5BD]" />
                 <div className="leading-tight">
                   <p className="text-[10px] font-medium uppercase tracking-wide text-slate-700">
                     Let&apos;s talk
@@ -190,13 +191,14 @@ export function HeroSection() {
                 </div>
               </div>
 
-              <div className="flex flex-1 flex-col gap-2 rounded-md bg-white p-2 sm:flex-row sm:items-end">
-                <label className="flex flex-1 flex-col gap-1 text-[10px] font-medium text-slate-700">
+              {/* Right: white panel with fields + tall submit button */}
+              <div className="flex flex-1 flex-col gap-2 rounded-md bg-white p-2.5 sm:flex-row sm:items-stretch">
+                <label className="flex flex-1 flex-col gap-1 text-[10px] font-medium leading-[14px] text-slate-700">
                   Type
                   <select
                     name="type"
                     defaultValue="Villa House"
-                    className="h-8 rounded bg-slate-100 px-2 text-xs text-slate-800 outline-none"
+                    className="h-7 rounded-md bg-[#EEF2F6] px-2.5 text-[10px] text-slate-800 outline-none"
                   >
                     <option value="Villa House">Villa House</option>
                     <option value="Farmhouse">Farmhouse</option>
@@ -204,29 +206,29 @@ export function HeroSection() {
                   </select>
                 </label>
 
-                <label className="flex flex-1 flex-col gap-1 text-[10px] font-medium text-slate-700">
+                <label className="flex flex-1 flex-col gap-1 text-[10px] font-medium leading-[14px] text-slate-700">
                   Name
                   <input
                     name="name"
                     type="text"
                     required
                     placeholder="Enter your full name"
-                    className="h-8 rounded border border-slate-200 px-2 text-xs outline-none placeholder:text-slate-400 focus:border-[#6B1A1A]"
+                    className="h-7 rounded-md border border-[#D9D9D9] bg-white px-2.5 text-[10px] text-slate-800 outline-none placeholder:text-[#9A9A9A] focus:border-[#6B1A1A]"
                   />
                 </label>
 
-                <label className="flex flex-1 flex-col gap-1 text-[10px] font-medium text-slate-700">
+                <label className="flex flex-1 flex-col gap-1 text-[10px] font-medium leading-[14px] text-slate-700">
                   Phone Number
                   <input
                     name="phone"
                     type="tel"
                     required
                     placeholder="e.g. +123 456 7890"
-                    className="h-8 rounded border border-slate-200 px-2 text-xs outline-none placeholder:text-slate-400 focus:border-[#6B1A1A]"
+                    className="h-7 rounded-md border border-[#D9D9D9] bg-white px-2.5 text-[10px] text-slate-800 outline-none placeholder:text-[#9A9A9A] focus:border-[#6B1A1A]"
                   />
                 </label>
 
-                <label className="flex flex-1 flex-col gap-1 text-[10px] font-medium text-slate-700">
+                <label className="flex flex-1 flex-col gap-1 text-[10px] font-medium leading-[14px] text-slate-700">
                   Pin Code
                   <input
                     name="pincode"
@@ -235,42 +237,40 @@ export function HeroSection() {
                     maxLength={6}
                     pattern="\d{6}"
                     placeholder="Enter 6-digit code"
-                    className="h-8 rounded border border-slate-200 px-2 text-xs outline-none placeholder:text-slate-400 focus:border-[#6B1A1A]"
+                    className="h-7 rounded-md border border-[#D9D9D9] bg-white px-2.5 text-[10px] text-slate-800 outline-none placeholder:text-[#9A9A9A] focus:border-[#6B1A1A]"
                   />
                 </label>
 
+                {/* Stretches to the full label + input height */}
                 <button
                   type="submit"
                   aria-label="Submit enquiry"
-                  className="flex h-8 w-full items-center justify-center rounded bg-[#6B1A1A] text-white transition hover:bg-[#561414] sm:w-12"
+                  className="flex h-9 w-full items-center justify-center rounded-md bg-[#6B1A1A] text-white transition hover:bg-[#561414] sm:h-auto sm:w-[58px]"
                 >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M7 17L17 7M8 7h9v9" />
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M7 17L17 7M8.5 7H17v8.5" />
                   </svg>
                 </button>
               </div>
             </form>
 
-            {/* WhatsApp contact card (Figma node 211:5054) */}
+            {/* WhatsApp contact card */}
             <a
               href={whatsappUrl}
               target="_blank"
               rel="noreferrer"
               aria-label="Chat with us on WhatsApp"
               style={{ fontFamily: '"Hanken Grotesk", sans-serif' }}
-              className="flex min-h-[104px] w-full flex-col justify-between overflow-hidden rounded-lg bg-[#0D8C27] px-4 py-[14px] text-white transition hover:bg-[#0b7a22] sm:w-[117px] sm:shrink-0"
+              className="flex w-full flex-col justify-between overflow-hidden rounded-lg bg-[#0D8C27] px-4 py-3 text-white transition hover:bg-[#0b7a22] sm:w-[117px] sm:shrink-0"
             >
               <div className="flex items-start justify-between">
-                {/* WhatsApp icon */}
-                <svg width="40" height="41" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <path d="M20 3.9A10.2 10.2 0 0 0 3.3 16.2L2 22l5.9-1.5A10.2 10.2 0 1 0 20 3.9Z" />
-                  <g transform="translate(6.6 6.6) scale(0.45)">
-                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92Z" />
-                  </g>
+                {/* WhatsApp logo */}
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
                 </svg>
 
                 {/* Arrow up-right */}
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                   <path d="M7 17L17 7M8.5 7H17v8.5" />
                 </svg>
               </div>
