@@ -4,8 +4,9 @@ import '@fontsource/hanken-grotesk/400.css'
 import '@fontsource/hanken-grotesk/500.css'
 import '@fontsource/hanken-grotesk/600.css'
 import '@fontsource/hanken-grotesk/700.css'
-import heroHome from '../../../../public/assets/images/hero-home.png'
-import heroHomeMobile from '../../../../public/assets/images/hero-home-mobile.png'
+import { Button } from '@/components/ui/Button'
+import heroHome from '/assets/images/hero-home.png'
+import heroHomeMobile from '/assets/images/hero-home-mobile.png'
 
 // Digits only, with country code and no "+" (e.g. 919876543210). Replace when you have the number.
 const WHATSAPP_NUMBER = '91XXXXXXXXXX'
@@ -122,15 +123,14 @@ function HeroMobile() {
           />
         </label>
 
-        <button
+        <Button
           type="submit"
-          className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#6F1D1B] py-[15px] pl-6 pr-5 text-lg font-bold leading-7 tracking-[-0.36px] text-white transition hover:bg-[#5b1816]"
+          variant="primary"
+          size="lg"
+          fullWidth
         >
           Book a Consultation
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <path d="M9 6l6 6-6 6" />
-          </svg>
-        </button>
+        </Button>
       </form>
     </section>
   )

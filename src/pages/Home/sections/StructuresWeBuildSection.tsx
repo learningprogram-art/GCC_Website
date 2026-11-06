@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import '@fontsource/bai-jamjuree/600.css'
 import '@fontsource/hanken-grotesk/400.css'
-import villaImg from '../../../../public/assets/images/villa.png'
-import farmhouseImg from '../../../../public/assets/images/farmhouse.png'
-import hospitalityImg from '../../../../public/assets/images/hospitality.png'
+import villaImg from '/assets/images/structures/villa.png'
+import farmhouseImg from '/assets/images/structures/farmhouse.png'
+import hospitalityImg from '/assets/images/structures/hospitality.png'
 
 const baiJamjuree = { fontFamily: '"Bai Jamjuree", sans-serif' }
 const hankenGrotesk = { fontFamily: '"Hanken Grotesk", sans-serif' }

@@ -4,25 +4,8 @@ import '@fontsource/bai-jamjuree/700.css'
 import '@fontsource/hanken-grotesk/400.css'
 import '@fontsource/hanken-grotesk/500.css'
 import '@fontsource/hanken-grotesk/700.css'
+import { Button } from '@/components/ui/Button'
 
-function ChevronRight({ className = '' }: { className?: string }) {
-  return (
-    <svg
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-      aria-hidden="true"
-    >
-      <path d="M10 6l6 6-6 6" />
-    </svg>
-  )
-}
 
 function ChevronDown({ className = '' }: { className?: string }) {
   return (
@@ -86,7 +69,7 @@ export function ContactSection() {
       {/* Background Cover Image with 50% dark overlay */}
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
         <img
-          src="/assets/images/contact-bg.jpg"
+          src="/assets/images/contact/contact-bg.png"
           alt="Construction site groundwork"
           className="h-full w-full object-cover object-center"
         />
@@ -96,14 +79,14 @@ export function ContactSection() {
       {/* Decorative Ellipse Ambient Glows from Figma */}
       <div className="absolute left-[-7.5rem] top-[-9.375rem] z-[1] pointer-events-none opacity-80">
         <img
-          src="/assets/images/contact-ellipse-1.svg"
+          src="/assets/images/contact/contact-ellipse-1.svg"
           alt=""
           className="size-[25rem] max-w-none"
         />
       </div>
       <div className="absolute right-[-6.25rem] bottom-[-6.25rem] z-[1] pointer-events-none opacity-80">
         <img
-          src="/assets/images/contact-ellipse-2.svg"
+          src="/assets/images/contact/contact-ellipse-2.svg"
           alt=""
           className="size-[31.25rem] max-w-none"
         />
@@ -137,7 +120,8 @@ export function ContactSection() {
             {/* 1. Phone Card */}
             <div
               onClick={() => window.open('tel:+919002339920')}
-              className="group flex w-[300px] max-w-full h-[70px] p-[12px] items-center gap-[16px] rounded-[8px] bg-[#252422]/60 backdrop-blur-sm transition-all hover:bg-[#252422]/80 cursor-pointer border border-white/5 hover:border-white/20 shrink-0"
+              style={{ background: 'rgba(37, 36, 34, 0.60)', borderRadius: '8px' }}
+              className="group flex w-[300px] max-w-full h-[70px] p-[12px] items-center gap-[16px] cursor-pointer shrink-0 transition-all hover:bg-[rgba(37,36,34,0.75)]"
             >
               <div className="flex size-[24px] shrink-0 items-center justify-center">
                 <img
@@ -181,7 +165,8 @@ export function ContactSection() {
               href="https://wa.me/919002339920"
               target="_blank"
               rel="noopener noreferrer"
-              className="group flex w-[300px] max-w-full h-[70px] p-[12px] items-center gap-[16px] rounded-[8px] bg-[#252422]/60 backdrop-blur-sm transition-all hover:bg-[#252422]/80 cursor-pointer border border-white/5 hover:border-white/20 shrink-0"
+              style={{ background: 'rgba(37, 36, 34, 0.60)', borderRadius: '8px' }}
+              className="group flex w-[300px] max-w-full h-[70px] p-[12px] items-center gap-[16px] cursor-pointer shrink-0 transition-all hover:bg-[rgba(37,36,34,0.75)]"
             >
               <div className="flex size-[24px] shrink-0 items-center justify-center">
                 <img
@@ -204,7 +189,8 @@ export function ContactSection() {
             {/* 3. Email Card */}
             <div
               onClick={() => window.open('mailto:contact@gcc.com')}
-              className="group flex w-[300px] max-w-full h-[70px] p-[12px] items-center gap-[16px] rounded-[8px] bg-[#252422]/60 backdrop-blur-sm transition-all hover:bg-[#252422]/80 cursor-pointer border border-white/5 hover:border-white/20 shrink-0"
+              style={{ background: 'rgba(37, 36, 34, 0.60)', borderRadius: '8px' }}
+              className="group flex w-[300px] max-w-full h-[70px] p-[12px] items-center gap-[16px] cursor-pointer shrink-0 transition-all hover:bg-[rgba(37,36,34,0.75)]"
             >
               <div className="flex size-[24px] shrink-0 items-center justify-center">
                 <img
@@ -245,11 +231,11 @@ export function ContactSection() {
           </div>
         </div>
 
-        {/* Right Column: Lead Form Card Container */}
-        <div className="w-full lg:w-[32.5rem] shrink-0 rounded-[0.75rem] bg-[#252422] p-[1.75rem] sm:p-[2rem] shadow-2xl flex flex-col gap-[1.5rem] border border-white/10">
+        {/* Right Column: Lead Form Card Container (Figma Node 211:5512) */}
+        <div className="w-full lg:w-[32.5rem] shrink-0 rounded-[0.75rem] bg-[#252422] p-[2rem] shadow-2xl flex flex-col gap-[1.5rem]">
           <h3
             style={{ fontFamily: '"Bai Jamjuree", sans-serif' }}
-            className="text-[1.25rem] sm:text-[1.375rem] font-semibold leading-[1.75rem] tracking-[-0.01em] text-[#FFFCF2] m-0"
+            className="text-[1.375rem] font-semibold leading-[1.75rem] tracking-[-0.11px] text-[#FFFCF2] m-0"
           >
             Share a few details and our team will connect with you.
           </h3>
@@ -276,29 +262,29 @@ export function ContactSection() {
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="flex flex-col gap-[1rem] w-full">
-              {/* Full Name */}
+              {/* Full Name (Figma Node 211:5516) */}
               <div className="flex flex-col gap-[0.5rem] items-start w-full">
-                <label className="text-[0.875rem] font-medium leading-[1.25rem] text-[#D4CFC2]">
+                <label className="text-[0.875rem] font-medium leading-[1.25rem] text-[#D4CFC2] whitespace-nowrap">
                   Full name
                 </label>
-                <div className="flex h-[3.375rem] w-full items-center rounded-[0.375rem] border border-[#CCC5B9] bg-[#FFFCF2] px-[1rem] overflow-hidden focus-within:border-[#6F1D1B] focus-within:ring-1 focus-within:ring-[#6F1D1B]">
+                <div className="flex h-[3.375rem] w-full items-center rounded-[0.375rem] border border-[#CCC5B9] bg-[#FFFCF2] pl-[1rem] pr-[0.875rem] py-[0.875rem] overflow-hidden focus-within:border-[#6F1D1B]">
                   <input
                     type="text"
                     required
                     value={formData.fullName}
                     onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
                     placeholder="Your name"
-                    className="w-full bg-transparent text-[1rem] leading-[1.5rem] font-normal text-[#403D39] outline-none placeholder:text-[#403D39]/70"
+                    className="w-full bg-transparent text-[1rem] font-normal leading-[1.5rem] text-[#403D39] outline-none placeholder:text-[#403D39]/70"
                   />
                 </div>
               </div>
 
-              {/* Phone Number */}
+              {/* Phone Number (Figma Node 211:5517) */}
               <div className="flex flex-col gap-[0.5rem] items-start w-full">
-                <label className="text-[0.875rem] font-medium leading-[1.25rem] text-[#D4CFC2]">
+                <label className="text-[0.875rem] font-medium leading-[1.25rem] text-[#D4CFC2] whitespace-nowrap">
                   Phone Number
                 </label>
-                <div className="flex h-[3.375rem] w-full items-center gap-[0.625rem] rounded-[0.375rem] border border-[#CCC5B9] bg-[#FFFCF2] px-[1rem] overflow-hidden focus-within:border-[#6F1D1B] focus-within:ring-1 focus-within:ring-[#6F1D1B]">
+                <div className="flex h-[3.375rem] w-full items-center gap-[0.625rem] rounded-[0.375rem] border border-[#CCC5B9] bg-[#FFFCF2] pl-[1rem] pr-[0.875rem] py-[0.875rem] overflow-hidden focus-within:border-[#6F1D1B]">
                   <span className="text-[0.875rem] font-medium leading-[1.25rem] text-[#252422] shrink-0">
                     +91
                   </span>
@@ -308,20 +294,20 @@ export function ContactSection() {
                     required
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    placeholder="e.g. 98765 43210"
+                    placeholder="e.g. +91 98765 43210"
                     className="w-full bg-transparent text-[0.875rem] font-medium leading-[1.25rem] text-[#403D39] outline-none placeholder:text-[#403D39]/70"
                   />
                 </div>
               </div>
 
-              {/* PIN and Project Type (Side-by-Side on desktop) */}
+              {/* PIN and Project Type (Side-by-Side: Figma Node 211:5518) */}
               <div className="flex flex-col sm:flex-row gap-[1rem] items-start w-full">
-                {/* Site Location PIN */}
+                {/* Site Location PIN (Figma Node 211:5519) */}
                 <div className="flex flex-1 flex-col gap-[0.5rem] items-start w-full">
-                  <label className="text-[0.875rem] font-medium leading-[1.25rem] text-[#D4CFC2]">
+                  <label className="text-[0.875rem] font-medium leading-[1.25rem] text-[#D4CFC2] whitespace-nowrap">
                     Site Location PIN
                   </label>
-                  <div className="flex h-[3.375rem] w-full items-center rounded-[0.375rem] border border-[#CCC5B9] bg-[#FFFCF2] px-[1rem] overflow-hidden focus-within:border-[#6F1D1B] focus-within:ring-1 focus-within:ring-[#6F1D1B]">
+                  <div className="flex h-[3.375rem] w-full items-center rounded-[0.375rem] border border-[#CCC5B9] bg-[#FFFCF2] pl-[1rem] pr-[0.875rem] py-[0.875rem] overflow-hidden focus-within:border-[#6F1D1B]">
                     <input
                       type="text"
                       value={formData.locationPin}
@@ -332,59 +318,76 @@ export function ContactSection() {
                   </div>
                 </div>
 
-                {/* Project Type */}
+                {/* Project Type (Figma Node 211:5520) */}
                 <div className="flex flex-1 flex-col gap-[0.5rem] items-start w-full">
-                  <label className="text-[0.875rem] font-medium leading-[1.25rem] text-[#D4CFC2]">
+                  <label className="text-[0.875rem] font-medium leading-[1.25rem] text-[#D4CFC2] whitespace-nowrap">
                     Project Type
                   </label>
-                  <div className="relative flex h-[3.375rem] w-full items-center rounded-[0.375rem] border border-[#CCC5B9] bg-[#FFFCF2] px-[1rem] overflow-hidden focus-within:border-[#6F1D1B] focus-within:ring-1 focus-within:ring-[#6F1D1B]">
+                  <div className="relative flex h-[3.375rem] w-full items-center rounded-[0.375rem] border border-[#CCC5B9] bg-[#FFFCF2] pl-[1rem] pr-[0.875rem] py-[0.875rem] overflow-hidden focus-within:border-[#6F1D1B]">
                     <select
                       value={formData.projectType}
                       onChange={(e) => setFormData({ ...formData, projectType: e.target.value })}
-                      className="w-full appearance-none bg-transparent text-[0.875rem] font-medium leading-[1.25rem] text-[#403D39] outline-none cursor-pointer pr-[2rem]"
+                      style={{ colorScheme: 'light' }}
+                      className={`w-full appearance-none bg-transparent text-[0.875rem] font-medium leading-[1.25rem] outline-none cursor-pointer pr-[2rem] ${!formData.projectType ? 'text-[#403D39]/70' : 'text-[#403D39]'}`}
                     >
-                      <option value="" disabled className="text-gray-400">
+                      <option value="" disabled hidden>
                         Select project type
                       </option>
-                      <option value="Villa">Villa</option>
+                      <option value="Villa House">Villa House</option>
                       <option value="Farmhouse">Farmhouse</option>
-                      <option value="Hospitality">Hospitality</option>
-                      <option value="Commercial">Commercial</option>
-                      <option value="Other">Other Structure</option>
+                      <option value="Renovation">Renovation</option>
                     </select>
-                    <div className="pointer-events-none absolute right-[1rem] flex items-center justify-center text-[#403D39]">
+                    <div className="pointer-events-none absolute right-[0.875rem] flex items-center justify-center text-[#403D39]">
                       <ChevronDown className="size-[20px]" />
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Message */}
+              {/* Message (Figma Node 211:5521) */}
               <div className="flex flex-col gap-[0.5rem] items-start w-full">
-                <label className="text-[0.875rem] font-medium leading-[1.25rem] text-[#D4CFC2]">
+                <label className="text-[0.875rem] font-medium leading-[1.25rem] text-[#D4CFC2] whitespace-nowrap">
                   Message
                 </label>
-                <div className="flex min-h-[3.375rem] w-full items-center rounded-[0.375rem] border border-[#CCC5B9] bg-[#FFFCF2] px-[1rem] py-[0.75rem] overflow-hidden focus-within:border-[#6F1D1B] focus-within:ring-1 focus-within:ring-[#6F1D1B]">
-                  <textarea
-                    rows={2}
+                <div className="flex h-[3.375rem] w-full items-center rounded-[0.375rem] border border-[#CCC5B9] bg-[#FFFCF2] pl-[1rem] pr-[0.875rem] py-[0.875rem] overflow-hidden focus-within:border-[#6F1D1B]">
+                  <input
+                    type="text"
                     value={formData.message}
                     onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                     placeholder="Tell us about your project..."
-                    className="w-full resize-none bg-transparent text-[0.875rem] font-medium leading-[1.25rem] text-[#403D39] outline-none placeholder:text-[#403D39]/70"
+                    className="w-full bg-transparent text-[0.875rem] font-medium leading-[1.25rem] text-[#403D39] outline-none placeholder:text-[#403D39]/70"
                   />
                 </div>
               </div>
 
-              {/* Submit Button */}
-              <button
+              {/* Submit Button (Figma Node 211:5522) */}
+              <Button
                 type="submit"
-                className="relative mt-[0.5rem] flex h-[3.25rem] w-full items-center justify-center rounded-[0.5rem] bg-[#6F1D1B] px-[1.5rem] py-[0.75rem] text-[1.125rem] font-bold leading-[1.75rem] tracking-[-0.0225rem] text-white transition-all hover:bg-[#5C1715] active:scale-[0.99] cursor-pointer shadow-md"
+                variant="primary"
+                size="md"
+                fullWidth
+                className="relative h-[3.25rem] justify-center shadow-md"
+                icon={
+                  <svg
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="absolute right-[20px] top-1/2 -translate-y-1/2 size-[24px] shrink-0"
+                    aria-hidden="true"
+                  >
+                    <path d="M9 6l6 6-6 6" />
+                  </svg>
+                }
               >
-                <span>Submit Enquiry</span>
-                <span className="absolute right-[1.25rem] flex items-center justify-center">
-                  <ChevronRight className="size-[24px]" />
+                <span className="font-bold text-[1.125rem] leading-[1.75rem] tracking-[-0.36px]">
+                  Submit Enquiry
                 </span>
-              </button>
+              </Button>
             </form>
           )}
         </div>

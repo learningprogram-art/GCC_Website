@@ -9,7 +9,7 @@ const CARDS = [
     tab: "Engineering Strength",
     title: ["Engineering", "Strength"],
     body: "Structural engineering and detailed drawings that ensure the design is built right from the start.",
-    image: "/assets/images/card-01.png",
+    image: "/assets/images/why-gcc/engineering-strength.png",
     alt: "Worker on a concrete beam while a crane lifts a concrete block",
   },
   {
@@ -17,7 +17,7 @@ const CARDS = [
     tab: "Built for the Long Term",
     title: ["Built for", "the Long Term"],
     body: "Construction focused on durability, quality, reliability and lasting value.",
-    image: "/assets/images/card-02.png",
+    image: "/assets/images/why-gcc/built-for-long-term.png",
     alt: "Clock on a pink wall beside a terracotta arch and yellow stairs",
   },
   {
@@ -25,7 +25,7 @@ const CARDS = [
     tab: "End-to-End Ownership",
     title: ["End-to-End", "Ownership"],
     body: "One team taking responsibility from the first plan to final handover.",
-    image: "/assets/images/card-03.png",
+    image: "/assets/images/why-gcc/end-to-end-ownership.png",
     alt: "A winding cream path with a ball at the bottom",
   },
   {
@@ -33,7 +33,7 @@ const CARDS = [
     tab: "Transparent Execution",
     title: ["Transparent", "Execution"],
     body: "Clear processes and communication that keep every stage visible.",
-    image: "/assets/images/card-04.png",
+    image: "/assets/images/why-gcc/transparent-execution.png",
     alt: "Hand holding a phone showing a 3D building model at a construction site",
   },
 ]
