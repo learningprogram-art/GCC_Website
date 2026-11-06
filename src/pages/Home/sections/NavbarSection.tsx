@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import '@fontsource/hanken-grotesk/500.css'
 import '@fontsource/hanken-grotesk/600.css'
 import gccLogo from '../../../../public/assets/icons/logo/gcc-logo-white.svg'
@@ -34,13 +34,30 @@ function ChevronRight() {
 
 export function NavbarSection() {
   const [open, setOpen] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
+
+  // Mobile: navbar is transparent over the hero, and fills in once the page scrolls
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 24)
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
+  const filled = open || scrolled
 
   return (
     <header
       id="navbar"
       className="fixed left-1/2 top-4 z-50 w-[calc(100%-32px)] -translate-x-1/2 lg:w-[min(87%,1252px)]"
     >
-      <div className="relative rounded-xl border border-white/10 bg-[#1F5B7C]/75 px-4 py-3 shadow-lg backdrop-blur-md lg:px-6">
+      <div
+        className={`relative rounded-xl border px-4 py-4 transition-colors duration-300 lg:border-white/10 lg:bg-[#1F5B7C]/75 lg:bg-none lg:px-6 lg:py-3 lg:shadow-lg lg:backdrop-blur-md ${
+          filled
+            ? 'border-white/10 bg-gradient-to-br from-[#1B3846] to-[#25505F] shadow-lg backdrop-blur-md'
+            : 'border-transparent'
+        }`}
+      >
         <div className="flex items-center justify-between">
           {/* Logo */}
           <a href="#hero" aria-label="Garg Core Construction home" className="shrink-0">
@@ -85,7 +102,7 @@ export function NavbarSection() {
             aria-label={open ? 'Close menu' : 'Open menu'}
             aria-expanded={open}
             onClick={() => setOpen((v) => !v)}
-            className="flex size-10 items-center justify-center rounded-lg text-white lg:hidden"
+            className="flex size-12 items-center justify-center rounded-xl bg-white/15 text-white lg:hidden"
           >
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
               {open ? <path d="M6 6l12 12M18 6L6 18" /> : <path d="M4 7h16M4 12h16M4 17h16" />}

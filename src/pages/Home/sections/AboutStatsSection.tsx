@@ -84,22 +84,27 @@ function StatRow({ stat, order }: { stat: Stat; order: number }) {
     <div
       ref={ref}
       style={{ transitionDelay: `${order * 80}ms` }}
-      className={`flex min-h-[160px] flex-col gap-4 border-t border-[#403D39] bg-[#252422] py-7 transition-all duration-500 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none sm:flex-row sm:gap-8 ${started ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
+      className={`flex flex-col gap-3 border-t border-[#403D39] bg-[#252422] py-4 transition-all duration-500 ease-out even:pl-3 motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none sm:min-h-[160px] sm:flex-row sm:gap-8 sm:py-7 sm:even:pl-0 ${started ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
         }`}
     >
       <p
         style={baiJamjuree}
-        className="min-w-0 flex-1 text-[clamp(56px,7.2vw,104px)] font-light leading-none tracking-[-0.03em] text-[#FFFCF2] tabular-nums"
+        className="min-w-0 flex-1 text-[44px] font-light leading-none tracking-[-0.03em] text-[#FFFCF2] tabular-nums sm:text-[clamp(56px,7.2vw,104px)]"
       >
         <span>{display}</span>
         <span className="text-[#FFE6A7]">{stat.suffix}</span>
       </p>
 
-      <div style={hankenGrotesk} className="flex w-full flex-col gap-2 pt-3.5 sm:w-[280px] sm:shrink-0">
-        <p className="text-[12px] font-semibold uppercase leading-4 tracking-[0.96px] text-[#FFE6A7]">
+      <div
+        style={hankenGrotesk}
+        className="flex w-full flex-col gap-2 pt-0 sm:w-[280px] sm:shrink-0 sm:pt-3.5"
+      >
+        <p className="hidden text-[12px] font-semibold uppercase leading-4 tracking-[0.96px] text-[#FFE6A7] sm:block">
           {stat.index}
         </p>
-        <p className="text-[16px] font-normal leading-6 text-[#CCC5B9]">{stat.caption}</p>
+        <p className="text-[12px] font-normal leading-4 text-[#CCC5B9] sm:text-[16px] sm:leading-6">
+          {stat.caption}
+        </p>
       </div>
     </div>
   )
@@ -109,12 +114,12 @@ export function AboutStatsSection() {
   return (
     <section
       id="about-stats"
-      className="bg-[#252422] px-6 py-16 md:px-12 lg:px-24 lg:py-[88px]"
+      className="bg-[#252422] px-4 py-16 md:px-12 lg:px-24 lg:py-[88px]"
     >
-      <div className="mx-auto flex w-full max-w-[1252px] flex-col gap-[62px]">
-        {/* Statement */}
-        <div className="flex flex-col justify-between gap-8 sm:flex-row sm:items-start">
-          <div className="flex flex-col gap-8">
+      <div className="mx-auto flex w-full max-w-[1252px] flex-col gap-8 sm:gap-[62px]">
+        {/* Statement: mobile = eyebrow + link on one row, headline below */}
+        <div className="grid grid-cols-[1fr_auto] items-center gap-x-4 gap-y-6 sm:flex sm:flex-row sm:items-start sm:justify-between sm:gap-8">
+          <div className="contents sm:flex sm:flex-col sm:gap-8">
             {/* Eyebrow */}
             <div className="flex items-center gap-3">
               <span className="block size-2 bg-[#FFE6A7]" />
@@ -129,9 +134,9 @@ export function AboutStatsSection() {
             {/* Headline */}
             <h2
               style={baiJamjuree}
-              className="flex flex-col gap-1.5 text-[clamp(32px,4.6vw,66px)] font-medium uppercase leading-[1.05] tracking-[-0.01em]"
+              className="col-span-2 flex flex-col gap-1.5 text-[24px] font-medium uppercase leading-[1.05] tracking-[-0.01em] sm:text-[clamp(32px,4.6vw,66px)]"
             >
-              <span className="text-[#FFFCF2]">Built by engineers.</span>
+              <span className="font-light text-[#FFFCF2] sm:font-medium">Built by engineers.</span>
               <span className="text-[#FFE6A7]">Trusted by families.</span>
             </h2>
           </div>
@@ -140,7 +145,7 @@ export function AboutStatsSection() {
           <a
             href="/about"
             style={hankenGrotesk}
-            className="group flex shrink-0 items-center gap-1.5 text-[18px] font-bold leading-7 tracking-[-0.02em] text-[#FFE6A7]"
+            className="group col-start-2 row-start-1 flex shrink-0 items-center gap-1.5 text-[16px] font-bold leading-6 tracking-[-0.02em] text-[#FFE6A7] sm:text-[18px] sm:leading-7"
           >
             Read our story
             <svg
@@ -152,7 +157,7 @@ export function AboutStatsSection() {
               strokeWidth="1.8"
               strokeLinecap="round"
               strokeLinejoin="round"
-              className="transition-transform duration-300 group-hover:translate-x-1"
+              className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-1 sm:h-6 sm:w-6"
               aria-hidden="true"
             >
               <path d="M10 6l6 6-6 6" />
@@ -161,8 +166,11 @@ export function AboutStatsSection() {
         </div>
 
         {/* Stats */}
-        <div className="flex flex-col gap-10 lg:flex-row lg:gap-12">
-          <div style={hankenGrotesk} className="flex flex-col gap-4 pt-7 lg:w-[352px] lg:shrink-0">
+        <div className="flex flex-col gap-7 sm:gap-10 lg:flex-row lg:gap-12">
+          <div
+            style={hankenGrotesk}
+            className="flex flex-col gap-4 pt-0 sm:pt-7 lg:w-[352px] lg:shrink-0"
+          >
             <p className="text-[12px] font-semibold uppercase leading-4 tracking-[0.96px] text-[#FFFCF2]">
               By the numbers
             </p>
@@ -172,7 +180,7 @@ export function AboutStatsSection() {
             </p>
           </div>
 
-          <div className="flex min-w-0 flex-1 flex-col border-b border-[#403D39]">
+          <div className="grid min-w-0 flex-1 grid-cols-2 border-b border-[#403D39] sm:flex sm:flex-col">
             {stats.map((stat, i) => (
               <StatRow key={stat.index} stat={stat} order={i} />
             ))}
