@@ -6,13 +6,13 @@ import gccLogo from '../../../../public/assets/icons/logo/gcc-logo-white.svg'
 const hankenGrotesk = { fontFamily: '"Hanken Grotesk", sans-serif' }
 
 const links = [
-  { label: 'Services', href: '#structures-we-build' },
-  { label: 'Process', href: '#one-team' },
-  { label: 'Projects', href: '#projects' },
-  { label: 'About', href: '#about-stats' },
+  { label: 'Services', href: '/#structures-we-build' },
+  { label: 'Process', href: '/#one-team' },
+  { label: 'Projects', href: '/#projects' },
+  { label: 'About', href: '/about' },
 ]
 
-const CONSULTATION_HREF = '#contact-cta'
+const CONSULTATION_HREF = '/#contact-cta'
 
 function ChevronRight() {
   return (
@@ -60,7 +60,7 @@ export function NavbarSection() {
       >
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <a href="#hero" aria-label="Garg Core Construction home" className="shrink-0">
+          <a href="/" aria-label="Garg Core Construction home" className="shrink-0">
             <img
               src={gccLogo}
               alt="Garg Core Construction"
