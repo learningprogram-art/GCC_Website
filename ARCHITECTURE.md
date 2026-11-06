@@ -175,3 +175,4 @@ export function Button({ variant = 'primary', className, ...props }: ButtonProps
 | `npm run build` | Compiles TypeScript (`tsc -b`) and generates production bundle (`vite build`) |
 | `npm run preview` | Previews the production build locally |
 | `npm run lint` | Runs the Oxlint linter across codebase |
+
