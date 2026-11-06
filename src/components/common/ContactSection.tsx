@@ -46,25 +46,24 @@ export function ContactSection() {
       style={{ fontFamily: '"Hanken Grotesk", sans-serif' }}
     >
       {/* Background Cover Image with 50% dark overlay */}
-      <div className="absolute inset-0 -z-20 pointer-events-none overflow-hidden">
+      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
         <img
-          src="/assets/images/contact-bg.png"
-          alt=""
-          className="h-full w-full object-cover"
-          loading="lazy"
+          src="/assets/images/contact-bg.jpg"
+          alt="Construction site groundwork"
+          className="h-full w-full object-cover object-center"
         />
         <div className="absolute inset-0 bg-black/50" />
       </div>
 
       {/* Decorative Ellipse Ambient Glows from Figma */}
-      <div className="absolute left-[-7.5rem] top-[-9.375rem] -z-10 pointer-events-none opacity-80">
+      <div className="absolute left-[-7.5rem] top-[-9.375rem] z-[1] pointer-events-none opacity-80">
         <img
           src="/assets/images/contact-ellipse-1.svg"
           alt=""
           className="size-[25rem] max-w-none"
         />
       </div>
-      <div className="absolute right-[-6.25rem] bottom-[-6.25rem] -z-10 pointer-events-none opacity-80">
+      <div className="absolute right-[-6.25rem] bottom-[-6.25rem] z-[1] pointer-events-none opacity-80">
         <img
           src="/assets/images/contact-ellipse-2.svg"
           alt=""
@@ -73,7 +72,7 @@ export function ContactSection() {
       </div>
 
       {/* Main Content Container with standard 96px (6rem) horizontal padding */}
-      <div className="relative mx-auto flex w-full flex-col lg:flex-row items-center justify-between gap-[3rem] lg:gap-[5rem] px-6 md:px-12 lg:px-[6rem] py-[4rem] lg:py-[5rem]">
+      <div className="relative z-10 mx-auto flex w-full flex-col lg:flex-row items-center justify-between gap-[3rem] lg:gap-[5rem] px-6 md:px-12 lg:px-[6rem] py-[4rem] lg:py-[5rem]">
         {/* Left Column: Intro & Contact Options */}
         <div className="flex flex-1 flex-col items-start gap-[2rem] w-full max-w-[40.5rem]">
           {/* Headline & Subtitle Block */}
@@ -363,4 +362,3 @@ export function ContactSection() {
 }
 
 export default ContactSection
-
