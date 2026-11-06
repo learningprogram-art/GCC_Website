@@ -335,13 +335,332 @@ function TenToOneVisual() {
   )
 }
 
+/* ------------------------------------------------------------------ */
+/* Mobile (Figma: M / One Team, Not 10, node 196:3269)                  */
+/* ------------------------------------------------------------------ */
+
+const MOBILE_W = 350
+const ROLES_TOP = 32 // below the "10 people" label
+const HUB_GAP = 62 // last pill row -> top of the outer ring
+
+// Same order as the Figma wrap: this decides which pills share a row
+const mobileRoles: { label: string; major: boolean }[] = [
+  { label: 'Architect', major: true },
+  { label: 'Plumber', major: false },
+  { label: 'Structural engineer', major: true },
+  { label: 'Electrician', major: false },
+  { label: 'Contractor', major: true },
+  { label: 'Interior designer', major: true },
+  { label: 'Painter', major: false },
+  { label: 'Site supervisor', major: true },
+  { label: 'Carpenter', major: false },
+  { label: 'Mason', major: false },
+]
+
+// Reuse the desktop flow colours per role
+const flowByLabel: Record<string, [string, string]> = Object.fromEntries(
+  [...majorRoles, ...minorRoles].map((r) => [r.label, r.flow]),
+)
+
+type MobileLine = { label: string; major: boolean; flow: [string, string]; d: string }
+type Measured = { width: number; ringTop: number; lines: MobileLine[] }
+
+function TenToOneVisualMobile() {
+  const wrapRef = useRef<HTMLDivElement>(null)
+  const rolesRef = useRef<HTMLDivElement>(null)
+  const [playing, setPlaying] = useState(false)
+  const [m, setM] = useState<Measured>({ width: MOBILE_W, ringTop: 340, lines: [] })
+
+  // Measure the wrapped pills so each line starts at the bottom of its pill
+  useEffect(() => {
+    const wrap = wrapRef.current
+    const roles = rolesRef.current
+    if (!wrap || !roles) return
+
+    const measure = () => {
+      const width = wrap.clientWidth
+      const pills = Array.from(roles.children) as HTMLElement[]
+      const ringTop = ROLES_TOP + roles.offsetHeight + HUB_GAP
+      const endY = ringTop + 34
+      const cx = width / 2
+
+      const starts = pills.map((el, i) => ({
+        i,
+        x: el.offsetLeft + el.offsetWidth / 2,
+        y: ROLES_TOP + el.offsetTop + el.offsetHeight,
+      }))
+      // Spread the line ends left to right in the same order as the pills, so lines don't cross
+      const order = [...starts].sort((a, b) => a.x - b.x || a.i - b.i)
+      const rank = new Map(order.map((s, r) => [s.i, r]))
+
+      const lines: MobileLine[] = starts.map(({ i, x, y }) => {
+        const role = mobileRoles[i]
+        const xe = cx + ((rank.get(i) ?? 0) / Math.max(1, starts.length - 1) - 0.5) * 22
+        const dy = (endY - y) * 0.55
+        return {
+          label: role.label,
+          major: role.major,
+          flow: flowByLabel[role.label],
+          d: `M${x} ${y} C${x} ${y + dy}, ${xe} ${endY - dy}, ${xe} ${endY}`,
+        }
+      })
+      setM({ width, ringTop, lines })
+    }
+
+    measure()
+    const ro = new ResizeObserver(measure)
+    ro.observe(wrap)
+    document.fonts?.ready.then(measure)
+    return () => ro.disconnect()
+  }, [])
+
+  // Only animate while visible
+  useEffect(() => {
+    const el = wrapRef.current
+    if (!el) return
+    const io = new IntersectionObserver(([entry]) => setPlaying(entry.isIntersecting), {
+      threshold: 0.15,
+    })
+    io.observe(el)
+    return () => io.disconnect()
+  }, [])
+
+  const state = playing ? 'running' : 'paused'
+  const { width, ringTop, lines } = m
+  const cx = width / 2
+  const height = ringTop + 252
+  const majorLines = lines.filter((l) => l.major)
+  const minorLines = lines.filter((l) => !l.major)
+
+  return (
+    <div
+      ref={wrapRef}
+      className="relative mx-auto w-full shrink-0"
+      style={{ maxWidth: MOBILE_W, height }}
+    >
+      {/* Lines */}
+      <svg
+        width={width}
+        height={height}
+        viewBox={`0 0 ${width} ${height}`}
+        fill="none"
+        className="absolute left-0 top-0 overflow-visible"
+        aria-hidden="true"
+      >
+        <defs>
+          {/* userSpaceOnUse so perfectly vertical lines still get a gradient */}
+          <linearGradient id="m-line-major" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2={ringTop}>
+            <stop offset="0" stopColor="#C9A27E" />
+            <stop offset="1" stopColor="#6F1D1B" />
+          </linearGradient>
+          <linearGradient id="m-line-minor" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2={ringTop}>
+            <stop offset="0" stopColor="#CCC5B9" />
+            <stop offset="1" stopColor="#C9A27E" />
+          </linearGradient>
+        </defs>
+
+        {/* Static base lines */}
+        <g opacity="0.5" stroke="url(#m-line-minor)" strokeWidth="1">
+          {minorLines.map((l) => (
+            <path key={l.label} d={l.d} />
+          ))}
+        </g>
+        <g stroke="url(#m-line-major)" strokeWidth="1">
+          {majorLines.map((l) => (
+            <path key={l.label} d={l.d} />
+          ))}
+        </g>
+
+        {/* Flowing strings: faint on minor trades */}
+        <g>
+          {minorLines.map((l, i) => (
+            <g key={l.label}>
+              <FlowString d={l.d} color={l.flow[0]} dash={9} duration={4.2 + i * 0.35} delay={-i * 0.9} width={1.6} opacity={0.45} playing={playing} />
+              <FlowString d={l.d} color={l.flow[1]} dash={6} duration={5 + i * 0.3} delay={-i * 1.4 - 2} width={1.4} opacity={0.35} playing={playing} />
+            </g>
+          ))}
+        </g>
+
+        {/* Flowing strings: bright on major roles */}
+        <g>
+          {majorLines.map((l, i) => (
+            <g key={l.label}>
+              <FlowString d={l.d} color={l.flow[0]} dash={12} duration={3 + i * 0.4} delay={-i * 0.7} width={2.2} opacity={1} playing={playing} />
+              <FlowString d={l.d} color={l.flow[1]} dash={8} duration={3.8 + i * 0.3} delay={-i * 1.1 - 1.6} width={1.8} opacity={0.85} playing={playing} />
+            </g>
+          ))}
+        </g>
+      </svg>
+
+      {/* Label */}
+      <p
+        style={hankenGrotesk}
+        className="absolute inset-x-0 top-0 whitespace-nowrap text-center text-[12px] font-semibold uppercase leading-4 tracking-[0.96px] text-[#403D39]"
+      >
+        10 people
+      </p>
+
+      {/* Glow (breathing) */}
+      <div
+        className="gcc-anim absolute rounded-full"
+        style={{
+          left: cx - 160,
+          top: ringTop + 108 - 160,
+          width: 320,
+          height: 320,
+          background:
+            'radial-gradient(circle, rgba(224,100,34,0.45) 0%, rgba(224,100,34,0.18) 40%, rgba(224,100,34,0) 70%)',
+          animation: 'gcc-glow 3.6s ease-in-out infinite',
+          animationPlayState: state,
+        }}
+      />
+
+      {/* Rings (static + rippling) */}
+      <div
+        className="absolute rounded-full border border-[#E06422]/20"
+        style={{ left: cx - 108, top: ringTop, width: 216, height: 216 }}
+      />
+      <div
+        className="absolute rounded-full border border-[#6F1D1B]/25"
+        style={{ left: cx - 86, top: ringTop + 22, width: 172, height: 172 }}
+      />
+      <div
+        className="gcc-anim absolute rounded-full border border-[#E06422]/60"
+        style={{
+          left: cx - 86,
+          top: ringTop + 22,
+          width: 172,
+          height: 172,
+          animation: 'gcc-ripple 3.6s ease-out infinite',
+          animationPlayState: state,
+        }}
+      />
+      <div
+        className="gcc-anim absolute rounded-full border border-[#E06422]/60"
+        style={{
+          left: cx - 86,
+          top: ringTop + 22,
+          width: 172,
+          height: 172,
+          animation: 'gcc-ripple 3.6s ease-out -1.8s infinite',
+          animationPlayState: state,
+        }}
+      />
+
+      {/* GCC hub (pulsing) */}
+      <div
+        className="gcc-anim absolute flex items-center justify-center rounded-full bg-[#6F1D1B]"
+        style={{
+          left: cx - 64,
+          top: ringTop + 44,
+          width: 128,
+          height: 128,
+          animation: 'gcc-pulse 3.6s ease-in-out infinite',
+          animationPlayState: state,
+        }}
+      >
+        {/* Placeholder mark: swap for the exported GCC logo SVG */}
+        <span
+          style={baiJamjuree}
+          className="text-[32px] font-bold leading-none tracking-tight text-white"
+        >
+          GCC
+        </span>
+      </div>
+
+      {/* Roles (wrap onto rows like the Figma frame) */}
+      <div
+        ref={rolesRef}
+        className="absolute inset-x-0 flex flex-wrap items-start justify-center gap-x-2 gap-y-2.5"
+        style={{ top: ROLES_TOP }}
+      >
+        {mobileRoles.map((r) =>
+          r.major ? (
+            <div
+              key={r.label}
+              style={hankenGrotesk}
+              className="flex items-center gap-1.5 whitespace-nowrap rounded-full border border-[#CCC5B9] bg-white py-2 pl-3 pr-3.5"
+            >
+              <Dot />
+              <span className="text-[16px] font-normal leading-6 text-[#252422]">{r.label}</span>
+            </div>
+          ) : (
+            <div
+              key={r.label}
+              style={hankenGrotesk}
+              className="flex items-center gap-1.5 whitespace-nowrap rounded-full border border-[#CCC5B9] bg-white py-2 pl-3 pr-3.5 opacity-45 blur-[1.25px]"
+            >
+              <Dot />
+              <span className="text-[14px] font-medium leading-5 text-[#403D39]">{r.label}</span>
+            </div>
+          ),
+        )}
+      </div>
+
+      {/* Label */}
+      <p
+        style={{ top: ringTop + 232, ...hankenGrotesk }}
+        className="absolute inset-x-0 whitespace-nowrap text-center text-[12px] font-semibold uppercase leading-4 tracking-[0.96px] text-[#6F1D1B]"
+      >
+        1 GCC team
+      </p>
+    </div>
+  )
+}
+
+function OneTeamMobile() {
+  return (
+    <section className="flex flex-col items-center gap-9 bg-[#FFFCF2] px-5 py-[72px] lg:hidden">
+      {/* Headline */}
+      <div
+        style={baiJamjuree}
+        className="flex flex-col items-center gap-0.5 whitespace-nowrap text-center uppercase"
+      >
+        <p className="text-[26px] font-light leading-[1.1] tracking-[-0.13px] text-[#403D39]">
+          Your home needs
+        </p>
+        <p className="text-[40px] font-bold leading-none tracking-[-0.4px] text-[#6F1D1B]">
+          One team.
+          <br />
+          <span className="text-[#CCC5B9]">Not 10.</span>
+        </p>
+      </div>
+
+      {/* Visual: 10 → 1 */}
+      <TenToOneVisualMobile />
+
+      {/* Captions */}
+      <div style={hankenGrotesk} className="flex w-full flex-col gap-6">
+        <div className="flex w-full flex-col gap-2.5 border-t border-[#CCC5B9] pt-5 text-[#403D39]">
+          <p className="text-[12px] font-semibold uppercase leading-4 tracking-[0.96px]">
+            The challenge
+          </p>
+          <p className="text-[18px] font-normal leading-[27px]">
+            Too often, different teams handle different stages, communication gets lost, quality
+            becomes inconsistent, and your original vision gets harder to maintain.
+          </p>
+        </div>
+
+        <div className="flex w-full flex-col gap-2.5 border-t border-[#CCC5B9] pt-5">
+          <p className="text-[12px] font-semibold uppercase leading-4 tracking-[0.96px] text-[#E06422]">
+            GCC approach
+          </p>
+          <p className="text-[18px] font-normal leading-[27px] text-[#252422]">
+            GCC brings design, engineering and construction together, from the first plan to the
+            final handover.
+          </p>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ------------------------------------------------------------------ */
+
 export function OneTeamSection() {
   return (
-    <section
-      id="one-team"
-      className="flex flex-col items-center gap-16 bg-[#FFFCF2] px-6 py-16 md:px-12 lg:gap-24 lg:px-24 lg:py-32"
-    >
-      {/* Animation keyframes */}
+    <div id="one-team">
+      {/* Animation keyframes (shared by mobile + desktop) */}
       <style>{`
         @keyframes gcc-flow {
           from { stroke-dashoffset: 0; }
@@ -365,50 +684,55 @@ export function OneTeamSection() {
         }
       `}</style>
 
-      {/* Headline */}
-      <div className="flex flex-col items-center text-center uppercase">
-        <p
-          style={baiJamjuree}
-          className="text-[clamp(32px,4.45vw,64px)] font-light leading-[1.05] tracking-[-0.01em] text-[#403D39]"
-        >
-          Your home needs
-        </p>
-        <p
-          style={baiJamjuree}
-          className="text-[clamp(48px,6.67vw,96px)] font-bold leading-none tracking-[-0.01em] text-[#6F1D1B]"
-        >
-          One team. <span className="text-[#CCC5B9]">Not 10.</span>
-        </p>
-      </div>
+      <OneTeamMobile />
 
-      {/* Visual: 10 → 1 */}
-      <TenToOneVisual />
-
-      {/* Captions */}
-      <div
-        style={hankenGrotesk}
-        className="flex w-full max-w-[1248px] flex-col justify-between gap-10 md:flex-row"
-      >
-        <div className="flex w-full flex-col gap-3.5 text-[#403D39] md:w-[520px]">
-          <p className="text-[12px] font-semibold uppercase leading-4 tracking-[0.96px]">
-            The challenge
+      {/* Desktop: your original section, unchanged except `hidden … lg:flex` */}
+      <section className="hidden flex-col items-center gap-16 bg-[#FFFCF2] px-6 py-16 md:px-12 lg:flex lg:gap-24 lg:px-24 lg:py-32">
+        {/* Headline */}
+        <div className="flex flex-col items-center text-center uppercase">
+          <p
+            style={baiJamjuree}
+            className="text-[clamp(32px,4.45vw,64px)] font-light leading-[1.05] tracking-[-0.01em] text-[#403D39]"
+          >
+            Your home needs
           </p>
-          <p className="text-[20px] font-normal leading-7">
-            Too often, different teams handle different stages, communication gets lost, quality
-            becomes inconsistent, and your original vision gets harder to maintain.
+          <p
+            style={baiJamjuree}
+            className="text-[clamp(48px,6.67vw,96px)] font-bold leading-none tracking-[-0.01em] text-[#6F1D1B]"
+          >
+            One team. <span className="text-[#CCC5B9]">Not 10.</span>
           </p>
         </div>
 
-        <div className="flex w-full flex-col gap-3.5 md:w-[420px]">
-          <p className="text-[12px] font-semibold uppercase leading-4 tracking-[0.96px] text-[#E06422]">
-            GCC approach
-          </p>
-          <p className="text-[20px] font-normal leading-7 text-[#252422]">
-            GCC brings design, engineering and construction together, from the first plan to the
-            final handover.
-          </p>
+        {/* Visual: 10 → 1 */}
+        <TenToOneVisual />
+
+        {/* Captions */}
+        <div
+          style={hankenGrotesk}
+          className="flex w-full max-w-[1248px] flex-col justify-between gap-10 md:flex-row"
+        >
+          <div className="flex w-full flex-col gap-3.5 text-[#403D39] md:w-[520px]">
+            <p className="text-[12px] font-semibold uppercase leading-4 tracking-[0.96px]">
+              The challenge
+            </p>
+            <p className="text-[20px] font-normal leading-7">
+              Too often, different teams handle different stages, communication gets lost, quality
+              becomes inconsistent, and your original vision gets harder to maintain.
+            </p>
+          </div>
+
+          <div className="flex w-full flex-col gap-3.5 md:w-[420px]">
+            <p className="text-[12px] font-semibold uppercase leading-4 tracking-[0.96px] text-[#E06422]">
+              GCC approach
+            </p>
+            <p className="text-[20px] font-normal leading-7 text-[#252422]">
+              GCC brings design, engineering and construction together, from the first plan to the
+              final handover.
+            </p>
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </div>
   )
 }

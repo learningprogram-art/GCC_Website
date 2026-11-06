@@ -55,21 +55,42 @@ function useInViewOnce<T extends HTMLElement>(threshold = 0.2) {
   return [ref, inView] as const
 }
 
+const GAP = 12 // matches gap-3
+
 export function StructuresWeBuildSection() {
   const [headerRef, headerIn] = useInViewOnce<HTMLDivElement>(0.4)
   const [cardsRef, cardsIn] = useInViewOnce<HTMLDivElement>(0.15)
+  const [active, setActive] = useState(0)
+
+  // Mobile carousel: work out which card is current from the scroll position
+  const handleScroll = () => {
+    const el = cardsRef.current
+    if (!el || !el.firstElementChild) return
+    const cardWidth = (el.firstElementChild as HTMLElement).offsetWidth + GAP
+    const atEnd = el.scrollLeft + el.clientWidth >= el.scrollWidth - 4
+    const index = atEnd
+      ? structures.length - 1
+      : Math.round(el.scrollLeft / cardWidth)
+    setActive(Math.min(Math.max(index, 0), structures.length - 1))
+  }
+
+  const scrollToCard = (i: number) => {
+    const el = cardsRef.current
+    if (!el || !el.firstElementChild) return
+    const cardWidth = (el.firstElementChild as HTMLElement).offsetWidth + GAP
+    el.scrollTo({ left: i * cardWidth, behavior: 'smooth' })
+  }
 
   return (
     <section
       id="structures-we-build"
-      className="flex flex-col items-center gap-8 bg-[#FFFCF2] px-6 py-16 md:px-12 lg:px-[120px] lg:py-[100px]"
+      className="flex flex-col items-center gap-8 bg-[#FFFCF2] px-4 py-16 md:px-12 lg:px-[120px] lg:py-[100px]"
     >
       {/* Header */}
       <div
         ref={headerRef}
-        className={`w-full max-w-[1245px] transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none ${
-          headerIn ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
-        }`}
+        className={`w-full max-w-[1245px] transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none ${headerIn ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
+          }`}
       >
         <h2
           style={baiJamjuree}
@@ -79,47 +100,68 @@ export function StructuresWeBuildSection() {
         </h2>
       </div>
 
-      {/* Cards row */}
-      <div
-        ref={cardsRef}
-        className="grid w-full max-w-[1245px] grid-cols-1 gap-3 md:grid-cols-3"
-      >
-        {structures.map((item, i) => (
-          <article
-            key={item.title}
-            style={{ transitionDelay: cardsIn ? `${i * 150}ms` : '0ms' }}
-            className={`group flex min-w-0 flex-col overflow-hidden rounded-lg transition-all duration-[800ms] ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none ${
-              cardsIn ? 'translate-y-0 opacity-100' : 'translate-y-14 opacity-0'
-            }`}
-          >
-            <div className="h-[320px] w-full overflow-hidden rounded-xl bg-[#9D9D9D] lg:h-[408px]">
-              <img
-                src={item.image}
-                alt={item.alt}
-                loading="lazy"
-                style={{ transitionDelay: cardsIn ? `${i * 150}ms` : '0ms' }}
-                className={`h-full w-full object-cover transition-transform duration-[1400ms] ease-out group-hover:scale-105 motion-reduce:scale-100 motion-reduce:transition-none ${
-                  cardsIn ? 'scale-100' : 'scale-110'
+      {/* Cards: snap carousel on mobile, 3-col grid from md up */}
+      <div className="w-full max-w-[1245px]">
+        <div
+          ref={cardsRef}
+          onScroll={handleScroll}
+          className="-mr-4 flex snap-x snap-mandatory gap-3 overflow-x-auto pr-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:mr-0 md:grid md:grid-cols-3 md:snap-none md:overflow-visible md:pr-0"
+        >
+          {structures.map((item, i) => (
+            <article
+              key={item.title}
+              style={{ transitionDelay: cardsIn ? `${i * 150}ms` : '0ms' }}
+              className={`group flex w-[75%] min-w-0 shrink-0 snap-start flex-col overflow-hidden rounded-lg transition-all duration-[800ms] ease-out md:w-auto md:shrink motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none ${cardsIn ? 'translate-y-0 opacity-100' : 'translate-y-14 opacity-0'
                 }`}
-              />
-            </div>
+            >
+              <div className="aspect-square w-full overflow-hidden rounded-xl bg-[#9D9D9D] md:aspect-auto md:h-[320px] lg:h-[408px]">
+                <img
+                  src={item.image}
+                  alt={item.alt}
+                  loading="lazy"
+                  style={{ transitionDelay: cardsIn ? `${i * 150}ms` : '0ms' }}
+                  className={`h-full w-full object-cover transition-transform duration-[1400ms] ease-out group-hover:scale-105 motion-reduce:scale-100 motion-reduce:transition-none ${cardsIn ? 'scale-100' : 'scale-110'
+                    }`}
+                />
+              </div>
 
-            <div className="flex flex-col gap-2 py-5">
-              <h3
-                style={baiJamjuree}
-                className="text-[22px] font-semibold leading-7 tracking-[-0.005em] text-[#252422]"
-              >
-                {item.title}
-              </h3>
-              <p
-                style={hankenGrotesk}
-                className="text-[16px] font-normal leading-6 text-[#403D39]"
-              >
-                {item.description}
-              </p>
-            </div>
-          </article>
-        ))}
+              <div className="flex flex-col gap-2 py-5">
+                <h3
+                  style={baiJamjuree}
+                  className="text-[22px] font-semibold leading-7 tracking-[-0.005em] text-[#252422]"
+                >
+                  {item.title}
+                </h3>
+                <p
+                  style={hankenGrotesk}
+                  className="text-[16px] font-normal leading-6 text-[#403D39]"
+                >
+                  {item.description}
+                </p>
+              </div>
+            </article>
+          ))}
+        </div>
+
+        {/* Pagination dots (mobile only) */}
+        <div
+          className="mt-4 flex items-center gap-2 md:hidden"
+          role="tablist"
+          aria-label="Structures We Build slides"
+        >
+          {structures.map((item, i) => (
+            <button
+              key={item.title}
+              type="button"
+              role="tab"
+              aria-selected={active === i}
+              aria-label={`Go to ${item.title}`}
+              onClick={() => scrollToCard(i)}
+              className={`h-2 rounded-full transition-all duration-300 ${active === i ? 'w-6 bg-[#6B1D1D]' : 'w-2 bg-[#C9C5BF]'
+                }`}
+            />
+          ))}
+        </div>
       </div>
     </section>
   )

@@ -26,3 +26,33 @@ body {
   min-width: 320px;
   min-height: 100vh;
 }
+
+
+@font-face {
+  font-family: "Bai Jamjuree";
+  src: url("/assets/fonts/BaiJamjuree-Light.ttf") format("truetype");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Bai Jamjuree";
+  src: url("/assets/fonts/BaiJamjuree-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Bai Jamjuree";
+  src: url("/assets/fonts/BaiJamjuree-Medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Bai Jamjuree";
+  src: url("/assets/fonts/BaiJamjuree-SemiBold.ttf") format("truetype");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
