@@ -4,6 +4,7 @@ import {
   PreviousExperiences,
   VisitOfficeSection,
 } from './sections'
+import { TestimonialsSection } from '@/components/common/TestimonialsSection'
 import { ContactSection } from '@/components/common/ContactSection'
 
 export function AboutPage() {
@@ -16,6 +17,7 @@ export function AboutPage() {
         <PreviousExperiences />
       </div>
       <VisitOfficeSection />
+      <TestimonialsSection />
       <ContactSection />
     </div>
   )

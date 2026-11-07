@@ -236,7 +236,7 @@ export const WhereWeBuildCard: React.FC = () => {
 
 export const WhereWeBuildSection: React.FC = () => {
   return (
-    <div id="where-we-build" className="w-full px-6 sm:px-12 md:px-[96px] lg:px-[6rem]">
+    <div id="where-we-build" className="w-full px-5 sm:px-12 md:px-[96px] lg:px-[6rem]">
       <WhereWeBuildCard />
     </div>
   );
