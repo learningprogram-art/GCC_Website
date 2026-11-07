@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
-import villaImg from '/assets/images/structures/villa.png'
-import farmhouseImg from '/assets/images/structures/farmhouse.png'
-import hospitalityImg from '/assets/images/structures/hospitality.png'
+import villaImg from '/assets/images/structures/villa.webp'
+import farmhouseImg from '/assets/images/structures/farmhouse.webp'
+import hospitalityImg from '/assets/images/structures/hospitality.webp'
 
 const baiJamjuree = { fontFamily: '"Bai Jamjuree", sans-serif' }
 const hankenGrotesk = { fontFamily: '"Hanken Grotesk", sans-serif' }
@@ -82,7 +82,7 @@ export function StructuresWeBuildSection() {
   return (
     <section
       id="structures-we-build"
-      className="flex flex-col items-center gap-8 bg-[#FFFCF2] px-4 py-16 md:px-12 lg:px-[120px] lg:py-[100px]"
+      className="flex flex-col items-center gap-8 bg-[#FFFCF2] px-4 py-16 md:px-12 lg:px-24 lg:py-[100px]"
     >
       {/* Header */}
       <div
@@ -164,3 +164,5 @@ export function StructuresWeBuildSection() {
     </section>
   )
 }
+
+export default StructuresWeBuildSection

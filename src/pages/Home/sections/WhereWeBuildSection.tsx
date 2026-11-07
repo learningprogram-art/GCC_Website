@@ -36,7 +36,7 @@ export const WhereWeBuildCard: React.FC = () => {
       {/* Background Image & Overlay */}
       <div className="absolute inset-0 pointer-events-none">
         <img
-          src="/assets/images/where-we-build.png"
+          src="/assets/images/where-we-build.webp"
           alt="Where We Build - Noida, Delhi, Jewar Aerial Map"
           className="w-full h-full object-cover"
         />

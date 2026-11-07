@@ -1,8 +1,43 @@
-import React from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 
-const OFFICE_IMG = '/assets/images/about/office.png'
+const OFFICE_IMG = '/assets/images/about/office.webp'
+
+// Bottom-up reveal: fade + slide up (same feel as the other sections)
+const REVEAL =
+  'transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none'
+const revealState = (shown: boolean) =>
+  shown ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
+const delayStyle = (shown: boolean, ms: number) => ({
+  transitionDelay: shown ? `${ms}ms` : '0ms',
+})
+
+/** Flips to true once, the first time the element scrolls into view. */
+function useReveal<T extends HTMLElement>(threshold = 0.3) {
+  const ref = useRef<T>(null)
+  const [shown, setShown] = useState(false)
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setShown(true)
+          io.disconnect()
+        }
+      },
+      { threshold, rootMargin: '0px 0px -8% 0px' },
+    )
+    io.observe(el)
+    return () => io.disconnect()
+  }, [threshold])
+
+  return [ref, shown] as const
+}
 
 export const VisitOfficeSection: React.FC = () => {
+  const [contentRef, shown] = useReveal<HTMLDivElement>()
+
   return (
     <section
       id="visit-office"
@@ -25,6 +60,7 @@ export const VisitOfficeSection: React.FC = () => {
 
       {/* Content Block (Figma Node 214:7217) — x=96, y=253.5, w=430.58, h=242 */}
       <div
+        ref={contentRef}
         data-node-id="214:7217"
         style={{
           display: 'flex',
@@ -45,8 +81,9 @@ export const VisitOfficeSection: React.FC = () => {
             color: '#FFFCF2',
             margin: 0,
             whiteSpace: 'nowrap',
+            ...delayStyle(shown, 0),
           }}
-          className="font-bold whitespace-nowrap text-[26px] xs:text-[32px] sm:text-[38px] md:text-[44px] lg:text-[48px] tracking-normal"
+          className={`font-bold whitespace-nowrap text-[26px] xs:text-[32px] sm:text-[38px] md:text-[44px] lg:text-[48px] tracking-normal ${REVEAL} ${revealState(shown)}`}
         >
           VISIT THE OFFICE
         </h2>
@@ -63,7 +100,9 @@ export const VisitOfficeSection: React.FC = () => {
             lineHeight: '24px',
             display: 'flex',
             flexDirection: 'column',
+            ...delayStyle(shown, 150),
           }}
+          className={`${REVEAL} ${revealState(shown)}`}
         >
           <p style={{ margin: 0, lineHeight: '24px' }}>
             Sample address line 1, line 2
@@ -73,56 +112,62 @@ export const VisitOfficeSection: React.FC = () => {
           </p>
         </div>
 
-        {/* Action Button (Figma Node 214:7221) — w=226px, h=56px, rounded=8px */}
-        <a
-          href="https://maps.google.com"
-          target="_blank"
-          rel="noopener noreferrer"
-          data-node-id="214:7221"
-          style={{
-            display: 'flex',
-            width: '226px',
-            height: '56px',
-            padding: '14px 20px 14px 24px',
-            justifyContent: 'center',
-            alignItems: 'center',
-            gap: '8px',
-            backgroundColor: '#FFFCF2',
-            borderRadius: '8px',
-            color: '#252422',
-            textDecoration: 'none',
-            boxSizing: 'border-box',
-          }}
-          className="hover:bg-white active:bg-[#FFE6A7] transition-all duration-200 shadow-md hover:shadow-xl cursor-pointer shrink-0"
+        {/* Action Button wrapper: carries the reveal so the button keeps its own hover transitions */}
+        <div
+          style={delayStyle(shown, 300)}
+          className={`shrink-0 ${REVEAL} ${revealState(shown)}`}
         >
-          <span
-            data-node-id="I214:7221;54:1652"
+          {/* Action Button (Figma Node 214:7221) — w=226px, h=56px, rounded=8px */}
+          <a
+            href="https://maps.google.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            data-node-id="214:7221"
             style={{
-              fontFamily: '"Hanken Grotesk", sans-serif',
-              fontWeight: 700,
-              fontSize: '18px',
-              lineHeight: '28px',
-              letterSpacing: '-0.36px',
-              whiteSpace: 'nowrap',
+              display: 'flex',
+              width: '226px',
+              height: '56px',
+              padding: '14px 20px 14px 24px',
+              justifyContent: 'center',
+              alignItems: 'center',
+              gap: '8px',
+              backgroundColor: '#FFFCF2',
+              borderRadius: '8px',
+              color: '#252422',
+              textDecoration: 'none',
+              boxSizing: 'border-box',
             }}
+            className="hover:bg-white active:bg-[#FFE6A7] transition-all duration-200 shadow-md hover:shadow-xl cursor-pointer shrink-0"
           >
-            Get direction
-          </span>
-          <svg
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="#252422"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="shrink-0 size-[24px]"
-            aria-hidden="true"
-          >
-            <path d="M9 18l6-6-6-6" />
-          </svg>
-        </a>
+            <span
+              data-node-id="I214:7221;54:1652"
+              style={{
+                fontFamily: '"Hanken Grotesk", sans-serif',
+                fontWeight: 700,
+                fontSize: '18px',
+                lineHeight: '28px',
+                letterSpacing: '-0.36px',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              Get direction
+            </span>
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#252422"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="shrink-0 size-[24px]"
+              aria-hidden="true"
+            >
+              <path d="M9 18l6-6-6-6" />
+            </svg>
+          </a>
+        </div>
       </div>
     </section>
   )

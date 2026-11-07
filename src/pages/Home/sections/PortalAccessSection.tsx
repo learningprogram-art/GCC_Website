@@ -27,7 +27,7 @@ export function PortalAccessSection({
         <div className="relative w-full min-h-[460px] sm:min-h-[500px] lg:min-h-0 lg:h-[560px] lg:aspect-[1248/560] overflow-hidden rounded-[12px] bg-transparent">
           {/* Background image (4992x2240, exactly 1248:560 ratio): fits frame width & height perfectly without distortion */}
           <img
-            src="/assets/images/amc/GCC-AMC-Portal-access-card.png"
+            src="/assets/images/amc/GCC-AMC-Portal-access-card.webp"
             alt="GCC AMC Portal Access"
             className="absolute inset-0 size-full object-cover object-[70%_center] lg:object-fill pointer-events-none select-none"
             loading="lazy"

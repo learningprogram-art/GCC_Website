@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, type ElementType, type CSSProperties } from 'react'
 import { cn } from '@/utils/cn'
 
 export interface StepItem {
@@ -53,6 +53,80 @@ const STEPS: StepItem[] = [
     imageCaption: 'Family receiving keys with structural warranty',
   },
 ]
+
+/* ------------------------------------------------------------------ */
+/* Bottom-up reveal-on-scroll helpers                                  */
+/* ------------------------------------------------------------------ */
+
+function useInView<T extends HTMLElement>(threshold = 0.2) {
+  const ref = useRef<T | null>(null)
+  const [inView, setInView] = useState(false)
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setInView(true)
+          io.disconnect() // reveal only once
+        }
+      },
+      { threshold, rootMargin: '0px 0px -10% 0px' }
+    )
+    io.observe(el)
+    return () => io.disconnect()
+  }, [threshold])
+
+  return [ref, inView] as const
+}
+
+interface RevealTextProps {
+  children: string
+  as?: ElementType
+  className?: string
+  style?: CSSProperties
+  delay?: number // ms before the first word starts
+  stagger?: number // ms between words
+}
+
+function RevealText({
+  children,
+  as: Tag = 'p',
+  className,
+  style,
+  delay = 0,
+  stagger = 40,
+}: RevealTextProps) {
+  const [ref, inView] = useInView<HTMLElement>()
+  const words = children.split(' ')
+
+  return (
+    <Tag ref={ref} aria-label={children} className={className} style={style}>
+      {words.map((word, i) => (
+        <span key={i} aria-hidden="true">
+          {/* mask: extra padding/negative margin stops descenders from being clipped */}
+          <span className="inline-block overflow-hidden align-bottom pb-[0.15em] -mb-[0.15em]">
+            <span
+              className="inline-block transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none motion-reduce:!translate-y-0"
+              style={{
+                transform: inView ? 'translateY(0)' : 'translateY(110%)',
+                transitionDelay: `${delay + i * stagger}ms`,
+              }}
+            >
+              {word}
+            </span>
+          </span>
+          {i < words.length - 1 ? ' ' : ''}
+        </span>
+      ))}
+    </Tag>
+  )
+}
+
+/* ------------------------------------------------------------------ */
+/* Illustrations                                                       */
+/* ------------------------------------------------------------------ */
 
 function StepIllustration({ tone }: { tone: string }) {
   if (tone === 'White') {
@@ -191,6 +265,10 @@ function StepIllustration({ tone }: { tone: string }) {
   )
 }
 
+/* ------------------------------------------------------------------ */
+/* Section                                                             */
+/* ------------------------------------------------------------------ */
+
 export function HowWeBuildSection() {
   const [activeStepIndex, setActiveStepIndex] = useState<number>(0)
   const cardRefs = useRef<(HTMLDivElement | null)[]>([])
@@ -238,21 +316,32 @@ export function HowWeBuildSection() {
           {/* Eyebrow */}
           <div className="flex items-center gap-[0.75rem]">
             <span className="size-[0.5rem] bg-[#E06422]" aria-hidden="true" />
-            <span className="font-['Hanken_Grotesk',sans-serif] text-[0.75rem] font-semibold uppercase tracking-[0.06rem] text-[#99582A]">
+            <RevealText
+              as="span"
+              className="font-['Hanken_Grotesk',sans-serif] text-[0.75rem] font-semibold uppercase tracking-[0.06rem] text-[#99582A]"
+            >
               How we build
-            </span>
+            </RevealText>
           </div>
 
           {/* Headline & Subhead Row (Figma Node 211:5241) */}
           <div className="flex flex-col gap-[1.5rem] lg:flex-row lg:items-end lg:justify-between w-full">
             <div className="font-['Bai_Jamjuree',sans-serif] text-[2rem] sm:text-[2.625rem] lg:text-[3rem] font-bold uppercase leading-[1.2]">
-              <p className="m-0 text-[#252422]">One team.</p>
-              <p className="m-0 text-[#6F1D1B]">The Way We Build</p>
+              <RevealText as="p" className="m-0 text-[#252422]">
+                One team.
+              </RevealText>
+              <RevealText as="p" className="m-0 text-[#6F1D1B]" delay={150}>
+                The Way We Build
+              </RevealText>
             </div>
-            <p className="font-['Hanken_Grotesk',sans-serif] text-[1rem] sm:text-[1.125rem] lg:text-[1.25rem] font-normal leading-[1.75rem] text-[#403D39] max-w-[26rem] m-0">
-              You deal with one team that owns the whole project — not a chain of
-              contractors you have to coordinate yourself.
-            </p>
+            <RevealText
+              as="p"
+              delay={300}
+              stagger={20}
+              className="font-['Hanken_Grotesk',sans-serif] text-[1rem] sm:text-[1.125rem] lg:text-[1.25rem] font-normal leading-[1.75rem] text-[#403D39] max-w-[26rem] m-0"
+            >
+              You deal with one team that owns the whole project — not a chain of contractors you have to coordinate yourself.
+            </RevealText>
           </div>
         </div>
 
@@ -301,12 +390,13 @@ export function HowWeBuildSection() {
                     </div>
 
                     {/* Step Title (Figma Node 211:5251) */}
-                    <h3
+                    <RevealText
+                      as="h3"
                       style={{ fontFamily: '"Bai Jamjuree", sans-serif' }}
                       className="m-0 text-[26px] sm:text-[32px] lg:text-[36px] font-semibold leading-[44px] tracking-[-0.36px] text-[#252422]"
                     >
                       {step.title}
-                    </h3>
+                    </RevealText>
                   </div>
 
                   {/* Step of 4 Indicator (Figma Node 211:5252) */}
@@ -325,12 +415,15 @@ export function HowWeBuildSection() {
                 <div className="flex flex-col lg:flex-row items-stretch flex-1 w-full overflow-hidden">
                   {/* Left Column: Copy + Deliverables (Figma Node 211:5255) */}
                   <div className="flex flex-col justify-between w-full lg:w-1/2 px-6 sm:px-[40px] py-6 sm:py-[32px] relative z-10">
-                    <p
+                    <RevealText
+                      as="p"
+                      delay={150}
+                      stagger={20}
                       style={{ fontFamily: '"Hanken Grotesk", sans-serif' }}
                       className="m-0 text-[18px] sm:text-[20px] font-normal leading-[28px] text-[rgba(37,36,34,0.8)] max-w-[460px]"
                     >
                       {step.description}
-                    </p>
+                    </RevealText>
 
                     {/* Deliverables Chip Row (Figma Node 211:5259) */}
                     <div className="flex flex-wrap gap-[8px] items-center pt-8">
