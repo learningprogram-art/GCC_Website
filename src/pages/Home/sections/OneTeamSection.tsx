@@ -735,7 +735,7 @@ export function OneTeamSection() {
       <OneTeamMobile />
 
       {/* Desktop: your original section, unchanged except `hidden … lg:flex` */}
-      <section className="hidden flex-col items-center gap-16 bg-[#FFFCF2] px-6 py-16 md:px-12 lg:flex lg:gap-24 lg:px-24 lg:py-32">
+      <section className="hidden flex-col items-center gap-16 bg-[#FFFCF2] px-24 py-16 lg:flex lg:gap-24 lg:py-32">
         {/* Headline */}
         <div
           ref={headRef}

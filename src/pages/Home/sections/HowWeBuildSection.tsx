@@ -1,6 +1,13 @@
 import { useState, useEffect, useRef, type ElementType, type CSSProperties } from 'react'
 import { cn } from '@/utils/cn'
 
+// Side padding lives in plain CSS (ID selector) so nothing else can override it
+const SECTION_CSS = `
+#how-we-build { padding-left: 16px; padding-right: 16px; }
+@media (min-width: 768px)  { #how-we-build { padding-left: 48px; padding-right: 48px; } }
+@media (min-width: 1024px) { #how-we-build { padding-left: 96px; padding-right: 96px; } }
+`
+
 export interface StepItem {
   number: string
   stepOf: string
@@ -304,160 +311,164 @@ export function HowWeBuildSection() {
   }, [])
 
   return (
-    <section
-      id="how-we-build"
-      data-node-id="211:5236"
-      aria-label="How We Build"
-      className="relative w-full bg-[#FFFCF2] pt-[4rem] pb-[6rem] lg:pt-[7.5rem] lg:pb-[7.5rem] px-[1rem] sm:px-[2rem] lg:px-[6rem] overflow-visible"
-    >
-      <div className="mx-auto max-w-[78rem] flex flex-col gap-[3rem] lg:gap-[4.5rem]">
-        {/* Header (Figma Node 211:5237) */}
-        <div className="flex flex-col gap-[1.5rem] items-start">
-          {/* Eyebrow */}
-          <div className="flex items-center gap-[0.75rem]">
-            <span className="size-[0.5rem] bg-[#E06422]" aria-hidden="true" />
-            <RevealText
-              as="span"
-              className="font-['Hanken_Grotesk',sans-serif] text-[0.75rem] font-semibold uppercase tracking-[0.06rem] text-[#99582A]"
-            >
-              How we build
-            </RevealText>
-          </div>
+    <>
+      <style>{SECTION_CSS}</style>
 
-          {/* Headline & Subhead Row (Figma Node 211:5241) */}
-          <div className="flex flex-col gap-[1.5rem] lg:flex-row lg:items-end lg:justify-between w-full">
-            <div className="font-['Bai_Jamjuree',sans-serif] text-[2rem] sm:text-[2.625rem] lg:text-[3rem] font-bold uppercase leading-[1.2]">
-              <RevealText as="p" className="m-0 text-[#252422]">
-                One team.
-              </RevealText>
-              <RevealText as="p" className="m-0 text-[#6F1D1B]" delay={150}>
-                The Way We Build
+      <section
+        id="how-we-build"
+        data-node-id="211:5236"
+        aria-label="How We Build"
+        className="relative w-full bg-[#FFFCF2] pt-[4rem] pb-[6rem] lg:pt-[7.5rem] lg:pb-[7.5rem] overflow-visible"
+      >
+        <div className="mx-auto max-w-[78rem] flex flex-col gap-[3rem] lg:gap-[4.5rem]">
+          {/* Header (Figma Node 211:5237) */}
+          <div className="flex flex-col gap-[1.5rem] items-start">
+            {/* Eyebrow */}
+            <div className="flex items-center gap-[0.75rem]">
+              <span className="size-[0.5rem] bg-[#E06422]" aria-hidden="true" />
+              <RevealText
+                as="span"
+                className="font-['Hanken_Grotesk',sans-serif] text-[0.75rem] font-semibold uppercase tracking-[0.06rem] text-[#99582A]"
+              >
+                How we build
               </RevealText>
             </div>
-            <RevealText
-              as="p"
-              delay={300}
-              stagger={20}
-              className="font-['Hanken_Grotesk',sans-serif] text-[1rem] sm:text-[1.125rem] lg:text-[1.25rem] font-normal leading-[1.75rem] text-[#403D39] max-w-[26rem] m-0"
-            >
-              You deal with one team that owns the whole project — not a chain of contractors you have to coordinate yourself.
-            </RevealText>
-          </div>
-        </div>
 
-        {/* Sticky Stacking Step Cards Container */}
-        <div className="relative flex flex-col gap-[2rem] lg:gap-[3rem] w-full pt-[1.5rem] sm:pt-[2rem] lg:pt-[2.5rem]">
-          {STEPS.map((step, index) => {
-            const isMaroon = step.tone === 'Maroon'
-            const isTan = step.tone === 'Tan'
-            const isSand = step.tone === 'Sand'
-            const isWhite = step.tone === 'White'
-            const isActive = activeStepIndex === index
-
-            // CSS Sticky offset per card: pins top below floating navbar (~6.75rem / 108px) + tab offset
-            const stickyTop = `${baseStickyRem + index * stepOffsetRem}rem`
-
-            return (
-              <div
-                key={step.number}
-                ref={(el) => {
-                  cardRefs.current[index] = el
-                }}
-                style={{ top: stickyTop }}
-                className={cn(
-                  'sticky flex flex-col justify-between overflow-hidden rounded-[12px] transition-all duration-300 w-full min-h-[30rem] lg:h-[514px] shadow-[0px_-10px_28px_0px_rgba(37,36,34,0.14)]',
-                  isActive ? 'bg-white' : 'bg-[#FFFCF2]'
-                )}
+            {/* Headline & Subhead Row (Figma Node 211:5241) */}
+            <div className="flex flex-col gap-[1.5rem] lg:flex-row lg:items-end lg:justify-between w-full">
+              <div className="font-['Bai_Jamjuree',sans-serif] text-[2rem] sm:text-[2.625rem] lg:text-[3rem] font-bold uppercase leading-[1.2]">
+                <RevealText as="p" className="m-0 text-[#252422]">
+                  One team.
+                </RevealText>
+                <RevealText as="p" className="m-0 text-[#6F1D1B]" delay={150}>
+                  The Way We Build
+                </RevealText>
+              </div>
+              <RevealText
+                as="p"
+                delay={300}
+                stagger={20}
+                className="font-['Hanken_Grotesk',sans-serif] text-[1rem] sm:text-[1.125rem] lg:text-[1.25rem] font-normal leading-[1.75rem] text-[#403D39] max-w-[26rem] m-0"
               >
-                {/* Step Card Header / Pin Tab (Figma Node 211:5247) */}
+                You deal with one team that owns the whole project — not a chain of contractors you have to coordinate yourself.
+              </RevealText>
+            </div>
+          </div>
+
+          {/* Sticky Stacking Step Cards Container */}
+          <div className="relative flex flex-col gap-[2rem] lg:gap-[3rem] w-full pt-[1.5rem] sm:pt-[2rem] lg:pt-[2.5rem]">
+            {STEPS.map((step, index) => {
+              const isMaroon = step.tone === 'Maroon'
+              const isTan = step.tone === 'Tan'
+              const isSand = step.tone === 'Sand'
+              const isWhite = step.tone === 'White'
+              const isActive = activeStepIndex === index
+
+              // CSS Sticky offset per card: pins top below floating navbar (~6.75rem / 108px) + tab offset
+              const stickyTop = `${baseStickyRem + index * stepOffsetRem}rem`
+
+              return (
                 <div
-                  onClick={() => setActiveStepIndex(index)}
-                  className="flex items-center justify-between w-full px-6 sm:px-[40px] pt-[18px] pb-[18px] shrink-0 cursor-pointer select-none"
+                  key={step.number}
+                  ref={(el) => {
+                    cardRefs.current[index] = el
+                  }}
+                  style={{ top: stickyTop }}
+                  className={cn(
+                    'sticky flex flex-col justify-between overflow-hidden rounded-[12px] transition-all duration-300 w-full min-h-[30rem] lg:h-[514px] shadow-[0px_-10px_28px_0px_rgba(37,36,34,0.14)]',
+                    isActive ? 'bg-white' : 'bg-[#FFFCF2]'
+                  )}
                 >
-                  <div className="flex items-center gap-[16px]">
-                    {/* Badge (Figma Node 211:5249 - active is black #252422, inactive below/stacked is brown #6F1D1B) */}
+                  {/* Step Card Header / Pin Tab (Figma Node 211:5247) */}
+                  <div
+                    onClick={() => setActiveStepIndex(index)}
+                    className="flex items-center justify-between w-full px-6 sm:px-[40px] pt-[18px] pb-[18px] shrink-0 cursor-pointer select-none"
+                  >
+                    <div className="flex items-center gap-[16px]">
+                      {/* Badge (Figma Node 211:5249 - active is black #252422, inactive below/stacked is brown #6F1D1B) */}
+                      <div
+                        className={cn(
+                          'flex items-center justify-center rounded-[4px] px-[10px] py-[6px] shrink-0 transition-colors duration-200',
+                          isActive
+                            ? 'bg-[#252422] text-[#FFFCF2]'
+                            : 'bg-[#6F1D1B] text-white'
+                        )}
+                      >
+                        <span className="font-['Hanken_Grotesk',sans-serif] text-[12px] font-semibold uppercase tracking-[0.96px] leading-none block">
+                          {step.number}
+                        </span>
+                      </div>
+
+                      {/* Step Title (Figma Node 211:5251) */}
+                      <RevealText
+                        as="h3"
+                        style={{ fontFamily: '"Bai Jamjuree", sans-serif' }}
+                        className="m-0 text-[26px] sm:text-[32px] lg:text-[36px] font-semibold leading-[44px] tracking-[-0.36px] text-[#252422]"
+                      >
+                        {step.title}
+                      </RevealText>
+                    </div>
+
+                    {/* Step of 4 Indicator (Figma Node 211:5252) */}
+                    <span
+                      style={{ fontFamily: '"Hanken Grotesk", sans-serif' }}
+                      className="text-[14px] font-medium leading-[20px] text-[rgba(37,36,34,0.7)]"
+                    >
+                      {step.stepOf}
+                    </span>
+                  </div>
+
+                  {/* Divider Rule (Figma Node 211:5253) */}
+                  <div className="h-px w-full bg-[rgba(37,36,34,0.2)] shrink-0" />
+
+                  {/* Card Body (Figma Node 211:5254) */}
+                  <div className="flex flex-col lg:flex-row items-stretch flex-1 w-full overflow-hidden">
+                    {/* Left Column: Copy + Deliverables (Figma Node 211:5255) */}
+                    <div className="flex flex-col justify-between w-full lg:w-1/2 px-6 sm:px-[40px] py-6 sm:py-[32px] relative z-10">
+                      <RevealText
+                        as="p"
+                        delay={150}
+                        stagger={20}
+                        style={{ fontFamily: '"Hanken Grotesk", sans-serif' }}
+                        className="m-0 text-[18px] sm:text-[20px] font-normal leading-[28px] text-[rgba(37,36,34,0.8)] max-w-[460px]"
+                      >
+                        {step.description}
+                      </RevealText>
+
+                      {/* Deliverables Chip Row (Figma Node 211:5259) */}
+                      <div className="flex flex-wrap gap-[8px] items-center pt-8">
+                        {step.deliverables.map((chip) => (
+                          <span
+                            key={chip}
+                            style={{ fontFamily: '"Hanken Grotesk", sans-serif' }}
+                            className="rounded-full px-[12px] py-[6px] bg-[rgba(230,230,230,0.55)] text-[14px] font-medium leading-[20px] text-[#252422] whitespace-nowrap"
+                          >
+                            {chip}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Right Column: Visual Frame (Figma Node 211:5268) */}
                     <div
                       className={cn(
-                        'flex items-center justify-center rounded-[4px] px-[10px] py-[6px] shrink-0 transition-colors duration-200',
-                        isActive
-                          ? 'bg-[#252422] text-[#FFFCF2]'
-                          : 'bg-[#6F1D1B] text-white'
+                        'w-full lg:w-1/2 min-h-[220px] sm:min-h-[280px] lg:min-h-0 flex-1 relative flex flex-col justify-between overflow-hidden',
+                        isMaroon && 'bg-[#403D39]',
+                        isTan && 'bg-[#99582A]',
+                        isSand && 'bg-[#BB9457]',
+                        isWhite && 'bg-[#CCC5B9]'
                       )}
                     >
-                      <span className="font-['Hanken_Grotesk',sans-serif] text-[12px] font-semibold uppercase tracking-[0.96px] leading-none block">
-                        {step.number}
-                      </span>
-                    </div>
-
-                    {/* Step Title (Figma Node 211:5251) */}
-                    <RevealText
-                      as="h3"
-                      style={{ fontFamily: '"Bai Jamjuree", sans-serif' }}
-                      className="m-0 text-[26px] sm:text-[32px] lg:text-[36px] font-semibold leading-[44px] tracking-[-0.36px] text-[#252422]"
-                    >
-                      {step.title}
-                    </RevealText>
-                  </div>
-
-                  {/* Step of 4 Indicator (Figma Node 211:5252) */}
-                  <span
-                    style={{ fontFamily: '"Hanken Grotesk", sans-serif' }}
-                    className="text-[14px] font-medium leading-[20px] text-[rgba(37,36,34,0.7)]"
-                  >
-                    {step.stepOf}
-                  </span>
-                </div>
-
-                {/* Divider Rule (Figma Node 211:5253) */}
-                <div className="h-px w-full bg-[rgba(37,36,34,0.2)] shrink-0" />
-
-                {/* Card Body (Figma Node 211:5254) */}
-                <div className="flex flex-col lg:flex-row items-stretch flex-1 w-full overflow-hidden">
-                  {/* Left Column: Copy + Deliverables (Figma Node 211:5255) */}
-                  <div className="flex flex-col justify-between w-full lg:w-1/2 px-6 sm:px-[40px] py-6 sm:py-[32px] relative z-10">
-                    <RevealText
-                      as="p"
-                      delay={150}
-                      stagger={20}
-                      style={{ fontFamily: '"Hanken Grotesk", sans-serif' }}
-                      className="m-0 text-[18px] sm:text-[20px] font-normal leading-[28px] text-[rgba(37,36,34,0.8)] max-w-[460px]"
-                    >
-                      {step.description}
-                    </RevealText>
-
-                    {/* Deliverables Chip Row (Figma Node 211:5259) */}
-                    <div className="flex flex-wrap gap-[8px] items-center pt-8">
-                      {step.deliverables.map((chip) => (
-                        <span
-                          key={chip}
-                          style={{ fontFamily: '"Hanken Grotesk", sans-serif' }}
-                          className="rounded-full px-[12px] py-[6px] bg-[rgba(230,230,230,0.55)] text-[14px] font-medium leading-[20px] text-[#252422] whitespace-nowrap"
-                        >
-                          {chip}
-                        </span>
-                      ))}
+                      <StepIllustration tone={step.tone} />
                     </div>
                   </div>
-
-                  {/* Right Column: Visual Frame (Figma Node 211:5268) */}
-                  <div
-                    className={cn(
-                      'w-full lg:w-1/2 min-h-[220px] sm:min-h-[280px] lg:min-h-0 flex-1 relative flex flex-col justify-between overflow-hidden',
-                      isMaroon && 'bg-[#403D39]',
-                      isTan && 'bg-[#99582A]',
-                      isSand && 'bg-[#BB9457]',
-                      isWhite && 'bg-[#CCC5B9]'
-                    )}
-                  >
-                    <StepIllustration tone={step.tone} />
-                  </div>
                 </div>
-              </div>
-            )
-          })}
+              )
+            })}
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </>
   )
 }
 

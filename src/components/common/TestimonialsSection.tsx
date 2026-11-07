@@ -117,12 +117,16 @@ export function TestimonialsSection({
     [headRef]
   )
 
-  // Measure dynamic grid gutter so Card 1 aligns with header on left initially,
-  // and last card aligns with right edge of header at the end of scroll
+  const DESKTOP_PADDING = 96 // px, matches lg:px-[6rem]
+
   const updateGutter = useCallback(() => {
     if (headerContainerRef.current) {
       const rect = headerContainerRef.current.getBoundingClientRect()
-      setGutter(Math.max(16, Math.round(rect.left)))
+      const isDesktop = window.matchMedia('(min-width: 1024px)').matches
+      const base = Math.round(rect.left)
+      setGutter(
+        isDesktop ? base + DESKTOP_PADDING : Math.max(16, base)
+      )
     }
   }, [])
 
@@ -405,201 +409,201 @@ export function TestimonialsSection({
             className="relative w-full flex items-stretch gap-[24px] overflow-x-auto scroll-smooth [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
             style={{ WebkitOverflowScrolling: 'touch' }}
           >
-          {/* Dynamic Left Gutter Spacer */}
-          <div
-            style={{ width: `${gutter}px` }}
-            className="shrink-0 pointer-events-none"
-            aria-hidden="true"
-          />
+            {/* Dynamic Left Gutter Spacer */}
+            <div
+              style={{ width: `${gutter}px` }}
+              className="shrink-0 pointer-events-none"
+              aria-hidden="true"
+            />
 
-          {/* Cards (Figma: width 720px, height 620px, no box-shadow) */}
-          {items.map((item, idx) => {
-            const isActive = idx === activeIndex
-            return (
-              <article
-                key={item.id}
-                ref={(el) => {
-                  cardRefs.current[idx] = el
-                }}
-                onClick={() => scrollToCard(idx)}
-                className={cn(
-                  'relative flex flex-col justify-between shrink-0 overflow-clip transition-all duration-300 cursor-default select-none',
-                  'w-[86vw] sm:w-[36rem] lg:w-[720px] min-h-[34rem] sm:min-h-[36rem] lg:h-[620px]',
-                  isActive
-                    ? 'bg-[#252422] text-[#FFFCF2]'
-                    : 'bg-white border border-[#CCC5B9] text-[#252422]'
-                )}
-              >
-                {/* Card Content Top Body (Figma Node 211:5428) */}
-                <div className="flex flex-1 flex-col justify-between p-[1.5rem] sm:p-[2.25rem] lg:p-[48px]">
-                  {/* Quote Block (Figma Node 211:5431 / 211:5453)
-                      GCC/Quote/L: Bai Jamjuree, Medium, 30px, 42px line-height, -0.15px letter-spacing
-                  */}
-                  <blockquote className="m-0 cursor-text select-text">
-                    <p
-                      style={{
-                        fontFamily: '"Bai Jamjuree", sans-serif',
-                        fontSize: '30px',
-                        lineHeight: '42px',
-                        letterSpacing: '-0.15px',
-                        fontWeight: 500,
-                        fontStyle: 'normal',
-                        color: isActive ? '#FFFCF2' : '#403D39',
-                      }}
-                      className="m-0 cursor-text select-text"
-                    >
-                      {item.quote}
-                    </p>
-                  </blockquote>
-
-                  {/* Metrics Row (Figma Node 211:5432 / 211:5454 - gap 56px) */}
-                  <div className="flex flex-wrap gap-[2rem] sm:gap-[3.5rem] lg:gap-[56px] pt-[1.5rem] sm:pt-[2rem] cursor-text select-text">
-                    {/* Metric 1 */}
-                    <div className="flex flex-col gap-[4px] cursor-text select-text">
-                      {/* GCC/Stat/M: Bai Jamjuree, SemiBold, 28px, 36px line-height, -0.14px letter-spacing */}
-                      <span
-                        style={{
-                          fontFamily: '"Bai Jamjuree", sans-serif',
-                          fontSize: '28px',
-                          lineHeight: '36px',
-                          letterSpacing: '-0.14px',
-                          fontWeight: 600,
-                          fontStyle: 'normal',
-                          color: isActive ? '#FB8B24' : '#99582A',
-                        }}
-                        className="cursor-text select-text"
-                      >
-                        {item.metric1.value}
-                      </span>
-                      {/* GCC/Body/S: Hanken Grotesk, 14px, 500, 20px line-height */}
-                      <span
-                        style={{
-                          fontFamily: '"Hanken Grotesk", sans-serif',
-                          fontSize: '14px',
-                          lineHeight: '20px',
-                          fontWeight: 500,
-                          fontStyle: 'normal',
-                          color: isActive ? '#CCC5B9' : '#403D39',
-                        }}
-                        className="cursor-text select-text"
-                      >
-                        {item.metric1.label}
-                      </span>
-                    </div>
-
-                    {/* Metric 2 */}
-                    <div className="flex flex-col gap-[4px] cursor-text select-text">
-                      {/* GCC/Stat/M: Bai Jamjuree, SemiBold, 28px, 36px line-height, -0.14px letter-spacing */}
-                      <span
-                        style={{
-                          fontFamily: '"Bai Jamjuree", sans-serif',
-                          fontSize: '28px',
-                          lineHeight: '36px',
-                          letterSpacing: '-0.14px',
-                          fontWeight: 600,
-                          fontStyle: 'normal',
-                          color: isActive ? '#FB8B24' : '#99582A',
-                        }}
-                        className="cursor-text select-text"
-                      >
-                        {item.metric2.value}
-                      </span>
-                      {/* GCC/Body/S: Hanken Grotesk, 14px, 500, 20px line-height */}
-                      <span
-                        style={{
-                          fontFamily: '"Hanken Grotesk", sans-serif',
-                          fontSize: '14px',
-                          lineHeight: '20px',
-                          fontWeight: 500,
-                          fontStyle: 'normal',
-                          color: isActive ? '#CCC5B9' : '#403D39',
-                        }}
-                        className="cursor-text select-text"
-                      >
-                        {item.metric2.label}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Author Bar (Figma Node 211:5439 / 211:5461) */}
-                <div
+            {/* Cards (Figma: width 720px, height 620px, no box-shadow) */}
+            {items.map((item, idx) => {
+              const isActive = idx === activeIndex
+              return (
+                <article
+                  key={item.id}
+                  ref={(el) => {
+                    cardRefs.current[idx] = el
+                  }}
+                  onClick={() => scrollToCard(idx)}
                   className={cn(
-                    'flex items-stretch justify-between border-t border-solid overflow-clip',
-                    isActive ? 'border-[#403D39]' : 'border-[#CCC5B9]'
+                    'relative flex flex-col justify-between shrink-0 overflow-clip transition-all duration-300 cursor-default select-none',
+                    'w-[86vw] sm:w-[36rem] lg:w-[720px] min-h-[34rem] sm:min-h-[36rem] lg:h-[620px]',
+                    isActive
+                      ? 'bg-[#252422] text-[#FFFCF2]'
+                      : 'bg-white border border-[#CCC5B9] text-[#252422]'
                   )}
                 >
-                  {/* Author Details (Figma: pl-48px, pr-24px) */}
-                  <div className="flex flex-1 flex-col justify-center gap-[4px] pl-[1.5rem] sm:pl-[2.25rem] lg:pl-[48px] pr-[1rem] sm:pr-[1.5rem] lg:pr-[24px] py-[1rem] sm:py-[1.5rem] cursor-text select-text">
-                    {/* GCC/Name: Hanken Grotesk, SemiBold, 20px, 28px line-height, -0.2px letter-spacing */}
-                    <h4
-                      style={{
-                        fontFamily: '"Hanken Grotesk", sans-serif',
-                        fontSize: '20px',
-                        lineHeight: '28px',
-                        letterSpacing: '-0.2px',
-                        fontWeight: 600,
-                        fontStyle: 'normal',
-                        color: isActive ? '#FFFCF2' : '#252422',
-                      }}
-                      className="m-0 cursor-text select-text"
-                    >
-                      {item.author}
-                    </h4>
-                    {/* GCC/Body/S: Hanken Grotesk, 14px, 20px line-height */}
-                    <p
-                      style={{
-                        fontFamily: '"Hanken Grotesk", sans-serif',
-                        fontSize: '14px',
-                        lineHeight: '20px',
-                        fontWeight: 500,
-                        fontStyle: 'normal',
-                        color: isActive ? '#CCC5B9' : '#403D39',
-                      }}
-                      className="m-0 cursor-text select-text"
-                    >
-                      {item.role}
-                    </p>
+                  {/* Card Content Top Body (Figma Node 211:5428) */}
+                  <div className="flex flex-1 flex-col justify-between p-[1.5rem] sm:p-[2.25rem] lg:p-[48px]">
+                    {/* Quote Block (Figma Node 211:5431 / 211:5453)
+                      GCC/Quote/L: Bai Jamjuree, Medium, 30px, 42px line-height, -0.15px letter-spacing
+                  */}
+                    <blockquote className="m-0 cursor-text select-text">
+                      <p
+                        style={{
+                          fontFamily: '"Bai Jamjuree", sans-serif',
+                          fontSize: '30px',
+                          lineHeight: '42px',
+                          letterSpacing: '-0.15px',
+                          fontWeight: 500,
+                          fontStyle: 'normal',
+                          color: isActive ? '#FFFCF2' : '#403D39',
+                        }}
+                        className="m-0 cursor-text select-text"
+                      >
+                        {item.quote}
+                      </p>
+                    </blockquote>
+
+                    {/* Metrics Row (Figma Node 211:5432 / 211:5454 - gap 56px) */}
+                    <div className="flex flex-wrap gap-[2rem] sm:gap-[3.5rem] lg:gap-[56px] pt-[1.5rem] sm:pt-[2rem] cursor-text select-text">
+                      {/* Metric 1 */}
+                      <div className="flex flex-col gap-[4px] cursor-text select-text">
+                        {/* GCC/Stat/M: Bai Jamjuree, SemiBold, 28px, 36px line-height, -0.14px letter-spacing */}
+                        <span
+                          style={{
+                            fontFamily: '"Bai Jamjuree", sans-serif',
+                            fontSize: '28px',
+                            lineHeight: '36px',
+                            letterSpacing: '-0.14px',
+                            fontWeight: 600,
+                            fontStyle: 'normal',
+                            color: isActive ? '#FB8B24' : '#99582A',
+                          }}
+                          className="cursor-text select-text"
+                        >
+                          {item.metric1.value}
+                        </span>
+                        {/* GCC/Body/S: Hanken Grotesk, 14px, 500, 20px line-height */}
+                        <span
+                          style={{
+                            fontFamily: '"Hanken Grotesk", sans-serif',
+                            fontSize: '14px',
+                            lineHeight: '20px',
+                            fontWeight: 500,
+                            fontStyle: 'normal',
+                            color: isActive ? '#CCC5B9' : '#403D39',
+                          }}
+                          className="cursor-text select-text"
+                        >
+                          {item.metric1.label}
+                        </span>
+                      </div>
+
+                      {/* Metric 2 */}
+                      <div className="flex flex-col gap-[4px] cursor-text select-text">
+                        {/* GCC/Stat/M: Bai Jamjuree, SemiBold, 28px, 36px line-height, -0.14px letter-spacing */}
+                        <span
+                          style={{
+                            fontFamily: '"Bai Jamjuree", sans-serif',
+                            fontSize: '28px',
+                            lineHeight: '36px',
+                            letterSpacing: '-0.14px',
+                            fontWeight: 600,
+                            fontStyle: 'normal',
+                            color: isActive ? '#FB8B24' : '#99582A',
+                          }}
+                          className="cursor-text select-text"
+                        >
+                          {item.metric2.value}
+                        </span>
+                        {/* GCC/Body/S: Hanken Grotesk, 14px, 500, 20px line-height */}
+                        <span
+                          style={{
+                            fontFamily: '"Hanken Grotesk", sans-serif',
+                            fontSize: '14px',
+                            lineHeight: '20px',
+                            fontWeight: 500,
+                            fontStyle: 'normal',
+                            color: isActive ? '#CCC5B9' : '#403D39',
+                          }}
+                          className="cursor-text select-text"
+                        >
+                          {item.metric2.label}
+                        </span>
+                      </div>
+                    </div>
                   </div>
 
-                  {/* Portrait Photo or Silhouette (Figma Node 211:5443: size 136px) */}
+                  {/* Author Bar (Figma Node 211:5439 / 211:5461) */}
                   <div
                     className={cn(
-                      'relative shrink-0 size-[6rem] sm:size-[7.5rem] lg:size-[136px] overflow-clip',
-                      isActive ? 'bg-[#403D39]' : 'bg-[#CCC5B9]'
+                      'flex items-stretch justify-between border-t border-solid overflow-clip',
+                      isActive ? 'border-[#403D39]' : 'border-[#CCC5B9]'
                     )}
                   >
-                    {item.photo ? (
-                      <img
-                        src={item.photo}
-                        alt={item.author}
-                        className="h-full w-full object-cover object-top block"
-                      />
-                    ) : (
-                      <Silhouette className="size-full text-current" />
-                    )}
+                    {/* Author Details (Figma: pl-48px, pr-24px) */}
+                    <div className="flex flex-1 flex-col justify-center gap-[4px] pl-[1.5rem] sm:pl-[2.25rem] lg:pl-[48px] pr-[1rem] sm:pr-[1.5rem] lg:pr-[24px] py-[1rem] sm:py-[1.5rem] cursor-text select-text">
+                      {/* GCC/Name: Hanken Grotesk, SemiBold, 20px, 28px line-height, -0.2px letter-spacing */}
+                      <h4
+                        style={{
+                          fontFamily: '"Hanken Grotesk", sans-serif',
+                          fontSize: '20px',
+                          lineHeight: '28px',
+                          letterSpacing: '-0.2px',
+                          fontWeight: 600,
+                          fontStyle: 'normal',
+                          color: isActive ? '#FFFCF2' : '#252422',
+                        }}
+                        className="m-0 cursor-text select-text"
+                      >
+                        {item.author}
+                      </h4>
+                      {/* GCC/Body/S: Hanken Grotesk, 14px, 20px line-height */}
+                      <p
+                        style={{
+                          fontFamily: '"Hanken Grotesk", sans-serif',
+                          fontSize: '14px',
+                          lineHeight: '20px',
+                          fontWeight: 500,
+                          fontStyle: 'normal',
+                          color: isActive ? '#CCC5B9' : '#403D39',
+                        }}
+                        className="m-0 cursor-text select-text"
+                      >
+                        {item.role}
+                      </p>
+                    </div>
+
+                    {/* Portrait Photo or Silhouette (Figma Node 211:5443: size 136px) */}
+                    <div
+                      className={cn(
+                        'relative shrink-0 size-[6rem] sm:size-[7.5rem] lg:size-[136px] overflow-clip',
+                        isActive ? 'bg-[#403D39]' : 'bg-[#CCC5B9]'
+                      )}
+                    >
+                      {item.photo ? (
+                        <img
+                          src={item.photo}
+                          alt={item.author}
+                          className="h-full w-full object-cover object-top block"
+                        />
+                      ) : (
+                        <Silhouette className="size-full text-current" />
+                      )}
+                    </div>
                   </div>
-                </div>
 
-                {/* Accent Stripe at bottom (Figma Node 211:5448: height 10px, orange when active like card 1, tan when idle) */}
-                <div
-                  className="h-[10px] w-full shrink-0 block transition-colors duration-300"
-                  style={{
-                    backgroundColor: isActive ? '#E06422' : '#BB9457',
-                  }}
-                  aria-hidden="true"
-                />
-              </article>
-            )
-          })}
+                  {/* Accent Stripe at bottom (Figma Node 211:5448: height 10px, orange when active like card 1, tan when idle) */}
+                  <div
+                    className="h-[10px] w-full shrink-0 block transition-colors duration-300"
+                    style={{
+                      backgroundColor: isActive ? '#E06422' : '#BB9457',
+                    }}
+                    aria-hidden="true"
+                  />
+                </article>
+              )
+            })}
 
-          {/* Dynamic Right Gutter Spacer */}
-          <div
-            style={{ width: `${gutter}px` }}
-            className="shrink-0 pointer-events-none"
-            aria-hidden="true"
-          />
-        </div>
+            {/* Dynamic Right Gutter Spacer */}
+            <div
+              style={{ width: `${gutter}px` }}
+              className="shrink-0 pointer-events-none"
+              aria-hidden="true"
+            />
+          </div>
         </div>
       </div>
     </section>

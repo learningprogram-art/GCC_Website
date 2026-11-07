@@ -29,7 +29,7 @@ export function Footer() {
     <footer
       id="footer"
       style={{ fontFamily: '"Hanken Grotesk", sans-serif' }}
-      className="relative w-full overflow-x-hidden bg-[#252422] text-[#FFFCF2] flex flex-col px-6 md:px-12 lg:px-[6rem] pt-[3.625rem] pb-0"
+      className="relative w-full overflow-x-hidden bg-[#252422] text-[#FFFCF2] flex flex-col px-6 md:px-12 lg:!px-[96px] pt-[3.625rem] pb-0"
     >
       {/* Content Container (Full width between the 96px / 6rem left & right paddings) */}
       <div className="w-full pb-[2rem] flex flex-col gap-[2rem]">
@@ -126,8 +126,10 @@ export function Footer() {
         </div>
       </div>
 
-      {/* Brand Accent Bottom Line (Edge-to-Edge breaking out of 96px / 6rem padding) */}
-      <div className="-mx-6 md:-mx-12 lg:-mx-[6rem] h-[0.375rem] bg-[#E06422] shrink-0" aria-hidden="true" />
+      <div
+        className="relative left-1/2 w-screen max-w-none -translate-x-1/2 h-[0.375rem] bg-[#E06422] shrink-0"
+        aria-hidden="true"
+      />
     </footer>
   )
 }

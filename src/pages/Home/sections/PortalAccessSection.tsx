@@ -2,6 +2,13 @@ import { Button } from '@/components/ui/Button'
 import { cn } from '@/utils/cn'
 import { useInViewOnce } from '@/hooks/useInViewOnce'
 
+// Side padding lives in plain CSS (ID selector) so nothing else can override it
+const SECTION_CSS = `
+#portal-access { padding-left: 16px; padding-right: 16px; }
+@media (min-width: 640px)  { #portal-access { padding-left: 32px; padding-right: 32px; } }
+@media (min-width: 1024px) { #portal-access { padding-left: 96px; padding-right: 96px; } }
+`
+
 export interface PortalAccessSectionProps {
   className?: string
   loginHref?: string
@@ -16,109 +23,112 @@ export function PortalAccessSection({
   const [cardRef, cardIn] = useInViewOnce<HTMLDivElement>(0.15)
 
   return (
-    <section
-      id="portal-access"
-      data-node-id="211:5382"
-      aria-label="GCC AMC Portal Access"
-      className={cn(
-        'relative w-full bg-[#FFFCF2] py-[2.5rem] sm:py-[3.5rem] lg:py-[5rem] px-[1rem] sm:px-[2rem] lg:px-[6rem]',
-        className
-      )}
-    >
-      <div className="mx-auto max-w-[1248px] w-full">
-        {/* AMC Card Container (Figma Node 297:4035: exact 1248px x 560px, rounded-[12px]) */}
-        <div
-          ref={cardRef}
-          className={cn(
-            'relative w-full min-h-[460px] sm:min-h-[500px] lg:min-h-0 lg:h-[560px] lg:aspect-[1248/560] overflow-hidden rounded-[12px] bg-transparent transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none',
-            cardIn ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
-          )}
-        >
-          {/* Background image (4992x2240, exactly 1248:560 ratio): fits frame width & height perfectly without distortion */}
-          <img
-            src="/assets/images/amc/GCC-AMC-Portal-access-card.webp"
-            alt="GCC AMC Portal Access"
-            className="absolute inset-0 size-full object-cover object-[70%_center] lg:object-fill pointer-events-none select-none"
-            loading="lazy"
-          />
+    <>
+      <style>{SECTION_CSS}</style>
 
-          {/* Semi-transparent dark overlay on mobile/tablet to ensure text readability */}
+      <section
+        id="portal-access"
+        data-node-id="211:5382"
+        aria-label="GCC AMC Portal Access"
+        className={cn(
+          'relative w-full bg-[#FFFCF2] py-[2.5rem] sm:py-[3.5rem] lg:py-[5rem]',
+          className
+        )}
+      >
+        <div className="mx-auto max-w-[1248px] w-full">
+          {/* AMC Card Container (Figma Node 297:4035: exact 1248px x 560px, rounded-[12px]) */}
           <div
-            className="absolute inset-0 bg-gradient-to-r from-[#252422]/95 via-[#252422]/80 to-transparent lg:hidden pointer-events-none"
-            aria-hidden="true"
-          />
-
-          {/* Left Content Area (Figma Node 211:5396: x=56px, y=258px, w=512px, h=246px) */}
-          <div
-            style={{ transitionDelay: cardIn ? '150ms' : '0ms' }}
+            ref={cardRef}
             className={cn(
-              'relative z-10 flex flex-col justify-end h-full p-[2rem] sm:p-[3rem] lg:px-[56px] lg:pb-[56px] max-w-[512px] transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none',
+              'relative w-full min-h-[460px] sm:min-h-[500px] lg:min-h-0 lg:h-[560px] lg:aspect-[1248/560] overflow-hidden rounded-[12px] bg-transparent transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none',
               cardIn ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
             )}
           >
-            {/* Headline + Description + Buttons */}
-            <div className="flex flex-col gap-[1.5rem]">
-              <div className="flex flex-col gap-[0.75rem]">
-                {/* Headline (Figma Node 211:5398: Bai Jamjuree, Bold, 40px, line-height 44px, max-w 320px) */}
-                <h2
-                  style={{
-                    fontFamily: '"Bai Jamjuree", sans-serif',
-                    fontSize: '40px',
-                    lineHeight: '44px',
-                    letterSpacing: '-0.4px',
-                    fontWeight: 700,
-                  }}
-                  className="m-0 text-[#FFFCF2] max-w-[320px]"
-                >
-                  Welcome to the
-                  <br />
-                  AMC Portal.
-                </h2>
+            {/* Background image (4992x2240, exactly 1248:560 ratio): fits frame width & height perfectly without distortion */}
+            <img
+              src="/assets/images/amc/GCC-AMC-Portal-access-card.webp"
+              alt="GCC AMC Portal Access"
+              className="absolute inset-0 size-full object-cover object-[70%_center] lg:object-fill pointer-events-none select-none"
+              loading="lazy"
+            />
 
-                {/* Subtitle (Figma Node 211:5399: Hanken Grotesk, 16px, line-height 24px, max-w 295px) */}
-                <p
-                  style={{
-                    fontFamily: '"Hanken Grotesk", sans-serif',
-                    fontSize: '16px',
-                    lineHeight: '24px',
-                    fontWeight: 400,
-                  }}
-                  className="m-0 text-[#CCC5B9] max-w-[295px]"
-                >
-                  Log in to continue, or create an account to get started.
-                </p>
-              </div>
+            {/* Semi-transparent dark overlay on mobile/tablet to ensure text readability */}
+            <div
+              className="absolute inset-0 bg-gradient-to-r from-[#252422]/95 via-[#252422]/80 to-transparent lg:hidden pointer-events-none"
+              aria-hidden="true"
+            />
 
-              {/* Action Buttons: Primary 'Log in' & Secondary 'Register' */}
-              <div className="flex items-center gap-[1rem] pt-[0.25rem]">
-                {/* Primary: Log in with chevron arrow (Figma: on-dark cream button) */}
-                <Button
-                  variant="on-dark"
-                  size="md"
-                  href={loginHref}
-                  className="cursor-default select-none shadow-sm px-[1.5rem] py-[0.75rem] text-[16px] font-semibold"
-                >
-                  Log in
-                </Button>
+            {/* Left Content Area (Figma Node 211:5396: x=56px, y=258px, w=512px, h=246px) */}
+            <div
+              style={{ transitionDelay: cardIn ? '150ms' : '0ms' }}
+              className={cn(
+                'relative z-10 flex flex-col justify-end h-full p-[2rem] sm:p-[3rem] lg:px-[56px] lg:pb-[56px] max-w-[512px] transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none',
+                cardIn ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
+              )}
+            >
+              {/* Headline + Description + Buttons */}
+              <div className="flex flex-col gap-[1.5rem]">
+                <div className="flex flex-col gap-[0.75rem]">
+                  {/* Headline (Figma Node 211:5398: Bai Jamjuree, Bold, 40px, line-height 44px, max-w 320px) */}
+                  <h2
+                    style={{
+                      fontFamily: '"Bai Jamjuree", sans-serif',
+                      fontSize: '40px',
+                      lineHeight: '44px',
+                      letterSpacing: '-0.4px',
+                      fontWeight: 700,
+                    }}
+                    className="m-0 text-[#FFFCF2] max-w-[320px]"
+                  >
+                    Welcome to the
+                    <br />
+                    AMC Portal.
+                  </h2>
 
-                {/* Secondary: Register without chevron arrow (Figma: dark button with subtle border) */}
-                <Button
-                  variant="secondary"
-                  size="md"
-                  showIcon={false}
-                  href={registerHref}
-                  className="border border-white/20 bg-transparent text-[#FFFCF2] hover:bg-white/10 active:bg-white/15 cursor-default select-none px-[1.5rem] py-[0.75rem] text-[16px] font-semibold"
-                >
-                  Register
-                </Button>
+                  {/* Subtitle (Figma Node 211:5399: Hanken Grotesk, 16px, line-height 24px, max-w 295px) */}
+                  <p
+                    style={{
+                      fontFamily: '"Hanken Grotesk", sans-serif',
+                      fontSize: '16px',
+                      lineHeight: '24px',
+                      fontWeight: 400,
+                    }}
+                    className="m-0 text-[#CCC5B9] max-w-[295px]"
+                  >
+                    Log in to continue, or create an account to get started.
+                  </p>
+                </div>
+
+                {/* Action Buttons: Primary 'Log in' & Secondary 'Register' */}
+                <div className="flex items-center gap-[1rem] pt-[0.25rem]">
+                  {/* Primary: Log in with chevron arrow (Figma: on-dark cream button) */}
+                  <Button
+                    variant="on-dark"
+                    size="md"
+                    href={loginHref}
+                    className="cursor-default select-none shadow-sm px-[1.5rem] py-[0.75rem] text-[16px] font-semibold"
+                  >
+                    Log in
+                  </Button>
+
+                  {/* Secondary: Register without chevron arrow (Figma: dark button with subtle border) */}
+                  <Button
+                    variant="secondary"
+                    size="md"
+                    showIcon={false}
+                    href={registerHref}
+                    className="border border-white/20 bg-transparent text-[#FFFCF2] hover:bg-white/10 active:bg-white/15 cursor-default select-none px-[1.5rem] py-[0.75rem] text-[16px] font-semibold"
+                  >
+                    Register
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </>
   )
 }
 
 export default PortalAccessSection
-

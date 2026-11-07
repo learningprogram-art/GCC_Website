@@ -6,6 +6,13 @@ import hospitalityImg from '/assets/images/structures/hospitality.webp'
 const baiJamjuree = { fontFamily: '"Bai Jamjuree", sans-serif' }
 const hankenGrotesk = { fontFamily: '"Hanken Grotesk", sans-serif' }
 
+// Side padding lives in plain CSS (ID selector) so nothing else can override it
+const SECTION_CSS = `
+#structures-we-build { padding-left: 16px; padding-right: 16px; }
+@media (min-width: 768px)  { #structures-we-build { padding-left: 48px; padding-right: 48px; } }
+@media (min-width: 1024px) { #structures-we-build { padding-left: 96px; padding-right: 96px; } }
+`
+
 const structures = [
   {
     title: 'Villas',
@@ -80,88 +87,96 @@ export function StructuresWeBuildSection() {
   }
 
   return (
-    <section
-      id="structures-we-build"
-      className="flex flex-col items-center gap-8 bg-[#FFFCF2] px-4 py-16 md:px-12 lg:px-24 lg:py-[100px]"
-    >
-      {/* Header */}
-      <div
-        ref={headerRef}
-        className={`w-full max-w-[1245px] transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none ${headerIn ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
-          }`}
+    <>
+      <style>{SECTION_CSS}</style>
+
+      <section
+        id="structures-we-build"
+        className="flex flex-col items-center gap-8 bg-[#FFFCF2] py-16 lg:py-[100px]"
       >
-        <h2
-          style={baiJamjuree}
-          className="text-[28px] font-semibold leading-[1.2] tracking-[-0.01em] text-[#252422] lg:text-[36px] lg:leading-[44px]"
-        >
-          Structures We Build
-        </h2>
-      </div>
-
-      {/* Cards: snap carousel on mobile, 3-col grid from md up */}
-      <div className="w-full max-w-[1245px]">
+        {/* Header */}
         <div
-          ref={cardsRef}
-          onScroll={handleScroll}
-          className="-mr-4 flex snap-x snap-mandatory gap-3 overflow-x-auto pr-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:mr-0 md:grid md:grid-cols-3 md:snap-none md:overflow-visible md:pr-0"
+          ref={headerRef}
+          className={`w-full max-w-[1245px] transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none ${
+            headerIn ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
+          }`}
         >
-          {structures.map((item, i) => (
-            <article
-              key={item.title}
-              style={{ transitionDelay: cardsIn ? `${i * 150}ms` : '0ms' }}
-              className={`group flex w-[75%] min-w-0 shrink-0 snap-start flex-col overflow-hidden rounded-lg transition-all duration-[800ms] ease-out md:w-auto md:shrink motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none ${cardsIn ? 'translate-y-0 opacity-100' : 'translate-y-14 opacity-0'
+          <h2
+            style={baiJamjuree}
+            className="text-[28px] font-semibold leading-[1.2] tracking-[-0.01em] text-[#252422] lg:text-[36px] lg:leading-[44px]"
+          >
+            Structures We Build
+          </h2>
+        </div>
+
+        {/* Cards: snap carousel on mobile, 3-col grid from md up */}
+        <div className="w-full max-w-[1245px]">
+          <div
+            ref={cardsRef}
+            onScroll={handleScroll}
+            className="-mr-4 flex snap-x snap-mandatory gap-3 overflow-x-auto pr-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:mr-0 md:grid md:grid-cols-3 md:snap-none md:overflow-visible md:pr-0"
+          >
+            {structures.map((item, i) => (
+              <article
+                key={item.title}
+                style={{ transitionDelay: cardsIn ? `${i * 150}ms` : '0ms' }}
+                className={`group flex w-[75%] min-w-0 shrink-0 snap-start flex-col overflow-hidden rounded-lg transition-all duration-[800ms] ease-out md:w-auto md:shrink motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none ${
+                  cardsIn ? 'translate-y-0 opacity-100' : 'translate-y-14 opacity-0'
                 }`}
-            >
-              <div className="aspect-square w-full overflow-hidden rounded-xl bg-[#9D9D9D]">
-                <img
-                  src={item.image}
-                  alt={item.alt}
-                  loading="lazy"
-                  style={{ transitionDelay: cardsIn ? `${i * 150}ms` : '0ms' }}
-                  className={`h-full w-full object-cover transition-transform duration-[1400ms] ease-out group-hover:scale-105 motion-reduce:scale-100 motion-reduce:transition-none ${cardsIn ? 'scale-100' : 'scale-110'
+              >
+                <div className="aspect-square w-full overflow-hidden rounded-xl bg-[#9D9D9D]">
+                  <img
+                    src={item.image}
+                    alt={item.alt}
+                    loading="lazy"
+                    style={{ transitionDelay: cardsIn ? `${i * 150}ms` : '0ms' }}
+                    className={`h-full w-full object-cover transition-transform duration-[1400ms] ease-out group-hover:scale-105 motion-reduce:scale-100 motion-reduce:transition-none ${
+                      cardsIn ? 'scale-100' : 'scale-110'
                     }`}
-                />
-              </div>
+                  />
+                </div>
 
-              <div className="flex flex-col gap-2 py-5">
-                <h3
-                  style={baiJamjuree}
-                  className="text-[22px] font-semibold leading-7 tracking-[-0.005em] text-[#252422]"
-                >
-                  {item.title}
-                </h3>
-                <p
-                  style={hankenGrotesk}
-                  className="text-[16px] font-normal leading-6 text-[#403D39]"
-                >
-                  {item.description}
-                </p>
-              </div>
-            </article>
-          ))}
-        </div>
+                <div className="flex flex-col gap-2 py-5">
+                  <h3
+                    style={baiJamjuree}
+                    className="text-[22px] font-semibold leading-7 tracking-[-0.005em] text-[#252422]"
+                  >
+                    {item.title}
+                  </h3>
+                  <p
+                    style={hankenGrotesk}
+                    className="text-[16px] font-normal leading-6 text-[#403D39]"
+                  >
+                    {item.description}
+                  </p>
+                </div>
+              </article>
+            ))}
+          </div>
 
-        {/* Pagination dots (mobile only) */}
-        <div
-          className="mt-4 flex items-center gap-2 md:hidden"
-          role="tablist"
-          aria-label="Structures We Build slides"
-        >
-          {structures.map((item, i) => (
-            <button
-              key={item.title}
-              type="button"
-              role="tab"
-              aria-selected={active === i}
-              aria-label={`Go to ${item.title}`}
-              onClick={() => scrollToCard(i)}
-              className={`h-2 rounded-full transition-all duration-300 ${active === i ? 'w-6 bg-[#6B1D1D]' : 'w-2 bg-[#C9C5BF]'
+          {/* Pagination dots (mobile only) */}
+          <div
+            className="mt-4 flex items-center gap-2 md:hidden"
+            role="tablist"
+            aria-label="Structures We Build slides"
+          >
+            {structures.map((item, i) => (
+              <button
+                key={item.title}
+                type="button"
+                role="tab"
+                aria-selected={active === i}
+                aria-label={`Go to ${item.title}`}
+                onClick={() => scrollToCard(i)}
+                className={`h-2 rounded-full transition-all duration-300 ${
+                  active === i ? 'w-6 bg-[#6B1D1D]' : 'w-2 bg-[#C9C5BF]'
                 }`}
-            />
-          ))}
+              />
+            ))}
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </>
   )
 }
 

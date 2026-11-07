@@ -125,7 +125,9 @@ export function ContactSection() {
       </div>
 
       {/* Main Content Container with standard 96px (6rem) horizontal padding */}
-      <div className="relative z-10 mx-auto flex w-full flex-col lg:flex-row items-center justify-between gap-[3rem] lg:gap-[5rem] px-6 md:px-12 lg:px-[6rem] py-[4rem] lg:py-[5rem]">
+     <div
+  className="relative z-10 mx-auto flex w-full flex-col lg:flex-row items-center justify-between gap-[3rem] lg:gap-[5rem] px-6 md:px-12 lg:!px-[96px] py-[4rem] lg:py-[5rem]"
+>
         {/* Left Column: Intro & Contact Options (Figma Node 211:5478) */}
         <div className="flex flex-1 flex-col items-start gap-[32px] w-full max-w-[40.5rem]">
           {/* Headline & Subtitle Block */}

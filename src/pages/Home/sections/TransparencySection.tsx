@@ -1,4 +1,5 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import type { CSSProperties } from 'react'
 import '@fontsource/hanken-grotesk/400.css'
 import '@fontsource/hanken-grotesk/500.css'
 import '@fontsource/hanken-grotesk/600.css'
@@ -8,23 +9,29 @@ import '@fontsource/hanken-grotesk/700.css'
 const hanken = { fontFamily: '"Hanken Grotesk", sans-serif' }
 const bai = { fontFamily: '"Bai Jamjuree", sans-serif' }
 
+/**
+ * Card sizes are written in Figma pixels (card inner width = 302) and converted to
+ * container units, so everything inside a card scales together with the card width.
+ */
+const cq = (n: number) => `${((n / 302) * 100).toFixed(3)}cqw`
+
 // Pinned inline so global CSS (h3 / p rules) can never override the Figma values
-const TITLE_STYLE = {
+const TITLE_STYLE: CSSProperties = {
   ...bai,
-  fontSize: '22px',
-  lineHeight: '28px',
-  letterSpacing: '-0.11px',
+  fontSize: cq(22),
+  lineHeight: cq(28),
+  letterSpacing: cq(-0.11),
   fontWeight: 600,
   margin: 0,
-} as const
-const BODY_STYLE = {
+}
+const BODY_STYLE: CSSProperties = {
   ...hanken,
-  fontSize: '16px',
+  fontSize: cq(16),
   lineHeight: 1.3,
   letterSpacing: 0,
   fontWeight: 400,
   margin: 0,
-} as const
+}
 
 // Everything lives in public/assets/images/transparency/
 const IMG = '/assets/images/transparency'
@@ -40,10 +47,57 @@ const ICONS = [ICON_LIVE_APP, ICON_QUALITY, ICON_ONE_TEAM, ICON_MAINTENANCE]
 // First icon sits on top, each later one tucks underneath (as in Figma)
 const STACK = ['z-[4]', 'z-[3]', 'z-[2]', 'z-[1]']
 
-const GAP = 12 // matches gap-3
-const CARD_W = 304
-const CARD_H = 500
-const DESIGN_W = CARD_W * 4 + GAP * 3 // 1252: full Figma row width
+const GAP = 12 // matches the carousel / grid gap
+
+// Layout rules live in plain CSS so Tailwind config or global CSS can't change them
+const SECTION_CSS = `
+#transparency { padding-left: 20px; padding-right: 20px; }
+@media (min-width: 640px)  { #transparency { padding-left: 24px; padding-right: 24px; } }
+@media (min-width: 1024px) { #transparency { padding-left: 96px; padding-right: 96px; } }
+
+#transparency .tr-track {
+  display: flex;
+  gap: ${GAP}px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  margin-left: -20px;
+  margin-right: -20px;
+  padding-left: 20px;
+  padding-right: 20px;
+  scroll-padding-left: 20px;
+  scrollbar-width: none;
+}
+#transparency .tr-track::-webkit-scrollbar { display: none; }
+#transparency .tr-card {
+  flex: 0 0 auto;
+  width: min(78vw, 304px);
+  scroll-snap-align: start;
+}
+@media (min-width: 640px) {
+  #transparency .tr-track {
+    margin-left: -24px;
+    margin-right: -24px;
+    padding-left: 24px;
+    padding-right: 24px;
+    scroll-padding-left: 24px;
+  }
+}
+@media (min-width: 1024px) {
+  #transparency .tr-track {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: ${GAP}px;
+    overflow: visible;
+    scroll-snap-type: none;
+    margin-left: 0;
+    margin-right: 0;
+    padding-left: 0;
+    padding-right: 0;
+  }
+  #transparency .tr-card { width: auto; }
+  #transparency .tr-dots { display: none; }
+}
+`
 
 /** Fades + slides an element up the first time it scrolls into view. */
 function useReveal<T extends HTMLElement>(delay = 0) {
@@ -94,6 +148,7 @@ function ChevronRight() {
   )
 }
 
+/** Fixed-size badge (closing strip) */
 function IconBadge({ src, className = '' }: { src: string; className?: string }) {
   return (
     <div
@@ -104,16 +159,41 @@ function IconBadge({ src, className = '' }: { src: string; className?: string })
   )
 }
 
-/* ---------- Card art (positions taken from Figma) ---------- */
+/** Badge inside a card: scales with the card */
+function CardIcon({ src }: { src: string }) {
+  return (
+    <div
+      className="flex shrink-0 items-center justify-center rounded-full bg-[#FFFCF2]"
+      style={{ width: cq(50), height: cq(50) }}
+    >
+      <img src={src} alt="" style={{ width: cq(35.6), height: cq(35.6) }} />
+    </div>
+  )
+}
+
+/* ---------- Card art (positions taken from Figma, scaled with the card) ---------- */
+
+const artBox = (bg: string): CSSProperties => ({
+  width: '100%',
+  height: cq(247),
+  borderRadius: cq(8),
+  background: bg,
+})
 
 function ArtLiveApp() {
   return (
     <>
-      <div className="h-[247px] w-full rounded-lg bg-[#C3003E]" />
+      <div style={artBox('#C3003E')} />
       <img
         src={`${IMG}/phone.webp`}
         alt=""
-        className="pointer-events-none absolute bottom-[-21px] left-[-3.13px] size-[326px] max-w-none object-cover"
+        className="pointer-events-none absolute max-w-none object-cover"
+        style={{
+          bottom: cq(-21),
+          left: cq(-3.13),
+          width: cq(326.085),
+          height: cq(326.085),
+        }}
       />
     </>
   )
@@ -121,16 +201,18 @@ function ArtLiveApp() {
 
 function ArtQuality() {
   return (
-    <div className="relative h-[247px] w-full overflow-hidden rounded-lg bg-[#99582A]">
+    <div className="relative overflow-hidden" style={artBox('#99582A')}>
       <img
         src={`${IMG}/bricks.webp`}
         alt=""
-        className="pointer-events-none absolute left-[-77.45px] top-[-23.82px] h-[293.6px] w-[440.9px] max-w-none object-cover"
+        className="pointer-events-none absolute max-w-none object-cover"
+        style={{ left: cq(-77.45), top: cq(-23.82), width: cq(440.9), height: cq(293.6) }}
       />
       <img
         src={`${IMG}/tick.webp`}
         alt=""
-        className="pointer-events-none absolute left-1/2 top-1/2 size-[251.3px] max-w-none -translate-x-1/2 -translate-y-1/2 object-cover"
+        className="pointer-events-none absolute left-1/2 top-1/2 max-w-none -translate-x-1/2 -translate-y-1/2 object-cover"
+        style={{ width: cq(251.3), height: cq(251.3) }}
       />
     </div>
   )
@@ -139,19 +221,24 @@ function ArtQuality() {
 function ArtProject() {
   return (
     <>
-      <div className="relative h-[247px] w-full overflow-hidden rounded-lg bg-[#5B5B5B]">
+      <div className="relative overflow-hidden" style={artBox('#5B5B5B')}>
         <img
           src={`${IMG}/site-bg.webp`}
           alt=""
-          className="pointer-events-none absolute left-[-17.06px] top-[-11.48px] h-[267px] w-[367.7px] max-w-none object-cover object-bottom"
+          className="pointer-events-none absolute max-w-none object-cover object-bottom"
+          style={{ left: cq(-17.06), top: cq(-11.48), width: cq(367.7), height: cq(267) }}
         />
       </div>
       {/* Worker: cropped from the right, exactly like Figma */}
-      <div className="pointer-events-none absolute bottom-0 left-[-0.72px] h-[277.3px] w-[275.1px] overflow-hidden">
+      <div
+        className="pointer-events-none absolute bottom-0 overflow-hidden"
+        style={{ left: cq(-0.72), width: cq(275.1), height: cq(277.3) }}
+      >
         <img
           src={`${IMG}/worker.webp`}
           alt=""
-          className="absolute left-0 top-0 h-full w-[110.29%] max-w-none"
+          className="absolute left-0 top-0 h-full max-w-none"
+          style={{ width: '110.29%' }}
         />
       </div>
     </>
@@ -161,7 +248,7 @@ function ArtProject() {
 function ArtMaintenance() {
   return (
     <>
-      <div className="relative h-[247px] w-full overflow-hidden rounded-lg bg-[#6495B3]">
+      <div className="relative overflow-hidden" style={artBox('#6495B3')}>
         <img
           src={`${IMG}/free.webp`}
           alt="1 year free maintenance"
@@ -171,7 +258,8 @@ function ArtMaintenance() {
       <img
         src={`${IMG}/wrench.webp`}
         alt=""
-        className="pointer-events-none absolute left-[-6px] top-[-20px] h-auto w-[92px] max-w-none"
+        className="pointer-events-none absolute h-auto max-w-none"
+        style={{ left: cq(-6), top: cq(-20), width: cq(92) }}
       />
     </>
   )
@@ -206,36 +294,13 @@ const CARDS = [
 
 export function TransparencySection() {
   const trackRef = useRef<HTMLDivElement>(null)
-  const wrapRef = useRef<HTMLDivElement>(null)
   const [active, setActive] = useState(0)
-  const [desktop, setDesktop] = useState(false)
-  const [scale, setScale] = useState(1)
 
   // Scroll reveals
   const eyebrow = useReveal<HTMLDivElement>(0)
   const heading = useReveal<HTMLHeadingElement>(100)
   const cards = useReveal<HTMLDivElement>(0) // one trigger for the whole card row
   const strip = useReveal<HTMLDivElement>(0)
-
-  // Desktop (1024px+): keep all four cards in one row and scale the row to fit the width
-  useLayoutEffect(() => {
-    const mq = window.matchMedia('(min-width: 1024px)')
-    const wrap = wrapRef.current
-
-    const update = () => {
-      setDesktop(mq.matches)
-      if (wrap) setScale(Math.min(1, wrap.clientWidth / DESIGN_W))
-    }
-
-    update()
-    const ro = new ResizeObserver(update)
-    if (wrap) ro.observe(wrap)
-    mq.addEventListener('change', update)
-    return () => {
-      ro.disconnect()
-      mq.removeEventListener('change', update)
-    }
-  }, [])
 
   // Mobile / tablet carousel: work out the current card from the scroll position
   const handleScroll = () => {
@@ -255,59 +320,56 @@ export function TransparencySection() {
   }
 
   return (
-    <section
-      id="transparency"
-      className="bg-[#FFE6A7] px-5 py-[72px] sm:px-6 sm:py-[90px] lg:px-12 min-[1440px]:px-[96px]"
-    >
-      <div className="mx-auto flex max-w-[1252px] flex-col items-center gap-10 sm:gap-[34px]">
-        {/* Header */}
-        <div className="flex w-full flex-col items-start gap-6">
-          <div
-            ref={eyebrow.ref}
-            style={eyebrow.style}
-            className={`flex items-center gap-3 ${eyebrow.className}`}
-          >
-            <span className="size-2 bg-[#E06422]" aria-hidden />
-            <p
-              style={hanken}
-              className="text-[12px] font-semibold uppercase leading-4 tracking-[0.96px] text-[#6F1D1B]"
-            >
-              Transparency
-            </p>
-          </div>
-          <h2
-            ref={heading.ref}
-            style={{ ...bai, ...heading.style }}
-            className={`max-w-[700px] text-[28px] font-bold uppercase leading-[1.2] text-[#252422] sm:text-[clamp(32px,4vw,48px)] ${heading.className}`}
-          >
-            Confidence built through transparency.
-          </h2>
-        </div>
+    <>
+      <style>{SECTION_CSS}</style>
 
-        {/* Cards: swipe carousel below 1024px, one row of four from 1024px */}
-        <div ref={cards.ref} className="w-full">
-          <div
-            ref={wrapRef}
-            className="w-full lg:overflow-hidden"
-            style={desktop ? { height: CARD_H * scale } : undefined}
-          >
+      <section id="transparency" className="bg-[#FFE6A7] py-[72px] sm:py-[90px]">
+        <div className="mx-auto flex max-w-[1252px] flex-col items-center gap-10 sm:gap-[34px]">
+          {/* Header */}
+          <div className="flex w-full flex-col items-start gap-6">
             <div
-              ref={trackRef}
-              onScroll={handleScroll}
-              style={desktop ? { transform: `scale(${scale})` } : undefined}
-              className="-mx-5 flex w-auto scroll-pl-5 snap-x snap-mandatory gap-3 overflow-x-auto px-5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:-mx-6 sm:scroll-pl-6 sm:px-6 lg:mx-0 lg:w-[1252px] lg:origin-top-left lg:snap-none lg:overflow-visible lg:px-0"
+              ref={eyebrow.ref}
+              style={eyebrow.style}
+              className={`flex items-center gap-3 ${eyebrow.className}`}
             >
+              <span className="size-2 bg-[#E06422]" aria-hidden />
+              <p
+                style={hanken}
+                className="text-[12px] font-semibold uppercase leading-4 tracking-[0.96px] text-[#6F1D1B]"
+              >
+                Transparency
+              </p>
+            </div>
+            <h2
+              ref={heading.ref}
+              style={{ ...bai, ...heading.style }}
+              className={`max-w-[700px] text-[28px] font-bold uppercase leading-[1.2] text-[#252422] sm:text-[clamp(32px,4vw,48px)] ${heading.className}`}
+            >
+              Confidence built through transparency.
+            </h2>
+          </div>
+
+          {/* Cards: swipe carousel below 1024px, four-column grid from 1024px */}
+          <div ref={cards.ref} className="w-full">
+            <div ref={trackRef} onScroll={handleScroll} className="tr-track">
               {CARDS.map(({ title, body, icon, Art }, i) => (
                 <article
                   key={title}
-                  style={{ transitionDelay: `${i * 120}ms` }}
-                  className={`relative flex h-[500px] w-[78vw] max-w-[304px] shrink-0 snap-start flex-col overflow-hidden rounded-xl border border-solid border-[#CCC5B9] bg-white transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none sm:w-[304px] lg:max-w-none ${
+                  className={`tr-card relative overflow-hidden rounded-xl border border-solid border-[#CCC5B9] bg-white transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none ${
                     cards.shown ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
                   }`}
+                  style={{
+                    transitionDelay: `${i * 120}ms`,
+                    aspectRatio: '304 / 500',
+                    containerType: 'inline-size',
+                  }}
                 >
-                  <div className="flex flex-col gap-6 p-5">
-                    <IconBadge src={icon} />
-                    <div className="-mr-2 flex flex-col gap-[10px]">
+                  <div className="flex flex-col" style={{ padding: cq(20), gap: cq(24) }}>
+                    <CardIcon src={icon} />
+                    <div
+                      className="flex flex-col"
+                      style={{ gap: cq(10), marginRight: cq(-8) }}
+                    >
                       <h3 style={TITLE_STYLE} className="text-[#252422]">
                         {title}
                       </h3>
@@ -318,76 +380,79 @@ export function TransparencySection() {
                   </div>
 
                   {/* Art: pinned to the card bottom with 8px padding (same height in every card) */}
-                  <div className="absolute inset-x-0 bottom-0 flex flex-col gap-[10px] p-2">
+                  <div
+                    className="absolute inset-x-0 bottom-0 flex flex-col"
+                    style={{ padding: cq(8), gap: cq(10) }}
+                  >
                     <Art />
                   </div>
                 </article>
               ))}
             </div>
-          </div>
 
-          {/* Pagination dots (carousel only, hidden once all four fit) */}
-          <div
-            className="mt-6 flex items-center gap-2 lg:hidden"
-            role="tablist"
-            aria-label="Transparency cards"
-          >
-            {CARDS.map(({ title }, i) => (
-              <button
-                key={title}
-                type="button"
-                role="tab"
-                aria-selected={active === i}
-                aria-label={`Go to ${title}`}
-                onClick={() => scrollToCard(i)}
-                className={`h-2 rounded-full transition-all duration-300 ${
-                  active === i ? 'w-6 bg-[#6F1D1B]' : 'w-2 bg-[#D9C28A]'
-                }`}
-              />
-            ))}
-          </div>
-        </div>
-
-        {/* Closing strip */}
-        <div
-          ref={strip.ref}
-          style={strip.style}
-          className={`w-full rounded-xl sm:w-auto sm:bg-white/30 sm:p-[14px] ${strip.className}`}
-        >
-          <div className="flex flex-col items-stretch gap-6 sm:flex-row sm:flex-wrap sm:items-center sm:justify-center sm:gap-x-10 sm:gap-y-4">
-            <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
-              <div className="isolate flex items-center">
-                {ICONS.map((src, i) => (
-                  <IconBadge
-                    key={src}
-                    src={src}
-                    className={`relative border border-solid border-[#FFEEC1] ${STACK[i]} ${
-                      i < ICONS.length - 1 ? 'mr-[-19px]' : ''
-                    }`}
-                  />
-                ))}
-              </div>
-              <p
-                style={hanken}
-                className="text-[18px] font-normal leading-[1.3] tracking-[-0.36px] text-[#403D39] sm:text-[20px] sm:font-medium sm:leading-[1.2] sm:tracking-[-0.4px] sm:text-[#252422]"
-              >
-                All four come with every GCC home,{' '}
-                <br className="hidden sm:inline" />
-                not optional add-ons.
-              </p>
-            </div>
-
-            <a
-              href="#contact-cta"
-              style={hanken}
-              className="flex w-full items-center justify-center gap-2 whitespace-nowrap rounded-lg bg-[#6F1D1B] px-5 py-4 text-[18px] font-bold leading-7 tracking-[-0.36px] text-white transition-colors hover:bg-[#5a1716] sm:w-auto sm:justify-start sm:py-3 sm:pl-6 sm:pr-5"
+            {/* Pagination dots (carousel only, hidden from 1024px) */}
+            <div
+              className="tr-dots mt-6 flex items-center gap-2"
+              role="tablist"
+              aria-label="Transparency cards"
             >
-              Book a Consultation
-              <ChevronRight />
-            </a>
+              {CARDS.map(({ title }, i) => (
+                <button
+                  key={title}
+                  type="button"
+                  role="tab"
+                  aria-selected={active === i}
+                  aria-label={`Go to ${title}`}
+                  onClick={() => scrollToCard(i)}
+                  className={`h-2 rounded-full transition-all duration-300 ${
+                    active === i ? 'w-6 bg-[#6F1D1B]' : 'w-2 bg-[#D9C28A]'
+                  }`}
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* Closing strip */}
+          <div
+            ref={strip.ref}
+            style={strip.style}
+            className={`w-full rounded-xl sm:w-auto sm:bg-white/30 sm:p-[14px] ${strip.className}`}
+          >
+            <div className="flex flex-col items-stretch gap-6 sm:flex-row sm:flex-wrap sm:items-center sm:justify-center sm:gap-x-10 sm:gap-y-4">
+              <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
+                <div className="isolate flex items-center">
+                  {ICONS.map((src, i) => (
+                    <IconBadge
+                      key={src}
+                      src={src}
+                      className={`relative border border-solid border-[#FFEEC1] ${STACK[i]} ${
+                        i < ICONS.length - 1 ? 'mr-[-19px]' : ''
+                      }`}
+                    />
+                  ))}
+                </div>
+                <p
+                  style={hanken}
+                  className="text-[18px] font-normal leading-[1.3] tracking-[-0.36px] text-[#403D39] sm:text-[20px] sm:font-medium sm:leading-[1.2] sm:tracking-[-0.4px] sm:text-[#252422]"
+                >
+                  All four come with every GCC home,{' '}
+                  <br className="hidden sm:inline" />
+                  not optional add-ons.
+                </p>
+              </div>
+
+              <a
+                href="#contact-cta"
+                style={hanken}
+                className="flex w-full items-center justify-center gap-2 whitespace-nowrap rounded-lg bg-[#6F1D1B] px-5 py-4 text-[18px] font-bold leading-7 tracking-[-0.36px] text-white transition-colors hover:bg-[#5a1716] sm:w-auto sm:justify-start sm:py-3 sm:pl-6 sm:pr-5"
+              >
+                Book a Consultation
+                <ChevronRight />
+              </a>
+            </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </>
   )
 }

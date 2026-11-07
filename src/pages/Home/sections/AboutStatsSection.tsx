@@ -4,6 +4,13 @@ import { Link } from 'react-router-dom'
 const baiJamjuree = { fontFamily: '"Bai Jamjuree", sans-serif' }
 const hankenGrotesk = { fontFamily: '"Hanken Grotesk", sans-serif' }
 
+// Side padding lives in plain CSS (ID selector) so nothing else can override it
+const SECTION_CSS = `
+#about-stats { padding-left: 24px; padding-right: 24px; }
+@media (min-width: 640px)  { #about-stats { padding-left: 48px; padding-right: 48px; } }
+@media (min-width: 1024px) { #about-stats { padding-left: 96px; padding-right: 96px; } }
+`
+
 type Stat = {
   value: number
   decimals: number
@@ -140,108 +147,112 @@ export function AboutStatsSection() {
   const [sectionRef, inView] = useInViewOnce<HTMLElement>(0.15)
 
   return (
-    <section
-      id="about-stats"
-      ref={sectionRef}
-      className="bg-[#252422] px-6 md:px-12 lg:px-24 py-16 sm:py-20 lg:py-[87px]"
-    >
-      <div className="mx-auto flex w-full max-w-[1252px] flex-col gap-10 sm:gap-[62px]">
-        {/* Statement: eyebrow (left) + link (right) on the first row, headline below, on every screen size */}
-        <div className="grid grid-cols-[1fr_auto] items-center gap-x-4 gap-y-6 sm:gap-x-8 sm:gap-y-[32px]">
-          {/* Eyebrow */}
-          <div
-            className={`flex items-center gap-3 transition-all duration-700 ease-out ${
-              inView ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
-            }`}
-          >
-            <div className="size-2 bg-[#FFE6A7] shrink-0" aria-hidden="true" />
-            <p
-              style={hankenGrotesk}
-              className="text-[12px] font-semibold uppercase leading-4 tracking-[0.96px] text-[#FFFCF2]"
-            >
-              About us
-            </p>
-          </div>
+    <>
+      <style>{SECTION_CSS}</style>
 
-          {/* Headline (Figma Node 211:5161)
-              Mobile: size scales with screen width so each line always fits on one line
-              ((100vw - 48px padding) / 12.8 ≈ widest line "TRUSTED BY FAMILIES."). */}
-          <h2
-            style={baiJamjuree}
-            className="col-span-2 text-[clamp(20px,calc((100vw-48px)/12.8),32px)] sm:text-[48px] lg:text-[66px] font-medium uppercase leading-[1.05] tracking-[-0.02em] lg:tracking-[-0.66px]"
-          >
-            <span
-              className={`block whitespace-nowrap text-[#FFFCF2] transition-all duration-700 delay-100 ease-out ${
+      <section
+        id="about-stats"
+        ref={sectionRef}
+        className="bg-[#252422] py-16 sm:py-20 lg:py-[87px]"
+      >
+        <div className="mx-auto flex w-full max-w-[1252px] flex-col gap-10 sm:gap-[62px]">
+          {/* Statement: eyebrow (left) + link (right) on the first row, headline below, on every screen size */}
+          <div className="grid grid-cols-[1fr_auto] items-center gap-x-4 gap-y-6 sm:gap-x-8 sm:gap-y-[32px]">
+            {/* Eyebrow */}
+            <div
+              className={`flex items-center gap-3 transition-all duration-700 ease-out ${
                 inView ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
               }`}
             >
-              Built by engineers.
-            </span>
-            <span
-              className={`block whitespace-nowrap text-[#FFE6A7] transition-all duration-700 delay-200 ease-out ${
+              <div className="size-2 bg-[#FFE6A7] shrink-0" aria-hidden="true" />
+              <p
+                style={hankenGrotesk}
+                className="text-[12px] font-semibold uppercase leading-4 tracking-[0.96px] text-[#FFFCF2]"
+              >
+                About us
+              </p>
+            </div>
+
+            {/* Headline (Figma Node 211:5161)
+                Mobile: size scales with screen width so each line always fits on one line
+                ((100vw - 48px padding) / 12.8 ≈ widest line "TRUSTED BY FAMILIES."). */}
+            <h2
+              style={baiJamjuree}
+              className="col-span-2 text-[clamp(20px,calc((100vw-48px)/12.8),32px)] sm:text-[48px] lg:text-[66px] font-medium uppercase leading-[1.05] tracking-[-0.02em] lg:tracking-[-0.66px]"
+            >
+              <span
+                className={`block whitespace-nowrap text-[#FFFCF2] transition-all duration-700 delay-100 ease-out ${
+                  inView ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
+                }`}
+              >
+                Built by engineers.
+              </span>
+              <span
+                className={`block whitespace-nowrap text-[#FFE6A7] transition-all duration-700 delay-200 ease-out ${
+                  inView ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
+                }`}
+              >
+                Trusted by families.
+              </span>
+            </h2>
+
+            {/* Link / Read our story (Figma Node 211:5164) */}
+            <Link
+              to="/about"
+              onClick={() => window.scrollTo({ top: 0, left: 0, behavior: 'instant' })}
+              style={hankenGrotesk}
+              className={`group col-start-2 row-start-1 flex shrink-0 items-center gap-2 whitespace-nowrap text-[16px] font-bold leading-7 tracking-[-0.32px] text-[#FFE6A7] transition-all duration-700 delay-300 ease-out sm:text-[18px] sm:tracking-[-0.36px] ${
                 inView ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
               }`}
             >
-              Trusted by families.
-            </span>
-          </h2>
-
-          {/* Link / Read our story (Figma Node 211:5164) */}
-          <Link
-            to="/about"
-            onClick={() => window.scrollTo({ top: 0, left: 0, behavior: 'instant' })}
-            style={hankenGrotesk}
-            className={`group col-start-2 row-start-1 flex shrink-0 items-center gap-2 whitespace-nowrap text-[16px] font-bold leading-7 tracking-[-0.32px] text-[#FFE6A7] transition-all duration-700 delay-300 ease-out sm:text-[18px] sm:tracking-[-0.36px] ${
-              inView ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
-            }`}
-          >
-            <span>Read our story</span>
-            <svg
-              className="size-5 transition-transform duration-300 group-hover:translate-x-1"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
-            >
-              <path d="M9 18l6-6-6-6" />
-            </svg>
-          </Link>
-        </div>
-
-        {/* Stats Container (Figma Node 211:5167): Left Intro Column + Right Stat Rows */}
-        <div className="flex flex-col lg:flex-row items-start gap-8 lg:gap-[48px] w-full pt-2">
-          {/* Left Intro (Figma Node 211:5168) */}
-          <div
-            className={`flex flex-col gap-4 w-full lg:w-[352px] shrink-0 pt-0 lg:pt-[28px] transition-all duration-700 delay-150 ease-out ${
-              inView ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
-            }`}
-          >
-            <p
-              style={hankenGrotesk}
-              className="text-[12px] font-semibold uppercase leading-4 tracking-[0.96px] text-[#FFFCF2]"
-            >
-              By the numbers
-            </p>
-            <p
-              style={hankenGrotesk}
-              className="text-[16px] font-normal leading-6 text-[#CCC5B9]"
-            >
-              A decade of building independent homes across Haryana and Delhi NCR — measured in keys handed over, square feet built and promises kept.
-            </p>
+              <span>Read our story</span>
+              <svg
+                className="size-5 transition-transform duration-300 group-hover:translate-x-1"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M9 18l6-6-6-6" />
+              </svg>
+            </Link>
           </div>
 
-          {/* Right Rows (Figma Node 211:5172): 2x2 grid on mobile, stacked rows from sm up */}
-          <div className="grid w-full flex-1 grid-cols-2 content-start border-b border-[#403D39] sm:flex sm:flex-col">
-            {stats.map((stat, i) => (
-              <StatRow key={stat.index} stat={stat} order={i} />
-            ))}
+          {/* Stats Container (Figma Node 211:5167): Left Intro Column + Right Stat Rows */}
+          <div className="flex flex-col lg:flex-row items-start gap-8 lg:gap-[48px] w-full pt-2">
+            {/* Left Intro (Figma Node 211:5168) */}
+            <div
+              className={`flex flex-col gap-4 w-full lg:w-[352px] shrink-0 pt-0 lg:pt-[28px] transition-all duration-700 delay-150 ease-out ${
+                inView ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
+              }`}
+            >
+              <p
+                style={hankenGrotesk}
+                className="text-[12px] font-semibold uppercase leading-4 tracking-[0.96px] text-[#FFFCF2]"
+              >
+                By the numbers
+              </p>
+              <p
+                style={hankenGrotesk}
+                className="text-[16px] font-normal leading-6 text-[#CCC5B9]"
+              >
+                A decade of building independent homes across Haryana and Delhi NCR — measured in keys handed over, square feet built and promises kept.
+              </p>
+            </div>
+
+            {/* Right Rows (Figma Node 211:5172): 2x2 grid on mobile, stacked rows from sm up */}
+            <div className="grid w-full flex-1 grid-cols-2 content-start border-b border-[#403D39] sm:flex sm:flex-col">
+              {stats.map((stat, i) => (
+                <StatRow key={stat.index} stat={stat} order={i} />
+              ))}
+            </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </>
   )
 }
 
