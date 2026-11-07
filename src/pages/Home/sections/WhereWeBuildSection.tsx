@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
+import { useInViewOnce } from '@/hooks/useInViewOnce';
 
 const SERVICEABLE_PREFIXES = ['11', '201', '203']; // Delhi (11xxxx), Noida/Ghaziabad (201xxx), Jewar/Bulandshahr (203xxx)
 
 export const WhereWeBuildCard: React.FC = () => {
+  const [cardRef, cardIn] = useInViewOnce<HTMLDivElement>(0.15);
   const [pincode, setPincode] = useState('');
   const [status, setStatus] = useState<null | { serviceable: boolean; message: string }>(null);
 
@@ -30,8 +32,11 @@ export const WhereWeBuildCard: React.FC = () => {
 
   return (
     <div
+      ref={cardRef}
       data-node-id="211:5553"
-      className="max-w-[1248px] mx-auto relative rounded-[12px] overflow-hidden border border-white/30 min-h-[500px] lg:h-[600px] flex items-center justify-center shadow-2xl"
+      className={`max-w-[1248px] mx-auto relative rounded-[12px] overflow-hidden border border-white/30 min-h-[500px] lg:h-[600px] flex items-center justify-center shadow-2xl transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none ${
+        cardIn ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
+      }`}
     >
       {/* Background Image & Overlay */}
       <div className="absolute inset-0 pointer-events-none">
@@ -46,9 +51,12 @@ export const WhereWeBuildCard: React.FC = () => {
       {/* Central Glass Card (Figma Node 211:5555) */}
       <div
         data-node-id="211:5555"
-        className="relative z-10 w-[calc(100%-2rem)] sm:w-[620.853px] max-w-[620.853px] rounded-[12px] px-6 py-8 sm:px-[72px] sm:py-[42px] flex flex-col items-center text-center"
+        className={`relative z-10 w-[calc(100%-2rem)] sm:w-[620.853px] max-w-[620.853px] rounded-[12px] px-6 py-8 sm:px-[72px] sm:py-[42px] flex flex-col items-center text-center transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none ${
+          cardIn ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
+        }`}
         style={{
           background: 'rgba(0, 0, 0, 0.40)',
+          transitionDelay: cardIn ? '150ms' : '0ms',
         }}
       >
         <div data-node-id="211:5556" className="w-full flex flex-col items-center justify-center gap-[30px]">

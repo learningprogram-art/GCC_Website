@@ -1,8 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { WhereWeBuildCard } from './WhereWeBuildSection';
+import { useInViewOnce } from '@/hooks/useInViewOnce';
 
 export const OurPurposeSection: React.FC = () => {
   const sectionRef = useRef<HTMLElement>(null);
+  const [purposeRef, purposeIn] = useInViewOnce<HTMLDivElement>(0.2);
   const animationFrameRef = useRef<number | null>(null);
   const [parallaxY, setParallaxY] = useState(0);
 
@@ -13,18 +15,15 @@ export const OurPurposeSection: React.FC = () => {
       const windowHeight = window.innerHeight;
 
       // Only start moving when the user arrives at the section
-      if (rect.bottom >= 0 && rect.top <= windowHeight) {
-        // Distance scrolled since the section entered the viewport (starts at 0px)
-        const scrolledDistance = Math.max(0, windowHeight - rect.top);
+      const triggerPoint = windowHeight * 0.5; // Halfway in viewport
 
-        // Parallax speed: controls how far it glides down as you scroll through the section
-        const PARALLAX_SPEED = 0.25;
-        const offset = scrolledDistance * PARALLAX_SPEED;
-        setParallaxY(offset);
-      } else if (rect.top > windowHeight) {
-        // Keep at base position (0px) before reaching the section
-        setParallaxY(0);
-      }
+if (rect.bottom >= 0 && rect.top <= triggerPoint) {
+  const scrolledDistance = triggerPoint - rect.top;
+  const PARALLAX_SPEED = 0.4;
+  setParallaxY(scrolledDistance * PARALLAX_SPEED);
+} else if (rect.top > triggerPoint) {
+  setParallaxY(0);
+}
     };
 
     const onScroll = () => {
@@ -140,13 +139,16 @@ export const OurPurposeSection: React.FC = () => {
         gap: 32px;
       */}
       <div
+        ref={purposeRef}
         id="our-purpose"
         data-node-id="211:5376"
         style={{
           width: '100%',
           maxWidth: '1040px',
         }}
-        className="relative z-20 mx-auto px-4 min-[1080px]:px-0 flex flex-col items-center gap-[32px] text-center mt-20 sm:mt-28 lg:mt-[215px] pb-12 sm:pb-16 lg:pb-[110px]"
+        className={`relative z-20 mx-auto px-4 min-[1080px]:px-0 flex flex-col items-center gap-[32px] text-center mt-20 sm:mt-28 lg:mt-[215px] pb-12 sm:pb-16 lg:pb-[110px] transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none ${
+          purposeIn ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
+        }`}
       >
         {/* Eyebrow (Figma Node 211:5377) */}
         <div

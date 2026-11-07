@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { cn } from '@/utils/cn'
+import { useInViewOnce } from '@/hooks/useInViewOnce'
 
 export interface TestimonialMetric {
   value: string
@@ -99,12 +100,22 @@ export function TestimonialsSection({
   items = DEFAULT_TESTIMONIALS,
   className,
 }: TestimonialsSectionProps) {
+  const [headRef, headIn] = useInViewOnce<HTMLDivElement>(0.2)
+  const [carouselRef, carouselIn] = useInViewOnce<HTMLDivElement>(0.15)
   const [activeIndex, setActiveIndex] = useState(0)
   const [gutter, setGutter] = useState<number>(0)
   const headerContainerRef = useRef<HTMLDivElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const cardRefs = useRef<(HTMLElement | null)[]>([])
   const isScrollingRef = useRef(false)
+
+  const setHeaderRef = useCallback(
+    (el: HTMLDivElement | null) => {
+      headerContainerRef.current = el
+      headRef.current = el
+    },
+    [headRef]
+  )
 
   // Measure dynamic grid gutter so Card 1 aligns with header on left initially,
   // and last card aligns with right edge of header at the end of scroll
@@ -270,8 +281,11 @@ export function TestimonialsSection({
       <div className="w-full flex flex-col gap-[2.5rem] sm:gap-[3.5rem] lg:gap-[5rem]">
         {/* Header: constrained to standard grid (Figma Node 211:5405) */}
         <div
-          ref={headerContainerRef}
-          className="mx-auto w-full max-w-[78rem] px-[1rem] sm:px-[2rem] lg:px-[6rem]"
+          ref={setHeaderRef}
+          className={cn(
+            'mx-auto w-full max-w-[78rem] px-[1rem] sm:px-[2rem] lg:px-[6rem] transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none',
+            headIn ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
+          )}
         >
           <div className="flex flex-col gap-[1.5rem] lg:flex-row lg:items-end lg:justify-between">
             {/* Title Area (Figma Node 211:5406) */}
@@ -378,11 +392,19 @@ export function TestimonialsSection({
             3. At the end: last card aligns with header right edge (gutter spacer on right), 0 left padding
         */}
         <div
-          ref={containerRef}
-          onScroll={handleScroll}
-          className="relative w-full flex items-stretch gap-[24px] overflow-x-auto scroll-smooth [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
-          style={{ WebkitOverflowScrolling: 'touch' }}
+          ref={carouselRef}
+          style={{ transitionDelay: carouselIn ? '150ms' : '0ms' }}
+          className={cn(
+            'relative w-full transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none',
+            carouselIn ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
+          )}
         >
+          <div
+            ref={containerRef}
+            onScroll={handleScroll}
+            className="relative w-full flex items-stretch gap-[24px] overflow-x-auto scroll-smooth [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+            style={{ WebkitOverflowScrolling: 'touch' }}
+          >
           {/* Dynamic Left Gutter Spacer */}
           <div
             style={{ width: `${gutter}px` }}
@@ -577,6 +599,7 @@ export function TestimonialsSection({
             className="shrink-0 pointer-events-none"
             aria-hidden="true"
           />
+        </div>
         </div>
       </div>
     </section>

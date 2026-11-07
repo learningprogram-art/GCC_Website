@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/Button'
 import { cn } from '@/utils/cn'
+import { useInViewOnce } from '@/hooks/useInViewOnce'
 
 export interface PortalAccessSectionProps {
   className?: string
@@ -12,6 +13,8 @@ export function PortalAccessSection({
   loginHref = '#login',
   registerHref = '#register',
 }: PortalAccessSectionProps) {
+  const [cardRef, cardIn] = useInViewOnce<HTMLDivElement>(0.15)
+
   return (
     <section
       id="portal-access"
@@ -24,7 +27,13 @@ export function PortalAccessSection({
     >
       <div className="mx-auto max-w-[1248px] w-full">
         {/* AMC Card Container (Figma Node 297:4035: exact 1248px x 560px, rounded-[12px]) */}
-        <div className="relative w-full min-h-[460px] sm:min-h-[500px] lg:min-h-0 lg:h-[560px] lg:aspect-[1248/560] overflow-hidden rounded-[12px] bg-transparent">
+        <div
+          ref={cardRef}
+          className={cn(
+            'relative w-full min-h-[460px] sm:min-h-[500px] lg:min-h-0 lg:h-[560px] lg:aspect-[1248/560] overflow-hidden rounded-[12px] bg-transparent transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none',
+            cardIn ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
+          )}
+        >
           {/* Background image (4992x2240, exactly 1248:560 ratio): fits frame width & height perfectly without distortion */}
           <img
             src="/assets/images/amc/GCC-AMC-Portal-access-card.webp"
@@ -40,7 +49,13 @@ export function PortalAccessSection({
           />
 
           {/* Left Content Area (Figma Node 211:5396: x=56px, y=258px, w=512px, h=246px) */}
-          <div className="relative z-10 flex flex-col justify-end h-full p-[2rem] sm:p-[3rem] lg:px-[56px] lg:pb-[56px] max-w-[512px]">
+          <div
+            style={{ transitionDelay: cardIn ? '150ms' : '0ms' }}
+            className={cn(
+              'relative z-10 flex flex-col justify-end h-full p-[2rem] sm:p-[3rem] lg:px-[56px] lg:pb-[56px] max-w-[512px] transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none',
+              cardIn ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
+            )}
+          >
             {/* Headline + Description + Buttons */}
             <div className="flex flex-col gap-[1.5rem]">
               <div className="flex flex-col gap-[0.75rem]">

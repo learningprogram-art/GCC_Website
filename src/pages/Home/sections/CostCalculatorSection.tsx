@@ -1,6 +1,7 @@
 import { useState, useId, useEffect, useCallback } from 'react'
 import { Button } from '@/components/ui/Button'
 import { cn } from '@/utils/cn'
+import { useInViewOnce } from '@/hooks/useInViewOnce'
 
 type ProjectType = 'villa' | 'farmhouse' | 'floors'
 type PackageTier = 'standard' | 'premium' | 'luxury'
@@ -48,6 +49,7 @@ function formatINR(amount: number): string {
 }
 
 export function CostCalculatorSection() {
+  const [bannerRef, bannerIn] = useInViewOnce<HTMLDivElement>(0.2)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [projectType, setProjectType] = useState<ProjectType>('villa')
   const [area, setArea] = useState<number>(3200)
@@ -88,7 +90,12 @@ export function CostCalculatorSection() {
     >
       <div className="mx-auto max-w-[1248px] w-full">
         {/* Banner Container: Figma Node 211:6073 (1248px x 160px, rounded-[12px], bg-[#701E1C], pl-[12px] pr-[30px] py-[12px]) */}
-        <div className="relative w-full min-h-[160px] rounded-[12px] bg-[#701E1C] overflow-hidden flex flex-col md:flex-row items-center justify-between py-[12px] pl-[12px] pr-4 sm:pr-[30px] gap-6 md:gap-[30px] shadow-md">
+        <div
+          ref={bannerRef}
+          className={`relative w-full min-h-[160px] rounded-[12px] bg-[#701E1C] overflow-hidden flex flex-col md:flex-row items-center justify-between py-[12px] pl-[12px] pr-4 sm:pr-[30px] gap-6 md:gap-[30px] shadow-md transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none ${
+            bannerIn ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
+          }`}
+        >
           {/* Decorative geometric circle arc pattern (calculator-design.webp aligned to right edge) */}
           <div
             className="pointer-events-none absolute right-0 top-0 h-full select-none overflow-hidden"
