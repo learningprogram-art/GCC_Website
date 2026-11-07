@@ -2,6 +2,7 @@ import {
   AboutHeroSection,
   AboutStorySection,
   PreviousExperiences,
+  VisitOfficeSection,
 } from './sections'
 import { ContactSection } from '@/components/common/ContactSection'
 
@@ -11,6 +12,7 @@ export function AboutPage() {
       <AboutHeroSection />
       <AboutStorySection />
       <PreviousExperiences />
+      <VisitOfficeSection />
       <ContactSection />
     </div>
   )

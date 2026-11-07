@@ -78,7 +78,7 @@ export function AboutStorySection() {
   return (
     <section
       id="about-story"
-      className="bg-[#FFFBEE] px-4 py-16 md:px-12 lg:px-24 lg:py-[88px]"
+      className="bg-[#FFFCF2] px-4 py-16 md:px-12 lg:px-24 lg:pt-[88px] lg:pb-[88px]"
     >
       <div className="mx-auto flex w-full max-w-[1252px] flex-col gap-12 lg:gap-16">
         <div className="flex flex-col gap-8 lg:flex-row lg:items-start lg:justify-between lg:gap-[120px]">
