@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react'
 import { Button } from '@/components/ui/Button'
 import heroHome from '/assets/images/hero-home.webp'
 import heroHomeMobile from '/assets/images/hero-home-mobile.webp'
@@ -15,13 +16,49 @@ const fieldLabel = 'flex w-full flex-col gap-2 text-sm font-medium leading-5 tex
 const fieldInput =
   'w-full rounded-md border border-[#CCC5B9] bg-[#FFFCF2] py-3.5 pl-4 pr-3.5 text-base leading-6 text-[#403D39] outline-none placeholder:text-[#403D39]/70 focus:border-[#6F1D1B]'
 
+// Bottom-up reveal: fade + slide up (same feel as the other sections)
+const REVEAL =
+  'transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none'
+const revealState = (shown: boolean) =>
+  shown ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
+const delayStyle = (shown: boolean, ms: number) => ({
+  transitionDelay: shown ? `${ms}ms` : '0ms',
+})
+
+/** Each group gets its own trigger: flips to true once, the first time it scrolls into view. */
+function useReveal<T extends HTMLElement>(threshold = 0.2) {
+  const ref = useRef<T>(null)
+  const [shown, setShown] = useState(false)
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setShown(true)
+          io.disconnect()
+        }
+      },
+      { threshold, rootMargin: '0px 0px -8% 0px' },
+    )
+    io.observe(el)
+    return () => io.disconnect()
+  }, [threshold])
+
+  return [ref, shown] as const
+}
+
 function HeroMobile() {
+  const [headRef, headIn] = useReveal<HTMLDivElement>(0.2)
+  const [formRef, formIn] = useReveal<HTMLFormElement>(0.2)
+
   return (
     <section
-  id="hero-mobile"
-  style={hanken}
-  className="relative z-[1] -mb-px bg-[#FFFCF2] px-3 pb-10 pt-3 lg:hidden"
->
+      id="hero-mobile"
+      style={hanken}
+      className="relative z-[1] -mb-px bg-[#FFFCF2] px-3 pb-10 pt-3 lg:hidden"
+    >
       {/* Image card (Figma: 366 x 701, radius 12) */}
       <div className="relative isolate h-[701px] w-full overflow-hidden rounded-xl bg-[#347DA6]">
         <img
@@ -40,20 +77,43 @@ function HeroMobile() {
         />
 
         {/* Headline (Figma top: 96px; nav above it is your existing navbar) */}
-        <div className="absolute inset-x-4 top-24 flex flex-col items-center gap-3.5 text-center text-white">
+        <div
+          ref={headRef}
+          className="absolute inset-x-4 top-24 flex flex-col items-center gap-3.5 text-center text-white"
+        >
           <h1
             style={bai}
             className="text-[40px] font-bold uppercase leading-none tracking-[-0.4px]"
           >
-            Engineered
-            <br />
-            <span className="text-[#FFE6A7]">right.</span>
-            <br />
-            Executed
-            <br />
-            <span className="text-[#FFE6A7]">responsibly.</span>
+            <span
+              style={delayStyle(headIn, 150)}
+              className={`block ${REVEAL} ${revealState(headIn)}`}
+            >
+              Engineered
+            </span>
+            <span
+              style={delayStyle(headIn, 300)}
+              className={`block text-[#FFE6A7] ${REVEAL} ${revealState(headIn)}`}
+            >
+              right.
+            </span>
+            <span
+              style={delayStyle(headIn, 450)}
+              className={`block ${REVEAL} ${revealState(headIn)}`}
+            >
+              Executed
+            </span>
+            <span
+              style={delayStyle(headIn, 600)}
+              className={`block text-[#FFE6A7] ${REVEAL} ${revealState(headIn)}`}
+            >
+              responsibly.
+            </span>
           </h1>
-          <p className="text-base leading-6">
+          <p
+            style={delayStyle(headIn, 800)}
+            className={`text-base leading-6 ${REVEAL} ${revealState(headIn)}`}
+          >
             One team. Every stage. From engineering to construction and handover.
           </p>
         </div>
@@ -61,11 +121,13 @@ function HeroMobile() {
 
       {/* Lead form, overlaps the image by 88px */}
       <form
+        ref={formRef}
         onSubmit={(e) => {
           e.preventDefault()
           // TODO: submit enquiry (Supabase / API route)
         }}
-        className="relative z-10 mx-3 -mt-[88px] flex flex-col gap-4 rounded-2xl bg-white p-5 shadow-[0_2px_6px_rgba(37,36,34,0.06),0_16px_40px_rgba(37,36,34,0.1)]"
+        style={delayStyle(formIn, 0)}
+        className={`relative z-10 mx-3 -mt-[88px] flex flex-col gap-4 rounded-2xl bg-white p-5 shadow-[0_2px_6px_rgba(37,36,34,0.06),0_16px_40px_rgba(37,36,34,0.1)] ${REVEAL} ${revealState(formIn)}`}
       >
         <div className="flex flex-col gap-0.5">
           <p className="text-xs font-semibold uppercase leading-4 tracking-[0.96px] text-[#E06422]">
@@ -136,6 +198,9 @@ function HeroMobile() {
 }
 
 export function HeroSection() {
+  const [headRef, headIn] = useReveal<HTMLDivElement>(0.2)
+  const [barRef, barIn] = useReveal<HTMLDivElement>(0.2)
+
   return (
     <>
       <HeroMobile />
@@ -162,22 +227,41 @@ export function HeroSection() {
         />
 
         {/* Headline */}
-        <div className="mx-auto max-w-5xl px-6 pt-28 text-center lg:pt-[9vw]">
+        <div
+          ref={headRef}
+          className="mx-auto max-w-5xl px-6 pt-28 text-center lg:pt-[9vw]"
+        >
           <h1
             style={{ fontFamily: '"Bai Jamjuree", sans-serif' }}
             className="text-center text-4xl font-bold uppercase leading-[1.06] text-white sm:text-5xl lg:text-[length:min(4.3vw,62px)]"
           >
-            Engineered <span className="text-[#FFE29A]">Right.</span>
-            <br />
-            Executed <span className="text-[#FFE29A]">Responsibly.</span>
+            <span
+              style={delayStyle(headIn, 150)}
+              className={`block ${REVEAL} ${revealState(headIn)}`}
+            >
+              Engineered <span className="text-[#FFE29A]">Right.</span>
+            </span>
+            <span
+              style={delayStyle(headIn, 300)}
+              className={`block ${REVEAL} ${revealState(headIn)}`}
+            >
+              Executed <span className="text-[#FFE29A]">Responsibly.</span>
+            </span>
           </h1>
-          <p className="mt-3 text-xs text-white/90 sm:text-sm lg:text-[0.9vw]">
+          <p
+            style={delayStyle(headIn, 500)}
+            className={`mt-3 text-xs text-white/90 sm:text-sm lg:text-[0.9vw] ${REVEAL} ${revealState(headIn)}`}
+          >
             One team. Every stage. From engineering to construction and handover.
           </p>
         </div>
 
         {/* Quick enquiry bar */}
-        <div className="mt-auto w-full px-4 pb-4 lg:pb-[2.6vw]">
+        <div
+          ref={barRef}
+          style={delayStyle(barIn, 500)}
+          className={`mt-auto w-full px-4 pb-4 lg:pb-[2.6vw] ${REVEAL} ${revealState(barIn)}`}
+        >
           <div className="mx-auto flex w-full flex-col gap-3 sm:flex-row sm:items-stretch lg:w-[87%]">
             <form
               onSubmit={(e) => {

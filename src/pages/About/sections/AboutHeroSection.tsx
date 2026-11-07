@@ -2,6 +2,15 @@ import { useEffect, useRef, useState } from 'react'
 
 const HERO_IMG = '/assets/images/about/hero-img.webp'
 
+// Bottom-up reveal: fade + slide up (same feel as the other sections)
+const REVEAL =
+  'transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none'
+const revealState = (shown: boolean) =>
+  shown ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
+const delayStyle = (shown: boolean, ms: number) => ({
+  transitionDelay: shown ? `${ms}ms` : '0ms',
+})
+
 function useInViewOnce<T extends HTMLElement>(threshold = 0.1) {
   const ref = useRef<T>(null)
   const [inView, setInView] = useState(false)
@@ -83,9 +92,18 @@ export function AboutHeroSection() {
 
       <div className="relative h-full w-full px-4 pt-28 md:px-[7.2vw] md:pt-[10vw] lg:px-24">
         <h1 className="font-['Bai_Jamjuree'] text-[clamp(40px,6.25vw,120px)] font-bold uppercase not-italic leading-[0.99] text-[#FFE6A7]">
-          Two brothers.
-          <br />
-          One vision.
+          <span
+            style={delayStyle(inView, 250)}
+            className={`block ${REVEAL} ${revealState(inView)}`}
+          >
+            Two brothers.
+          </span>
+          <span
+            style={delayStyle(inView, 450)}
+            className={`block ${REVEAL} ${revealState(inView)}`}
+          >
+            One vision.
+          </span>
         </h1>
       </div>
     </section>

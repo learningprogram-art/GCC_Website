@@ -1,6 +1,38 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Button } from '@/components/ui/Button'
 
+// Bottom-up reveal: fade + slide up (same feel as the other sections)
+const REVEAL =
+  'transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none'
+const revealState = (shown: boolean) =>
+  shown ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
+const delayStyle = (shown: boolean, ms: number) => ({
+  transitionDelay: shown ? `${ms}ms` : '0ms',
+})
+
+/** Each group gets its own trigger: flips to true once, the first time it scrolls into view. */
+function useReveal<T extends HTMLElement>(threshold = 0.2) {
+  const ref = useRef<T>(null)
+  const [shown, setShown] = useState(false)
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setShown(true)
+          io.disconnect()
+        }
+      },
+      { threshold, rootMargin: '0px 0px -8% 0px' },
+    )
+    io.observe(el)
+    return () => io.disconnect()
+  }, [threshold])
+
+  return [ref, shown] as const
+}
 
 function ChevronDown({ className = '' }: { className?: string }) {
   return (
@@ -31,6 +63,11 @@ export function ContactSection() {
     message: '',
   })
   const [submitted, setSubmitted] = useState(false)
+
+  // Scroll reveals
+  const [introRef, introIn] = useReveal<HTMLDivElement>(0.3)
+  const [cardsRef, cardsIn] = useReveal<HTMLDivElement>(0.3)
+  const [formRef, formIn] = useReveal<HTMLDivElement>(0.15)
 
   const handleCopy = (text: string, type: string, e: React.MouseEvent) => {
     e.stopPropagation()
@@ -92,142 +129,167 @@ export function ContactSection() {
         {/* Left Column: Intro & Contact Options (Figma Node 211:5478) */}
         <div className="flex flex-1 flex-col items-start gap-[32px] w-full max-w-[40.5rem]">
           {/* Headline & Subtitle Block */}
-          <div className="flex flex-col items-start gap-[16px] w-full">
-            <p className="text-[20px] leading-[28px] font-normal text-white m-0">
+          <div ref={introRef} className="flex flex-col items-start gap-[16px] w-full">
+            <p
+              style={delayStyle(introIn, 0)}
+              className={`text-[20px] leading-[28px] font-normal text-white m-0 ${REVEAL} ${revealState(introIn)}`}
+            >
               Every strong structure starts with
               <br className="hidden sm:inline" /> the right conversation.
             </p>
 
             <h2
-              style={{ fontFamily: '"Bai Jamjuree", sans-serif' }}
-              className="text-[2.25rem] sm:text-[2.75rem] lg:text-[48px] font-bold uppercase leading-[1.2] text-[#FFFCF2] tracking-normal m-0"
+              style={{ fontFamily: '"Bai Jamjuree", sans-serif', ...delayStyle(introIn, 150) }}
+              className={`text-[2.25rem] sm:text-[2.75rem] lg:text-[48px] font-bold uppercase leading-[1.2] text-[#FFFCF2] tracking-normal m-0 ${REVEAL} ${revealState(introIn)}`}
             >
               Begin Your Construction Journey
             </h2>
 
-            <p className="text-[16px] leading-[24px] font-normal text-white m-0">
+            <p
+              style={delayStyle(introIn, 300)}
+              className={`text-[16px] leading-[24px] font-normal text-white m-0 ${REVEAL} ${revealState(introIn)}`}
+            >
               Tell us what you&apos;re planning. We answer with proof.
             </p>
           </div>
 
           {/* Contact Cards */}
-          <div className="flex flex-col gap-[12px] items-start w-full">
+          <div ref={cardsRef} className="flex flex-col gap-[12px] items-start w-full">
             {/* 1. Phone Card */}
             <div
-              onClick={() => window.open('tel:+919002339920')}
-              style={{ background: 'rgba(37, 36, 34, 0.60)', borderRadius: '8px' }}
-              className="group flex w-[300px] max-w-full h-[70px] p-[12px] items-center gap-[16px] cursor-pointer shrink-0 transition-all hover:bg-[rgba(37,36,34,0.75)]"
+              style={delayStyle(cardsIn, 0)}
+              className={`w-[300px] max-w-full shrink-0 ${REVEAL} ${revealState(cardsIn)}`}
             >
-              <div className="flex size-[24px] shrink-0 items-center justify-center">
-                <img
-                  src="/assets/icons/home/contact/contact-phone.svg"
-                  alt=""
-                  className="size-[24px] object-contain"
-                />
-              </div>
-
-              <div className="flex flex-col gap-[2px] items-start min-w-0">
-                <div className="flex items-center gap-[4px]">
-                  <span className="text-[14px] font-medium leading-[20px] text-[#FFFCF2] whitespace-nowrap">
-                    Call +91 90023 39920
-                  </span>
-                  <button
-                    type="button"
-                    onClick={(e) => handleCopy('+91 90023 39920', 'phone', e)}
-                    aria-label="Copy phone number"
-                    className="p-0.5 text-white/70 hover:text-white transition-colors cursor-pointer"
-                  >
-                    <img
-                      src="/assets/icons/home/contact/content-copy.svg"
-                      alt=""
-                      className="size-[14px]"
-                    />
-                  </button>
-                  {copiedType === 'phone' && (
-                    <span className="text-[11px] font-semibold text-[#FFE6A7] animate-pulse">
-                      Copied!
-                    </span>
-                  )}
+              <div
+                onClick={() => window.open('tel:+919002339920')}
+                style={{ background: 'rgba(37, 36, 34, 0.60)', borderRadius: '8px' }}
+                className="group flex w-full h-[70px] p-[12px] items-center gap-[16px] cursor-pointer shrink-0 transition-all hover:bg-[rgba(37,36,34,0.75)]"
+              >
+                <div className="flex size-[24px] shrink-0 items-center justify-center">
+                  <img
+                    src="/assets/icons/home/contact/contact-phone.svg"
+                    alt=""
+                    className="size-[24px] object-contain"
+                  />
                 </div>
-                <span className="text-[16px] font-normal leading-[24px] text-[#FFFCF2]/60 whitespace-nowrap">
-                  Speak to an engineer directly
-                </span>
+
+                <div className="flex flex-col gap-[2px] items-start min-w-0">
+                  <div className="flex items-center gap-[4px]">
+                    <span className="text-[14px] font-medium leading-[20px] text-[#FFFCF2] whitespace-nowrap">
+                      Call +91 90023 39920
+                    </span>
+                    <button
+                      type="button"
+                      onClick={(e) => handleCopy('+91 90023 39920', 'phone', e)}
+                      aria-label="Copy phone number"
+                      className="p-0.5 text-white/70 hover:text-white transition-colors cursor-pointer"
+                    >
+                      <img
+                        src="/assets/icons/home/contact/content-copy.svg"
+                        alt=""
+                        className="size-[14px]"
+                      />
+                    </button>
+                    {copiedType === 'phone' && (
+                      <span className="text-[11px] font-semibold text-[#FFE6A7] animate-pulse">
+                        Copied!
+                      </span>
+                    )}
+                  </div>
+                  <span className="text-[16px] font-normal leading-[24px] text-[#FFFCF2]/60 whitespace-nowrap">
+                    Speak to an engineer directly
+                  </span>
+                </div>
               </div>
             </div>
 
             {/* 2. WhatsApp Card */}
-            <a
-              href="https://wa.me/919002339920"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ background: 'rgba(37, 36, 34, 0.60)', borderRadius: '8px' }}
-              className="group flex w-[300px] max-w-full h-[70px] p-[12px] items-center gap-[16px] cursor-pointer shrink-0 transition-all hover:bg-[rgba(37,36,34,0.75)]"
+            <div
+              style={delayStyle(cardsIn, 150)}
+              className={`w-[300px] max-w-full shrink-0 ${REVEAL} ${revealState(cardsIn)}`}
             >
-              <div className="flex size-[24px] shrink-0 items-center justify-center">
-                <img
-                  src="/assets/icons/home/contact/contact-whatsapp.svg"
-                  alt=""
-                  className="size-[24px] object-contain"
-                />
-              </div>
+              <a
+                href="https://wa.me/919002339920"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ background: 'rgba(37, 36, 34, 0.60)', borderRadius: '8px' }}
+                className="group flex w-full h-[70px] p-[12px] items-center gap-[16px] cursor-pointer shrink-0 transition-all hover:bg-[rgba(37,36,34,0.75)]"
+              >
+                <div className="flex size-[24px] shrink-0 items-center justify-center">
+                  <img
+                    src="/assets/icons/home/contact/contact-whatsapp.svg"
+                    alt=""
+                    className="size-[24px] object-contain"
+                  />
+                </div>
 
-              <div className="flex flex-col gap-[2px] items-start min-w-0">
-                <span className="text-[14px] font-medium leading-[20px] text-[#FFFCF2] whitespace-nowrap">
-                  Whatsapp
-                </span>
-                <span className="text-[16px] font-normal leading-[24px] text-[#FFFCF2]/60 whitespace-nowrap">
-                  Quick updates on your project
-                </span>
-              </div>
-            </a>
+                <div className="flex flex-col gap-[2px] items-start min-w-0">
+                  <span className="text-[14px] font-medium leading-[20px] text-[#FFFCF2] whitespace-nowrap">
+                    Whatsapp
+                  </span>
+                  <span className="text-[16px] font-normal leading-[24px] text-[#FFFCF2]/60 whitespace-nowrap">
+                    Quick updates on your project
+                  </span>
+                </div>
+              </a>
+            </div>
 
             {/* 3. Email Card */}
             <div
-              onClick={() => window.open('mailto:contact@gcc.com')}
-              style={{ background: 'rgba(37, 36, 34, 0.60)', borderRadius: '8px' }}
-              className="group flex w-[300px] max-w-full h-[70px] p-[12px] items-center gap-[16px] cursor-pointer shrink-0 transition-all hover:bg-[rgba(37,36,34,0.75)]"
+              style={delayStyle(cardsIn, 300)}
+              className={`w-[300px] max-w-full shrink-0 ${REVEAL} ${revealState(cardsIn)}`}
             >
-              <div className="flex size-[24px] shrink-0 items-center justify-center">
-                <img
-                  src="/assets/icons/home/contact/contact-email.svg"
-                  alt=""
-                  className="size-[24px] object-contain"
-                />
-              </div>
-
-              <div className="flex flex-col gap-[2px] items-start min-w-0">
-                <div className="flex items-center gap-[4px]">
-                  <span className="text-[14px] font-medium leading-[20px] text-[#FFFCF2] whitespace-nowrap">
-                    Email contact@gcc.com
-                  </span>
-                  <button
-                    type="button"
-                    onClick={(e) => handleCopy('contact@gcc.com', 'email', e)}
-                    aria-label="Copy email address"
-                    className="p-0.5 text-white/70 hover:text-white transition-colors cursor-pointer"
-                  >
-                    <img
-                      src="/assets/icons/home/contact/content-copy.svg"
-                      alt=""
-                      className="size-[14px]"
-                    />
-                  </button>
-                  {copiedType === 'email' && (
-                    <span className="text-[11px] font-semibold text-[#FFE6A7] animate-pulse">
-                      Copied!
-                    </span>
-                  )}
+              <div
+                onClick={() => window.open('mailto:contact@gcc.com')}
+                style={{ background: 'rgba(37, 36, 34, 0.60)', borderRadius: '8px' }}
+                className="group flex w-full h-[70px] p-[12px] items-center gap-[16px] cursor-pointer shrink-0 transition-all hover:bg-[rgba(37,36,34,0.75)]"
+              >
+                <div className="flex size-[24px] shrink-0 items-center justify-center">
+                  <img
+                    src="/assets/icons/home/contact/contact-email.svg"
+                    alt=""
+                    className="size-[24px] object-contain"
+                  />
                 </div>
-                <span className="text-[16px] font-normal leading-[24px] text-[#FFFCF2]/60 whitespace-nowrap">
-                  Send us your project brief
-                </span>
+
+                <div className="flex flex-col gap-[2px] items-start min-w-0">
+                  <div className="flex items-center gap-[4px]">
+                    <span className="text-[14px] font-medium leading-[20px] text-[#FFFCF2] whitespace-nowrap">
+                      Email contact@gcc.com
+                    </span>
+                    <button
+                      type="button"
+                      onClick={(e) => handleCopy('contact@gcc.com', 'email', e)}
+                      aria-label="Copy email address"
+                      className="p-0.5 text-white/70 hover:text-white transition-colors cursor-pointer"
+                    >
+                      <img
+                        src="/assets/icons/home/contact/content-copy.svg"
+                        alt=""
+                        className="size-[14px]"
+                      />
+                    </button>
+                    {copiedType === 'email' && (
+                      <span className="text-[11px] font-semibold text-[#FFE6A7] animate-pulse">
+                        Copied!
+                      </span>
+                    )}
+                  </div>
+                  <span className="text-[16px] font-normal leading-[24px] text-[#FFFCF2]/60 whitespace-nowrap">
+                    Send us your project brief
+                  </span>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
         {/* Right Column: Lead Form Card Container (Figma Node 211:5512) */}
-        <div className="w-full lg:w-[32.5rem] shrink-0 rounded-[0.75rem] bg-[#252422] p-[2rem] shadow-2xl flex flex-col gap-[1.5rem]">
+        <div
+          ref={formRef}
+          style={delayStyle(formIn, 0)}
+          className={`w-full lg:w-[32.5rem] shrink-0 rounded-[0.75rem] bg-[#252422] p-[2rem] shadow-2xl flex flex-col gap-[1.5rem] ${REVEAL} ${revealState(formIn)}`}
+        >
           <h3
             style={{ fontFamily: '"Bai Jamjuree", sans-serif' }}
             className="text-[1.375rem] font-semibold leading-[1.75rem] tracking-[-0.11px] text-[#FFFCF2] m-0"
