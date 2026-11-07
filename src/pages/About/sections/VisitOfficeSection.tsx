@@ -44,21 +44,21 @@ export const VisitOfficeSection: React.FC = () => {
       data-node-id="214:7183"
       className="relative w-full overflow-hidden bg-[#252422] min-h-[580px] sm:min-h-[640px] lg:h-[749px] flex items-center"
     >
-      {/* Background Image (Figma Node 214:7219) — left-anchored night building */}
+      {/* Background Image (Figma Node 214:7219) */}
       <div className="absolute inset-0 pointer-events-none select-none">
         <img
           src={OFFICE_IMG}
           alt="GCC Office building at night"
-          className="w-full h-full object-cover object-left-top"
+          className="w-full h-full object-cover object-right"
         />
-        {/* Dark gradient overlay on left for text contrast */}
+        {/* Subtle mobile gradient overlay for text readability when viewport is narrow */}
         <div
-          className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/45 to-transparent"
+          className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/50 to-transparent lg:hidden"
           aria-hidden="true"
         />
       </div>
 
-      {/* Content Block (Figma Node 214:7217) — x=96, y=253.5, w=430.58, h=242 */}
+      {/* Content Block (Figma Node 214:7217) — x=96 (6rem left padding), y=253.5, w=430.58, h=242 */}
       <div
         ref={contentRef}
         data-node-id="214:7217"
@@ -68,7 +68,7 @@ export const VisitOfficeSection: React.FC = () => {
           alignItems: 'flex-start',
           gap: '40px',
         }}
-        className="relative z-10 w-full max-w-[430.58px] px-6 sm:px-12 lg:px-0 lg:absolute lg:left-[96px] lg:top-1/2 lg:-translate-y-1/2 lg:w-[430.58px]"
+        className="relative z-10 w-full max-w-[calc(430.58px+96px)] lg:max-w-[calc(430.58px+6rem)] pl-[96px] lg:pl-[6rem] lg:absolute lg:left-0 lg:top-1/2 lg:-translate-y-1/2"
       >
         {/* Heading (Figma Node 214:7215) — Bai Jamjuree Bold 48px in one line */}
         <h2

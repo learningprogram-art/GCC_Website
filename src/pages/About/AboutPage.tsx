@@ -10,8 +10,11 @@ export function AboutPage() {
   return (
     <div className="flex flex-col min-h-screen bg-[#252422] text-[#FFFCF2]">
       <AboutHeroSection />
-      <AboutStorySection />
-      <PreviousExperiences />
+      {/* Cream wrapper for Story & Previous Experiences eliminates any subpixel seam */}
+      <div className="w-full bg-[#FFFCF2]">
+        <AboutStorySection />
+        <PreviousExperiences />
+      </div>
       <VisitOfficeSection />
       <ContactSection />
     </div>

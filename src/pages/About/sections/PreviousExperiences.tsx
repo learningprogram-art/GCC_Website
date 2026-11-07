@@ -30,12 +30,6 @@ const START_DELAY = 150
 // Gentle slow-down at the end (a soft ease-out, not a hard snap)
 const EASE = 'cubic-bezier(0.25, 0.6, 0.3, 1)'
 
-/**
- * Space the grid must leave free on the screen: title (58) + gap (28) + top/bottom breathing room (64).
- * Lower it for bigger cards on short screens, raise it for smaller cards.
- */
-const RESERVED_PX = 150
-
 // Animated grid from this width up (same as Tailwind `sm`). Below it = simple scrollable boxes (phones only).
 const GRID_QUERY = '(min-width: 640px)'
 
@@ -169,7 +163,7 @@ export function PreviousExperiences() {
       ref={sectionRef}
       id="previous-experiences"
       data-node-id="214:7165"
-      className="flex w-full flex-col items-center justify-center overflow-x-clip bg-[#FFFCF2] px-6 py-16 sm:min-h-[100svh] sm:px-12 sm:py-8 lg:px-[96px]"
+      className="relative z-10 -mt-px flex w-full flex-col items-center justify-center overflow-x-clip bg-[#FFFCF2] px-6 py-16 sm:px-12 md:px-[96px] lg:px-[6rem] sm:min-h-[100svh] sm:py-8"
     >
       <h2
         ref={titleRef}
@@ -184,9 +178,8 @@ export function PreviousExperiences() {
 
       {/*
         Phones (< 640px): one horizontal row of boxes you scroll sideways, with snap.
-        640px and up: 3 x 2 grid, 20px gap, 12px corners (same as the original).
-        Full Figma size (1249px wide, 403px cards) on tall screens. On shorter screens the width is
-        reduced just enough for both rows to fit on one screen: width = 1.5 * (screen height - RESERVED) + 10
+        640px and up: 3 x 2 grid, 20px gap, 12px corners (matches Figma node 214:7163).
+        Full Figma size (1249px wide, 403px cards) with 96px (6rem) left and right padding.
       */}
       <div
         ref={gridRef}
@@ -196,7 +189,7 @@ export function PreviousExperiences() {
           isGrid
             ? {
                 perspective: '1400px',
-                maxWidth: `min(1249px, calc(1.5 * (100svh - ${RESERVED_PX}px) + 10px))`,
+                maxWidth: '1249px',
               }
             : undefined
         }
