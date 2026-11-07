@@ -1,83 +1,152 @@
-const bai = { fontFamily: '"Bai Jamjuree", sans-serif' }
-const hanken = { fontFamily: '"Hanken Grotesk", sans-serif' }
+import { useEffect, useRef, useState } from 'react'
 
-const VALUES = [
+interface CardConfig {
+  id: string
+  name: string
+  initialTransform: string
+  delay: string
+}
+
+const CARDS: CardConfig[] = [
   {
-    number: '01',
-    title: 'Engineering Rigor',
-    desc: 'No shortcuts on rebar gauge, concrete grade, curing periods, or structural foundations. We calculate every beam and column to last generations.',
+    id: '214:7155',
+    name: 'Experience 1',
+    // Top-left: flies in from top-left with tilt
+    initialTransform: 'translate3d(-200px, -140px, 0) rotate(-10deg) scale(0.8)',
+    delay: '0ms',
   },
   {
-    number: '02',
-    title: 'Uncompromised Transparency',
-    desc: 'Zero hidden surprise bills or unannounced change orders. You track materials, stage approvals, and milestones in real time on our digital portal.',
+    id: '214:7156',
+    name: 'Experience 2',
+    // Top-center: flies in straight down from top
+    initialTransform: 'translate3d(0px, -180px, 0) rotate(4deg) scale(0.8)',
+    delay: '90ms',
   },
   {
-    number: '03',
-    title: 'Single-Source Ownership',
-    desc: 'Architects, civil engineers, MEP consultants, and supervisors united in one team. We take full accountability from initial sketch to final key handover.',
+    id: '214:7157',
+    name: 'Experience 3',
+    // Top-right: flies in from top-right with tilt
+    initialTransform: 'translate3d(200px, -140px, 0) rotate(10deg) scale(0.8)',
+    delay: '180ms',
   },
   {
-    number: '04',
-    title: 'Milestone Punctuality',
-    desc: 'Every phase is governed by strict project management workflows. Over 96% of our homes are delivered on or before the contractually agreed date.',
+    id: '214:7160',
+    name: 'Experience 4',
+    // Bottom-left: flies in from bottom-left
+    initialTransform: 'translate3d(-200px, 140px, 0) rotate(8deg) scale(0.8)',
+    delay: '120ms',
+  },
+  {
+    id: '214:7161',
+    name: 'Experience 5',
+    // Bottom-center: flies in straight up from bottom
+    initialTransform: 'translate3d(0px, 180px, 0) rotate(-4deg) scale(0.8)',
+    delay: '210ms',
+  },
+  {
+    id: '214:7162',
+    name: 'Experience 6',
+    // Bottom-right: flies in from bottom-right with tilt
+    initialTransform: 'translate3d(200px, 140px, 0) rotate(-9deg) scale(0.8)',
+    delay: '300ms',
   },
 ]
 
 export function PreviousExperiences() {
+  const sectionRef = useRef<HTMLElement>(null)
+  const [inView, setInView] = useState(false)
+
+  useEffect(() => {
+    const el = sectionRef.current
+    if (!el) return
+
+    // Trigger animation when the section reaches the middle (half) of the viewport
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setInView(true)
+        } else if (entry.boundingClientRect.top > 0) {
+          // Reset when scrolled back above the section so it re-animates on return
+          setInView(false)
+        }
+      },
+      {
+        rootMargin: '0px 0px -45% 0px',
+        threshold: 0,
+      }
+    )
+
+    io.observe(el)
+    return () => io.disconnect()
+  }, [])
+
   return (
     <section
-      id="about-values"
-      className="bg-[#252422] text-[#FFFCF2] px-6 md:px-12 lg:px-24 py-20 lg:py-28 border-t border-[#403D39]"
+      ref={sectionRef}
+      id="previous-experiences"
+      data-node-id="214:7165"
+      className="w-full bg-[#FFFCF2] px-6 sm:px-12 lg:px-[96px] overflow-hidden"
+      style={{ paddingTop: '88px', paddingBottom: '188px' }}
     >
-      <div className="mx-auto max-w-[1252px] flex flex-col gap-12 lg:gap-16">
-        {/* Header */}
-        <div className="flex flex-col gap-4 max-w-2xl">
-          <div className="flex items-center gap-3">
-            <span aria-hidden="true" className="size-2 bg-[#E06422]" />
-            <p
-              style={hanken}
-              className="text-xs font-semibold uppercase tracking-[0.96px] text-[#FFE6A7]"
-            >
-              Our Core Principles
-            </p>
-          </div>
+      {/* Inner container — Figma: x=96, w=1249 */}
+      <div className="w-full max-w-[1249px] mx-auto flex flex-col items-center gap-0">
+        {/* Title (Figma Node 214:7164) — h=58, then 44px gap to grid */}
+        <h2
+          data-node-id="214:7164"
+          style={{
+            fontFamily: '"Bai Jamjuree", sans-serif',
+            fontWeight: 700,
+            fontSize: '48px',
+            lineHeight: 1.2,
+            color: '#252422',
+            textTransform: 'uppercase',
+            margin: 0,
+            textAlign: 'center',
+            opacity: inView ? 1 : 0,
+            transform: inView ? 'translate3d(0, 0, 0)' : 'translate3d(0, 28px, 0)',
+            transition:
+              'opacity 700ms cubic-bezier(0.16, 1, 0.3, 1), transform 700ms cubic-bezier(0.16, 1, 0.3, 1)',
+          }}
+          className="text-[28px] sm:text-[36px] lg:text-[48px]"
+        >
+          PREVIOUS EXPERIENCES
+        </h2>
 
-          <h2
-            style={bai}
-            className="text-[28px] sm:text-[38px] lg:text-[46px] font-bold uppercase leading-[1.15] text-[#FFFCF2]"
-          >
-            Principles that guide every blueprint and brick.
-          </h2>
-        </div>
+        {/* Spacer: 102px from title top to grid top, title is 58px, so gap = 44px */}
+        <div style={{ height: '44px' }} />
 
-        {/* 4 Cards Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {VALUES.map((val) => (
+        {/* 3×2 Grid (Figma Node 214:7163) — w=1249, h=826, gap=20px */}
+        <div
+          data-node-id="214:7163"
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(3, 1fr)',
+            gap: '20px',
+            width: '100%',
+          }}
+          className="grid! grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-[20px] w-full"
+        >
+          {CARDS.map((card) => (
             <div
-              key={val.number}
-              className="flex flex-col justify-between p-6 rounded-xl bg-[#403D39]/30 border border-[#CCC5B9]/15 hover:border-[#CCC5B9]/30 transition-all duration-300"
+              key={card.id}
+              data-node-id={card.id}
+              style={{
+                transform: inView
+                  ? 'translate3d(0, 0, 0) rotate(0deg) scale(1)'
+                  : card.initialTransform,
+                opacity: inView ? 1 : 0,
+                transitionProperty: 'transform, opacity',
+                transitionDuration: '1000ms',
+                transitionTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)',
+                transitionDelay: card.delay,
+                willChange: 'transform, opacity',
+              }}
+              className="w-full aspect-square"
             >
-              <div className="flex flex-col gap-3">
-                <span
-                  style={bai}
-                  className="text-2xl font-bold text-[#E06422]"
-                >
-                  {val.number}
-                </span>
-                <h3
-                  style={bai}
-                  className="text-xl font-semibold text-[#FFFCF2]"
-                >
-                  {val.title}
-                </h3>
-                <p
-                  style={hanken}
-                  className="text-sm leading-6 text-[#CCC5B9]"
-                >
-                  {val.desc}
-                </p>
-              </div>
+              <div
+                className="size-full bg-[#7D7D7D] rounded-[12px] transition-transform duration-300 hover:scale-[1.02] hover:shadow-xl cursor-pointer"
+                aria-label={card.name}
+              />
             </div>
           ))}
         </div>
