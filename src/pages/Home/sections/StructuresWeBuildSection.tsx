@@ -112,7 +112,7 @@ export function StructuresWeBuildSection() {
               className={`group flex w-[75%] min-w-0 shrink-0 snap-start flex-col overflow-hidden rounded-lg transition-all duration-[800ms] ease-out md:w-auto md:shrink motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none ${cardsIn ? 'translate-y-0 opacity-100' : 'translate-y-14 opacity-0'
                 }`}
             >
-              <div className="aspect-square w-full overflow-hidden rounded-xl bg-[#9D9D9D] md:aspect-auto md:h-[320px] lg:h-[408px]">
+              <div className="aspect-square w-full overflow-hidden rounded-xl bg-[#9D9D9D]">
                 <img
                   src={item.image}
                   alt={item.alt}

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/Button'
 import { cn } from '@/utils/cn'
@@ -12,6 +12,8 @@ export interface NavbarProps {
   links?: NavLinkItem[]
   consultationHref?: string
   logoSrc?: string
+  /** Logo used when the navbar sits over a light section */
+  logoDarkSrc?: string
   className?: string
 }
 
@@ -25,39 +27,99 @@ const DEFAULT_NAV_LINKS: NavLinkItem[] = [
 
 const DEFAULT_CONSULTATION_HREF = '/#contact-cta'
 
+/** Looks at what is behind the navbar: 'light' for a light section, 'dark' for photos and dark sections. */
+function detectTheme(header: HTMLElement | null): 'light' | 'dark' {
+  if (!header) return 'dark'
+  // Sample at the page edge (outside the navbar pill) so we get the section colour, not content
+  const els = document.elementsFromPoint(12, 48)
+  for (const el of els) {
+    if (header.contains(el)) continue
+    if (el instanceof HTMLImageElement || el instanceof HTMLVideoElement) return 'dark'
+    const m = getComputedStyle(el).backgroundColor.match(/[\d.]+/g)
+    if (!m) continue
+    const [r, g, b, a = 1] = m.map(Number)
+    if (a < 0.5) continue
+    const lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255
+    return lum > 0.6 ? 'light' : 'dark'
+  }
+  return 'dark'
+}
+
 export function Navbar({
   links = DEFAULT_NAV_LINKS,
   consultationHref = DEFAULT_CONSULTATION_HREF,
   logoSrc = '/assets/icons/logo/gcc-logo-white.svg',
+  logoDarkSrc = '/assets/icons/logo/gcc-logo.svg',
   className,
 }: NavbarProps) {
   const [open, setOpen] = useState(false)
-  const [scrolled, setScrolled] = useState(false)
+  const [hidden, setHidden] = useState(false)
+  const [theme, setTheme] = useState<'light' | 'dark'>('dark')
+  const headerRef = useRef<HTMLElement>(null)
+  const lastY = useRef(0)
+  const openRef = useRef(open)
+  openRef.current = open
 
-  // Mobile/desktop: backdrop styling changes once scrolled past top threshold
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24)
-    onScroll()
+    let ticking = false
+
+    const update = () => {
+      const y = window.scrollY
+      const delta = y - lastY.current
+
+      if (openRef.current || y < 80) {
+        setHidden(false)            // never hide near the top or while the menu is open
+      } else if (delta > 6) {
+        setHidden(true)             // scrolling down
+      } else if (delta < -6) {
+        setHidden(false)            // scrolling up
+      }
+
+      if (Math.abs(delta) > 6 || y < 80) lastY.current = y
+      setTheme(detectTheme(headerRef.current))
+      ticking = false
+    }
+
+    const onScroll = () => {
+      if (ticking) return
+      ticking = true
+      requestAnimationFrame(update)
+    }
+
+    update()
     window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
+    window.addEventListener('resize', onScroll)
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onScroll)
+    }
   }, [])
 
-  const filled = open || scrolled
+  // The menu is transparent now, so colours follow the section behind it (open or closed)
+  const light = theme === 'light'
+
+  const linkClass = cn(
+    'whitespace-nowrap transition-colors',
+    light ? 'text-[#252422] hover:text-[#6F1D1B]' : 'text-white hover:text-[#FFE6A7]'
+  )
 
   return (
     <header
+      ref={headerRef}
       id="navbar"
       className={cn(
-        'fixed left-1/2 top-4 z-50 w-[calc(100%-32px)] -translate-x-1/2 lg:w-[min(87%,1252px)]',
+        'fixed left-1/2 top-4 z-50 w-[calc(100%-32px)] -translate-x-1/2 transition-transform duration-300 ease-out lg:w-[min(87%,1252px)]',
+        hidden ? '-translate-y-[calc(100%+24px)]' : 'translate-y-0',
         className
       )}
     >
       <div
         className={cn(
-          'relative rounded-[13px] border px-4 py-3 transition-colors duration-300 lg:border-white/20 lg:bg-[#1F5B7C]/75 lg:px-4 lg:py-2 lg:shadow-lg lg:backdrop-blur-md',
-          filled
-            ? 'border-white/10 bg-gradient-to-br from-[#1B3846] to-[#265D7D] shadow-lg backdrop-blur-md'
-            : 'border-transparent'
+          'relative rounded-[13px] border px-4 py-3 transition-colors duration-300 lg:px-4 lg:py-2',
+          open ? 'backdrop-blur-xl' : 'backdrop-blur-md',
+          light
+            ? 'border-[#252422]/15 bg-transparent'
+            : 'border-white/20 bg-transparent'
         )}
       >
         <div className="flex items-center justify-between">
@@ -68,7 +130,7 @@ export function Navbar({
             className="shrink-0 flex items-center"
           >
             <img
-              src={logoSrc}
+              src={light ? logoDarkSrc : logoSrc}
               alt="Garg Core Construction"
               width={177}
               height={34}
@@ -79,24 +141,16 @@ export function Navbar({
           {/* Links (Desktop) */}
           <nav
             aria-label="Main Navigation"
-            className="hidden items-center gap-8 font-['Hanken_Grotesk',sans-serif] text-[14px] font-medium uppercase leading-6 text-white lg:flex"
+            className="hidden items-center gap-8 font-['Hanken_Grotesk',sans-serif] text-[14px] font-medium uppercase leading-6 lg:flex"
           >
             {links.map((link) => {
               const isInternal = link.href.startsWith('/') && !link.href.includes('#')
               return isInternal ? (
-                <Link
-                  key={link.label}
-                  to={link.href}
-                  className="whitespace-nowrap transition-colors hover:text-[#FFE6A7]"
-                >
+                <Link key={link.label} to={link.href} className={linkClass}>
                   {link.label}
                 </Link>
               ) : (
-                <a
-                  key={link.label}
-                  href={link.href}
-                  className="whitespace-nowrap transition-colors hover:text-[#FFE6A7]"
-                >
+                <a key={link.label} href={link.href} className={linkClass}>
                   {link.label}
                 </a>
               )
@@ -121,7 +175,12 @@ export function Navbar({
             aria-label={open ? 'Close menu' : 'Open menu'}
             aria-expanded={open}
             onClick={() => setOpen((v) => !v)}
-            className="flex size-11 items-center justify-center rounded-xl bg-white/15 text-white transition-colors hover:bg-white/20 lg:hidden cursor-pointer"
+            className={cn(
+              'flex size-11 items-center justify-center rounded-xl transition-colors lg:hidden cursor-pointer',
+              light
+                ? 'bg-[#252422]/10 text-[#252422] hover:bg-[#252422]/15'
+                : 'bg-white/15 text-white hover:bg-white/20'
+            )}
           >
             <svg
               width="24"
@@ -144,25 +203,26 @@ export function Navbar({
 
         {/* Mobile Panel */}
         {open && (
-          <div className="mt-3 flex flex-col gap-1 border-t border-white/15 pt-3 font-['Hanken_Grotesk',sans-serif] lg:hidden">
+          <div
+            className={cn(
+              "mt-3 flex flex-col gap-1 border-t pt-3 font-['Hanken_Grotesk',sans-serif] lg:hidden",
+              light ? 'border-[#252422]/15' : 'border-white/15'
+            )}
+          >
             {links.map((link) => {
               const isInternal = link.href.startsWith('/') && !link.href.includes('#')
+              const cls = cn(
+                'rounded-lg px-2 py-3 text-[14px] font-medium uppercase leading-6 transition-colors',
+                light
+                  ? 'text-[#252422] hover:bg-[#252422]/10'
+                  : 'text-white hover:bg-white/10'
+              )
               return isInternal ? (
-                <Link
-                  key={link.label}
-                  to={link.href}
-                  onClick={() => setOpen(false)}
-                  className="rounded-lg px-2 py-3 text-[14px] font-medium uppercase leading-6 text-white hover:bg-white/10"
-                >
+                <Link key={link.label} to={link.href} onClick={() => setOpen(false)} className={cls}>
                   {link.label}
                 </Link>
               ) : (
-                <a
-                  key={link.label}
-                  href={link.href}
-                  onClick={() => setOpen(false)}
-                  className="rounded-lg px-2 py-3 text-[14px] font-medium uppercase leading-6 text-white hover:bg-white/10"
-                >
+                <a key={link.label} href={link.href} onClick={() => setOpen(false)} className={cls}>
                   {link.label}
                 </a>
               )
