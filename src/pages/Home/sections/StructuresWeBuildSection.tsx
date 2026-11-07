@@ -1,6 +1,4 @@
 import { useEffect, useRef, useState } from 'react'
-import '@fontsource/bai-jamjuree/600.css'
-import '@fontsource/hanken-grotesk/400.css'
 import villaImg from '/assets/images/structures/villa.png'
 import farmhouseImg from '/assets/images/structures/farmhouse.png'
 import hospitalityImg from '/assets/images/structures/hospitality.png'

@@ -1,8 +1,3 @@
-import '@fontsource/bai-jamjuree/600.css'
-import '@fontsource/bai-jamjuree/700.css'
-import '@fontsource/hanken-grotesk/400.css'
-import '@fontsource/hanken-grotesk/500.css'
-import '@fontsource/hanken-grotesk/600.css'
 import { Button } from '@/components/ui/Button'
 import { cn } from '@/utils/cn'
 

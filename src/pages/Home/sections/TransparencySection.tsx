@@ -1,30 +1,22 @@
 import { useEffect, useRef, useState } from 'react'
-import '@fontsource/hanken-grotesk/400.css'
-import '@fontsource/hanken-grotesk/500.css'
-import '@fontsource/hanken-grotesk/600.css'
-import '@fontsource/hanken-grotesk/700.css'
 
-// Figma node: 211:5270 — Section / Transparency
 const hanken = { fontFamily: '"Hanken Grotesk", sans-serif' }
 const bai = { fontFamily: '"Bai Jamjuree", sans-serif' }
 
-// Everything lives in public/assets/images/transparency/
 const IMG = '/assets/images/transparency'
 
-// Icons (spaces in file names are written as %20)
 const ICON_LIVE_APP = `${IMG}/Live%20App.svg`
 const ICON_QUALITY = `${IMG}/Quality%20Check.svg`
-const ICON_ONE_TEAM = `${IMG}/glyph.svg` // swap with glyph-2.svg if this shows a clock
-const ICON_MAINTENANCE = `${IMG}/glyph-2.svg` // swap with glyph.svg if this shows connected dots
+const ICON_ONE_TEAM = `${IMG}/glyph.svg`
+const ICON_MAINTENANCE = `${IMG}/glyph-2.svg`
 
 const ICONS = [ICON_LIVE_APP, ICON_QUALITY, ICON_ONE_TEAM, ICON_MAINTENANCE]
 
-const GAP = 12 // matches gap-3
+const GAP = 12
 
-/** Fades + slides an element up the first time it scrolls into view. */
-function useReveal<T extends HTMLElement>(delay = 0) {
+function useInViewOnce<T extends HTMLElement>(threshold = 0.15) {
   const ref = useRef<T>(null)
-  const [shown, setShown] = useState(false)
+  const [inView, setInView] = useState(false)
 
   useEffect(() => {
     const el = ref.current
@@ -32,24 +24,17 @@ function useReveal<T extends HTMLElement>(delay = 0) {
     const io = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          setShown(true)
+          setInView(true)
           io.disconnect()
         }
       },
-      { threshold: 0.2 },
+      { threshold },
     )
     io.observe(el)
     return () => io.disconnect()
-  }, [])
+  }, [threshold])
 
-  return {
-    ref,
-    shown,
-    style: { transitionDelay: `${delay}ms` },
-    className: `transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none ${
-      shown ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
-    }`,
-  }
+  return [ref, inView] as const
 }
 
 function ChevronRight() {
@@ -80,7 +65,7 @@ function IconBadge({ src, className = '' }: { src: string; className?: string })
   )
 }
 
-/* ---------- Card art (positions taken from Figma) ---------- */
+/* ---------- Card art ---------- */
 
 function ArtLiveApp() {
   return (
@@ -99,95 +84,94 @@ function ArtQuality() {
   return (
     <div className="relative h-[247px] w-full overflow-hidden rounded-lg bg-[#99582A]">
       <img
-        src={`${IMG}/bricks.png`}
+        src={`${IMG}/calendar.png`}
         alt=""
-        className="pointer-events-none absolute left-[-77.45px] top-[-23.82px] h-[293.6px] w-[440.9px] max-w-none object-cover"
+        className="pointer-events-none absolute left-[15px] top-[14px] h-[190px] w-[257px] max-w-none object-cover"
       />
-      <img
-        src={`${IMG}/tick.png`}
-        alt=""
-        className="pointer-events-none absolute left-1/2 top-1/2 size-[251.3px] max-w-none -translate-x-1/2 -translate-y-1/2 object-cover"
-      />
+      <div className="pointer-events-none absolute bottom-[-26px] right-[-24px] size-[187px] rounded-full bg-[#E06422] opacity-70 blur-[50px]" />
     </div>
   )
 }
 
-function ArtProject() {
+function ArtOneTeam() {
   return (
-    <>
-      <div className="relative h-[247px] w-full overflow-hidden rounded-lg bg-[#5B5B5B]">
-        <img
-          src={`${IMG}/site-bg.png`}
-          alt=""
-          className="pointer-events-none absolute left-[-17.06px] top-[-11.48px] h-[267px] w-[367.7px] max-w-none object-cover object-bottom"
-        />
-      </div>
-      <img
-        src={`${IMG}/worker.png`}
-        alt=""
-        className="pointer-events-none absolute bottom-0 left-[-0.72px] h-[277.3px] w-[275.1px] max-w-none object-cover object-bottom"
+    <div className="relative h-[247px] w-full overflow-hidden rounded-lg bg-[#403D39]">
+      <div
+        className="pointer-events-none absolute inset-0 opacity-20"
+        style={{
+          backgroundImage:
+            'radial-gradient(circle at 50% 50%, #FFFCF2 1.5px, transparent 1.5px)',
+          backgroundSize: '16px 16px',
+        }}
       />
-    </>
+      <div className="pointer-events-none absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-2 text-center text-white">
+        <span
+          style={bai}
+          className="text-[44px] font-bold leading-none tracking-tight text-[#FFE6A7]"
+        >
+          1 Team
+        </span>
+        <span style={hanken} className="text-xs uppercase tracking-[1px] text-[#CCC5B9]">
+          Design to Handover
+        </span>
+      </div>
+      <div className="pointer-events-none absolute bottom-[-20px] left-[-20px] size-[160px] rounded-full bg-[#E06422] opacity-40 blur-[45px]" />
+    </div>
   )
 }
 
 function ArtMaintenance() {
   return (
-    <>
-      <div className="relative h-[247px] w-full overflow-hidden rounded-lg bg-[#6495B3]">
-        <img
-          src={`${IMG}/free.png`}
-          alt="1 year free maintenance"
-          className="pointer-events-none absolute inset-0 size-full max-w-none object-cover object-bottom"
-        />
+    <div className="relative h-[247px] w-full overflow-hidden rounded-lg bg-[#252422]">
+      <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-2 p-4 text-center">
+        <div className="flex size-14 items-center justify-center rounded-2xl bg-[#E06422]/20 text-[#E06422]">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+          </svg>
+        </div>
+        <span style={bai} className="text-lg font-bold text-white">
+          AMC Portal
+        </span>
+        <span style={hanken} className="text-xs text-[#CCC5B9]">
+          Post-handover warranty & service
+        </span>
       </div>
-      <img
-        src={`${IMG}/wrench.png`}
-        alt=""
-        className="pointer-events-none absolute left-[-6px] top-[-20px] h-auto w-[92px] max-w-none"
-      />
-    </>
+    </div>
   )
 }
 
 const CARDS = [
   {
-    title: 'Live progress on the Onsite app',
-    body: 'Follow your site stage by stage, wherever you are.',
+    title: 'Live App Tracking',
+    body: 'Daily site photos, progress logs, material receipts, and milestone verification updated right on your phone.',
     icon: ICON_LIVE_APP,
     Art: ArtLiveApp,
   },
   {
-    title: 'Third-party quality assurance',
-    body: 'Independent checks, with reports shared with you.',
+    title: 'Stage QA Checks',
+    body: 'Over 200+ structural quality checks performed and certified before moving to each subsequent construction stage.',
     icon: ICON_QUALITY,
     Art: ArtQuality,
   },
   {
-    title: 'Project management on every project',
-    body: 'Design, execution and timelines under one team.',
+    title: 'One Dedicated Team',
+    body: 'Zero finger-pointing. Architecture, structural engineering, and construction handled seamlessly by one team.',
     icon: ICON_ONE_TEAM,
-    Art: ArtProject,
+    Art: ArtOneTeam,
   },
   {
-    title: '1 year of free maintenance (AMC)',
-    body: 'Covered after handover — so small fixes never become your problem.',
+    title: '10-Year Warranty',
+    body: 'Comprehensive structural warranty paired with digital AMC portal access for complete long-term peace of mind.',
     icon: ICON_MAINTENANCE,
     Art: ArtMaintenance,
   },
 ]
 
 export function TransparencySection() {
+  const [sectionRef, inView] = useInViewOnce<HTMLElement>(0.1)
   const trackRef = useRef<HTMLDivElement>(null)
   const [active, setActive] = useState(0)
 
-  // Scroll reveals
-  const eyebrow = useReveal<HTMLDivElement>(0)
-  const heading = useReveal<HTMLHeadingElement>(100)
-  const cards = useReveal<HTMLDivElement>(0) // one trigger for the whole card row
-  const strip = useReveal<HTMLDivElement>(0)
-
-  // Mobile carousel: work out the current card from the scroll position
   const handleScroll = () => {
     const el = trackRef.current
     if (!el || !el.firstElementChild) return
@@ -207,15 +191,16 @@ export function TransparencySection() {
   return (
     <section
       id="transparency"
-      className="bg-[#FFE6A7] px-5 py-[72px] sm:px-6 sm:py-[90px] lg:px-[96px]"
+      ref={sectionRef}
+      className="bg-[#FFE6A7] px-5 pt-[72px] pb-[100px] sm:px-6 sm:pt-[90px] sm:pb-[120px] lg:px-[96px] lg:pb-[140px]"
     >
       <div className="mx-auto flex max-w-[1252px] flex-col items-center gap-10 sm:gap-[34px]">
         {/* Header */}
         <div className="flex w-full flex-col items-start gap-6">
           <div
-            ref={eyebrow.ref}
-            style={eyebrow.style}
-            className={`flex items-center gap-3 ${eyebrow.className}`}
+            className={`flex items-center gap-3 transition-all duration-700 ease-out ${
+              inView ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
+            }`}
           >
             <span className="size-2 bg-[#E06422]" aria-hidden />
             <p
@@ -226,16 +211,17 @@ export function TransparencySection() {
             </p>
           </div>
           <h2
-            ref={heading.ref}
-            style={{ ...bai, ...heading.style }}
-            className={`max-w-[700px] text-[28px] font-bold uppercase leading-[1.2] text-[#252422] sm:text-[clamp(32px,4vw,48px)] ${heading.className}`}
+            style={bai}
+            className={`max-w-[700px] text-[28px] font-bold uppercase leading-[1.2] text-[#252422] sm:text-[clamp(32px,4vw,48px)] transition-all duration-700 delay-100 ease-out ${
+              inView ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
+            }`}
           >
             Confidence built through transparency.
           </h2>
         </div>
 
         {/* Cards: snap carousel on mobile, wrapped row from sm up */}
-        <div ref={cards.ref} className="w-full">
+        <div className="w-full">
           <div
             ref={trackRef}
             onScroll={handleScroll}
@@ -246,7 +232,7 @@ export function TransparencySection() {
                 key={title}
                 style={{ transitionDelay: `${i * 120}ms` }}
                 className={`relative flex h-[500px] w-[78vw] max-w-[304px] shrink-0 snap-start flex-col justify-between overflow-hidden rounded-xl border border-solid border-[#CCC5B9] bg-white transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none sm:w-[304px] sm:max-w-full sm:shrink ${
-                  cards.shown ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
+                  inView ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
                 }`}
               >
                 <div className="flex flex-col gap-6 p-5">
@@ -298,9 +284,9 @@ export function TransparencySection() {
 
         {/* Closing strip */}
         <div
-          ref={strip.ref}
-          style={strip.style}
-          className={`w-full rounded-xl sm:w-auto sm:bg-white/30 sm:p-[14px] ${strip.className}`}
+          className={`w-full rounded-xl sm:w-auto sm:bg-white/30 sm:p-[14px] transition-all duration-700 delay-200 ease-out ${
+            inView ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
+          }`}
         >
           <div className="flex flex-col items-stretch gap-6 sm:flex-row sm:flex-wrap sm:items-center sm:justify-center sm:gap-x-10 sm:gap-y-4">
             <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
@@ -324,7 +310,7 @@ export function TransparencySection() {
             </div>
 
             <a
-              href="#contact-cta"
+              href="/#contact-cta"
               style={hanken}
               className="flex w-full items-center justify-center gap-2 whitespace-nowrap rounded-lg bg-[#6F1D1B] px-5 py-4 text-[18px] font-bold leading-7 tracking-[-0.36px] text-white transition-colors hover:bg-[#5a1716] sm:w-auto sm:justify-start sm:py-3 sm:pl-6 sm:pr-5"
             >
@@ -337,3 +323,5 @@ export function TransparencySection() {
     </section>
   )
 }
+
+export default TransparencySection

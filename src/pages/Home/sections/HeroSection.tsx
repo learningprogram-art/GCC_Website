@@ -1,9 +1,3 @@
-import '@fontsource/bai-jamjuree/600.css'
-import '@fontsource/bai-jamjuree/700.css'
-import '@fontsource/hanken-grotesk/400.css'
-import '@fontsource/hanken-grotesk/500.css'
-import '@fontsource/hanken-grotesk/600.css'
-import '@fontsource/hanken-grotesk/700.css'
 import { Button } from '@/components/ui/Button'
 import heroHome from '/assets/images/hero-home.png'
 import heroHomeMobile from '/assets/images/hero-home-mobile.png'
@@ -181,7 +175,13 @@ export function HeroSection() {
             >
               {/* Left: image placeholder + heading */}
               <div className="flex items-center gap-[18px] lg:w-[210px] lg:shrink-0">
-                <div className="h-[60px] w-[60px] shrink-0 rounded-md bg-[#C9C5BD]" />
+                <div className="flex h-[60px] w-[60px] shrink-0 items-center justify-center rounded-md bg-[#252422] text-[#FFE4A0] shadow-sm">
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M2 20a10 10 0 0 1 20 0" />
+                    <circle cx="12" cy="10" r="4" />
+                    <path d="M12 2v2" />
+                  </svg>
+                </div>
                 <div className="leading-tight">
                   <p className="text-[10px] font-medium uppercase tracking-wide text-slate-700">
                     Let&apos;s talk

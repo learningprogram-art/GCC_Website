@@ -1,5 +1,4 @@
 import {
-  NavbarSection,
   HeroSection,
   OneTeamSection,
   StructuresWeBuildSection,
@@ -10,42 +9,38 @@ import {
   TransparencySection,
   OurPurposeSection,
   PortalAccessSection,
-  TestimonialsSection,
-  ContactCtaSection,
-  FooterSection,
 } from './sections'
+import { TestimonialsSection } from '@/components/common/TestimonialsSection'
+import { ContactSection } from '@/components/common/ContactSection'
 
 export function HomePage() {
   return (
-    <div className="flex flex-col min-h-screen bg-slate-950 text-slate-100">
-      {/* 1. Navbar */}
-      <NavbarSection />
-
-      {/* 2. Hero */}
+    <div className="flex flex-col min-h-screen bg-[#252422] text-[#FFFCF2]">
+      {/* 1. Hero */}
       <HeroSection />
 
-      {/* 3. One Team, Not 12 */}
+      {/* 2. One Team, Not 10 */}
       <OneTeamSection />
 
-      {/* 4. Structures We Build */}
+      {/* 3. Structures We Build */}
       <StructuresWeBuildSection />
 
-      {/* 5. About & Stats */}
+      {/* 4. About & Stats */}
       <AboutStatsSection />
 
-      {/* 6. Why GCC */}
+      {/* 5. Why GCC */}
       <WhyGccSection />
 
-      {/* 7. How We Build */}
+      {/* 6. How We Build */}
       <HowWeBuildSection />
 
-      {/* 8. Cost Calculator */}
+      {/* 7. Cost Calculator */}
       <CostCalculatorSection />
 
-      {/* 9. Transparency */}
+      {/* 8. Transparency */}
       <TransparencySection />
 
-      {/* 10. Our Purpose */}
+      {/* 9. Where We Build & Our Purpose */}
       <OurPurposeSection />
 
       {/* 11. GCC AMC Portal Access */}
@@ -55,10 +50,7 @@ export function HomePage() {
       <TestimonialsSection />
 
       {/* 13. Contact / Journey CTA */}
-      <ContactCtaSection />
-
-      {/* 14. Footer */}
-      <FooterSection />
+      <ContactSection />
     </div>
   )
 }

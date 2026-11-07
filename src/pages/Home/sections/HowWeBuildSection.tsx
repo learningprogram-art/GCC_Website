@@ -1,9 +1,4 @@
 import { useState, useEffect, useRef } from 'react'
-import '@fontsource/bai-jamjuree/600.css'
-import '@fontsource/bai-jamjuree/700.css'
-import '@fontsource/hanken-grotesk/400.css'
-import '@fontsource/hanken-grotesk/500.css'
-import '@fontsource/hanken-grotesk/600.css'
 import { cn } from '@/utils/cn'
 
 export interface StepItem {

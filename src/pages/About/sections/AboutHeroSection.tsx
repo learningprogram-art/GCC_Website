@@ -2,10 +2,9 @@ import { useEffect, useRef, useState } from 'react'
 
 const HERO_IMG = '/assets/images/about/hero-img.png'
 
-/** Fades + slides an element up the first time it scrolls into view. */
-function useReveal<T extends HTMLElement>(delay = 0) {
+function useInViewOnce<T extends HTMLElement>(threshold = 0.1) {
   const ref = useRef<T>(null)
-  const [shown, setShown] = useState(false)
+  const [inView, setInView] = useState(false)
 
   useEffect(() => {
     const el = ref.current
@@ -13,42 +12,37 @@ function useReveal<T extends HTMLElement>(delay = 0) {
     const io = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          setShown(true)
+          setInView(true)
           io.disconnect()
         }
       },
-      { threshold: 0.2 },
+      { threshold },
     )
     io.observe(el)
     return () => io.disconnect()
-  }, [])
+  }, [threshold])
 
-  return {
-    ref,
-    style: { transitionDelay: `${delay}ms` },
-    className: `transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none ${shown ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
-      }`,
-  }
+  return [ref, inView] as const
 }
 
-// x/y/w/h as % of the section (px ÷ 1920 or ÷ 1080 from Figma Dev Mode)
 const BLOBS = [
-  { left: '22%', top: '2%', width: '48%', height: '48%' },   // behind headline / logo
-  { left: '-10%', top: '40%', width: '35%', height: '60%' }, // placeholder for 2nd layer
+  { left: '22%', top: '2%', width: '48%', height: '48%' },
+  { left: '-10%', top: '40%', width: '35%', height: '60%' },
 ]
 
 export function AboutHeroSection() {
-  const image = useReveal<HTMLDivElement>(0)
+  const [heroRef, inView] = useInViewOnce<HTMLDivElement>(0.1)
 
   return (
     <section
       id="about-hero"
-      className="relative aspect-[16/9] min-h-[560px] w-full overflow-hidden bg-[#252422]"
+      ref={heroRef}
+      className="relative aspect-[16/9] min-h-[500px] sm:min-h-[560px] w-full overflow-hidden bg-[#252422]"
     >
       <div
-        ref={image.ref}
-        style={image.style}
-        className={`absolute inset-0 ${image.className}`}
+        className={`absolute inset-0 transition-opacity duration-1000 ease-out ${
+          inView ? 'opacity-100' : 'opacity-0'
+        }`}
       >
         <img
           src={HERO_IMG}
@@ -59,7 +53,7 @@ export function AboutHeroSection() {
         {BLOBS.map((b, i) => (
           <div
             key={i}
-            aria-hidden
+            aria-hidden="true"
             style={b}
             className="pointer-events-none absolute rounded-[2889.514px] bg-[#3F0C0A] opacity-90 blur-[150px]"
           />
@@ -67,7 +61,7 @@ export function AboutHeroSection() {
       </div>
 
       <div className="relative h-full w-full px-4 pt-28 md:px-[7.2vw] md:pt-[10vw]">
-        <h1 className="font-['Bai_Jamjuree'] text-[clamp(40px,6.25vw,120px)] font-bold uppercase not-italic leading-[0.99] text-[color:var(--secondary-3,#FFE6A7)]">
+        <h1 className="font-['Bai_Jamjuree'] text-[clamp(40px,6.25vw,120px)] font-bold uppercase not-italic leading-[0.99] text-[#FFE6A7]">
           Two brothers.
           <br />
           One vision.
@@ -76,3 +70,5 @@ export function AboutHeroSection() {
     </section>
   )
 }
+
+export default AboutHeroSection

@@ -1,9 +1,4 @@
 import { useState } from 'react'
-import '@fontsource/bai-jamjuree/600.css'
-import '@fontsource/bai-jamjuree/700.css'
-import '@fontsource/hanken-grotesk/400.css'
-import '@fontsource/hanken-grotesk/500.css'
-import '@fontsource/hanken-grotesk/700.css'
 import { Button } from '@/components/ui/Button'
 
 
@@ -312,7 +307,7 @@ export function ContactSection() {
                       type="text"
                       value={formData.locationPin}
                       onChange={(e) => setFormData({ ...formData, locationPin: e.target.value })}
-                      placeholder="e.g. 302001"
+                      placeholder="e.g. 110001 (Delhi NCR)"
                       className="w-full bg-transparent text-[0.875rem] font-medium leading-[1.25rem] text-[#403D39] outline-none placeholder:text-[#403D39]/70"
                     />
                   </div>

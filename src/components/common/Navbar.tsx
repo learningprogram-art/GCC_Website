@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
-import '@fontsource/hanken-grotesk/500.css'
-import '@fontsource/hanken-grotesk/600.css'
+import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/Button'
 import { cn } from '@/utils/cn'
 
@@ -17,13 +16,14 @@ export interface NavbarProps {
 }
 
 const DEFAULT_NAV_LINKS: NavLinkItem[] = [
-  { label: 'Services', href: '#structures-we-build' },
-  { label: 'Process', href: '#one-team' },
-  { label: 'Projects', href: '#projects' },
-  { label: 'About', href: '#about-stats' },
+  { label: 'Services', href: '/#structures-we-build' },
+  { label: 'Process', href: '/#one-team' },
+  { label: 'Why GCC', href: '/#why-gcc' },
+  { label: 'How We Build', href: '/#how-we-build' },
+  { label: 'About', href: '/about' },
 ]
 
-const DEFAULT_CONSULTATION_HREF = '#contact-cta'
+const DEFAULT_CONSULTATION_HREF = '/#contact-cta'
 
 export function Navbar({
   links = DEFAULT_NAV_LINKS,
@@ -62,8 +62,8 @@ export function Navbar({
       >
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <a
-            href="#hero"
+          <Link
+            to="/"
             aria-label="Garg Core Construction home"
             className="shrink-0 flex items-center"
           >
@@ -74,22 +74,33 @@ export function Navbar({
               height={34}
               className="h-[34px] w-auto max-w-[177px]"
             />
-          </a>
+          </Link>
 
           {/* Links (Desktop) */}
           <nav
             aria-label="Main Navigation"
-            className="hidden items-center gap-10 font-['Hanken_Grotesk',sans-serif] text-[14px] font-medium uppercase leading-6 text-white lg:flex"
+            className="hidden items-center gap-8 font-['Hanken_Grotesk',sans-serif] text-[14px] font-medium uppercase leading-6 text-white lg:flex"
           >
-            {links.map((link) => (
-              <a
-                key={link.label}
-                href={link.href}
-                className="whitespace-nowrap transition-colors hover:text-[#FFE6A7]"
-              >
-                {link.label}
-              </a>
-            ))}
+            {links.map((link) => {
+              const isInternal = link.href.startsWith('/') && !link.href.includes('#')
+              return isInternal ? (
+                <Link
+                  key={link.label}
+                  to={link.href}
+                  className="whitespace-nowrap transition-colors hover:text-[#FFE6A7]"
+                >
+                  {link.label}
+                </Link>
+              ) : (
+                <a
+                  key={link.label}
+                  href={link.href}
+                  className="whitespace-nowrap transition-colors hover:text-[#FFE6A7]"
+                >
+                  {link.label}
+                </a>
+              )
+            })}
           </nav>
 
           {/* Reusable Primary Button (Desktop) */}
@@ -134,16 +145,28 @@ export function Navbar({
         {/* Mobile Panel */}
         {open && (
           <div className="mt-3 flex flex-col gap-1 border-t border-white/15 pt-3 font-['Hanken_Grotesk',sans-serif] lg:hidden">
-            {links.map((link) => (
-              <a
-                key={link.label}
-                href={link.href}
-                onClick={() => setOpen(false)}
-                className="rounded-lg px-2 py-3 text-[14px] font-medium uppercase leading-6 text-white hover:bg-white/10"
-              >
-                {link.label}
-              </a>
-            ))}
+            {links.map((link) => {
+              const isInternal = link.href.startsWith('/') && !link.href.includes('#')
+              return isInternal ? (
+                <Link
+                  key={link.label}
+                  to={link.href}
+                  onClick={() => setOpen(false)}
+                  className="rounded-lg px-2 py-3 text-[14px] font-medium uppercase leading-6 text-white hover:bg-white/10"
+                >
+                  {link.label}
+                </Link>
+              ) : (
+                <a
+                  key={link.label}
+                  href={link.href}
+                  onClick={() => setOpen(false)}
+                  className="rounded-lg px-2 py-3 text-[14px] font-medium uppercase leading-6 text-white hover:bg-white/10"
+                >
+                  {link.label}
+                </a>
+              )
+            })}
             <div className="mt-2">
               <Button
                 href={consultationHref}

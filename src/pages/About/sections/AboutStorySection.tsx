@@ -1,16 +1,13 @@
 import { useState } from 'react'
 
-// Set this when the video is ready, e.g. '/assets/videos/about-story.mp4'
 const VIDEO_SRC: string | null = null
-// Optional poster image shown before playback
 const VIDEO_POSTER: string | undefined = undefined
 
-// White SVG in public/. Rendered as a mask so it can take any color.
 const GCC_LOGO = '/assets/icons/logo/gcc-logo-white.svg'
 
 function PlayIcon() {
   return (
-    <svg viewBox="0 0 24 24" className="size-[34%] translate-x-[6%]" aria-hidden>
+    <svg viewBox="0 0 24 24" className="size-[34%] translate-x-[6%]" aria-hidden="true">
       <path
         d="M6 3.5v17a1 1 0 0 0 1.5.86l14-8.5a1 1 0 0 0 0-1.72l-14-8.5A1 1 0 0 0 6 3.5Z"
         fill="#fff"
@@ -56,12 +53,12 @@ function StoryVideo() {
 
       {/* "WHY STARTED" + logo, centered */}
       <div className="absolute left-1/2 top-1/2 flex w-full -translate-x-1/2 -translate-y-1/2 items-center justify-center gap-[clamp(12px,2.6vw,33px)] px-4">
-        <p className="font-bai text-[clamp(24px,4.95vw,62px)] font-bold uppercase not-italic leading-[1.06] text-neutral-3 whitespace-nowrap">
+        <p className="font-['Bai_Jamjuree',sans-serif] text-[clamp(24px,4.95vw,62px)] font-bold uppercase not-italic leading-[1.06] text-[#CCC5B9] whitespace-nowrap">
           Why started
         </p>
         <div
-          aria-hidden
-          className="aspect-[216.814/96.127] w-[clamp(90px,17.3vw,216.8px)] shrink-0 bg-neutral-3"
+          aria-hidden="true"
+          className="aspect-[216.814/96.127] w-[clamp(90px,17.3vw,216.8px)] shrink-0 bg-[#CCC5B9]"
           style={{
             WebkitMask: `url(${GCC_LOGO}) center / contain no-repeat`,
             mask: `url(${GCC_LOGO}) center / contain no-repeat`,
@@ -84,25 +81,22 @@ export function AboutStorySection() {
       className="bg-[#FFFBEE] px-4 py-16 md:px-12 lg:px-24 lg:py-[88px]"
     >
       <div className="mx-auto flex w-full max-w-[1252px] flex-col gap-12 lg:gap-16">
-        <div className="flex flex-col gap-8 lg:flex-row lg:items-start lg:justify-between lg:gap-[263px]">
+        <div className="flex flex-col gap-8 lg:flex-row lg:items-start lg:justify-between lg:gap-[120px]">
           {/* Eyebrow */}
           <div className="flex shrink-0 items-center gap-3 overflow-clip">
-            <span aria-hidden className="size-2 shrink-0 bg-secondary-1" />
-            <p className="font-hanken text-xs font-semibold uppercase leading-4 tracking-[0.96px] text-secondary-1 whitespace-nowrap">
+            <span aria-hidden="true" className="size-2 shrink-0 bg-[#99582A]" />
+            <p className="font-['Hanken_Grotesk',sans-serif] text-xs font-semibold uppercase leading-4 tracking-[0.96px] text-[#99582A] whitespace-nowrap">
               About the company
             </p>
           </div>
 
           {/* Story copy */}
-          <div className="w-full font-bai text-2xl font-normal not-italic leading-[1.4] tracking-[-0.96px] text-neutral-2 [text-box-edge:cap_alphabetic] [text-box-trim:trim-both] md:text-3xl lg:w-[825px] lg:text-[32px]">
-            <p className="mb-0">
-              With a foundation in construction and engineering, and experience
-              extending into design and execution, we know a successful project
-              isn’t just about a strong structure.
+          <div className="w-full font-['Bai_Jamjuree',sans-serif] text-2xl font-normal not-italic leading-[1.4] tracking-[-0.96px] text-[#403D39] md:text-3xl lg:text-[32px] flex flex-col gap-4">
+            <p className="m-0">
+              With a foundation in construction and engineering, and experience extending into design and execution, we know a successful project isn’t just about a strong structure.
             </p>
-            <p>
-              It’s about bringing every part of the process together — from
-              planning and design to execution and handover.
+            <p className="m-0 text-[#6F1D1B] font-medium">
+              It’s about bringing every part of the process together — from planning and design to execution and handover.
             </p>
           </div>
         </div>
@@ -112,3 +106,5 @@ export function AboutStorySection() {
     </section>
   )
 }
+
+export default AboutStorySection

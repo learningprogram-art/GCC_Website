@@ -1,6 +1,4 @@
 import { useCallback, useEffect, useRef, useState } from "react"
-import "@fontsource/hanken-grotesk/400.css"
-import "@fontsource/hanken-grotesk/600.css"
 
 // Figma node: 211:5198 — Why GCC
 const CARDS = [
@@ -218,7 +216,11 @@ export function WhyGccSection() {
             }`}
         >
           <div
-            className="why-gcc__viewport"
+            className="why-gcc__viewport focus:outline-none"
+            tabIndex={0}
+            role="region"
+            aria-label="Why GCC carousel"
+            onKeyDown={handleKeyDown}
             onTouchStart={handleTouchStart}
             onTouchEnd={handleTouchEnd}
           >

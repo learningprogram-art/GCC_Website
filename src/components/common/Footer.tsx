@@ -1,6 +1,4 @@
-import '@fontsource/hanken-grotesk/400.css'
-import '@fontsource/hanken-grotesk/500.css'
-import '@fontsource/hanken-grotesk/600.css'
+import { Link } from 'react-router-dom'
 
 interface FooterLink {
   label: string
@@ -8,20 +6,20 @@ interface FooterLink {
 }
 
 const exploreLinksCol1: FooterLink[] = [
-  { label: 'About us', href: '#about-stats' },
-  { label: 'Why GCC', href: '#why-gcc' },
-  { label: 'How we build', href: '#how-we-build' },
+  { label: 'About us', href: '/about' },
+  { label: 'Why GCC', href: '/#why-gcc' },
+  { label: 'How we build', href: '/#how-we-build' },
 ]
 
 const exploreLinksCol2: FooterLink[] = [
-  { label: 'Transparency', href: '#transparency' },
-  { label: 'Client stories', href: '#testimonials' },
+  { label: 'Transparency', href: '/#transparency' },
+  { label: 'Client stories', href: '/#testimonials' },
 ]
 
 const exploreLinksCol3: FooterLink[] = [
-  { label: 'Home estimation', href: '#cost-calculator' },
-  { label: 'Book free consultation', href: '#contact-cta' },
-  { label: 'AMC Portal', href: '#portal-access' },
+  { label: 'Home estimation', href: '/#cost-calculator' },
+  { label: 'Book free consultation', href: '/#contact-cta' },
+  { label: 'AMC Portal', href: '/#portal-access' },
 ]
 
 const CURRENT_YEAR = 2026
@@ -39,7 +37,7 @@ export function Footer() {
         <div className="w-full flex flex-col lg:flex-row items-start justify-between gap-[2.5rem] lg:gap-[4rem] xl:gap-[5rem]">
           {/* Brand Info */}
           <div className="flex flex-col gap-[1.25rem] items-start w-full lg:w-[26.5rem] shrink-0">
-            <a href="#hero" aria-label="Garg Core Construction home" className="inline-block">
+            <Link to="/" aria-label="Garg Core Construction home" className="inline-block">
               <img
                 src="/assets/icons/logo/gcc-logo-white.svg"
                 alt="Garg Core Construction"
@@ -47,7 +45,7 @@ export function Footer() {
                 height={40}
                 className="h-[2.5rem] w-auto object-contain"
               />
-            </a>
+            </Link>
             <p className="text-[1rem] leading-[1.5rem] font-normal text-[#CCC5B9] max-w-[22.5rem] [word-break:break-word]">
               One dependable team for your villa or farmhouse — from design and engineering to
               construction and key handover.
