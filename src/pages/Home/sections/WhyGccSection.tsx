@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 
-// Figma node: 211:5198 — Why GCC
+// Figma node: 211:5177 — Section / Why GCC (bg layers: 211:5178 glow, 211:5179 glow core, 211:5180 dot grid, 211:5198 edge fade)
 const CARDS = [
   {
     id: "01",
@@ -46,6 +46,8 @@ const TRACK_ITEMS = Array.from({ length: REPEATS * N }, (_, idx) => ({
   cardIndex: idx % N,
   card: CARDS[idx % N],
 }))
+
+const EASE = "cubic-bezier(0.22, 1, 0.36, 1)"
 
 /** Returns [ref, inView]. Flips to true once, the first time the element scrolls into view. */
 function useInViewOnce<T extends HTMLElement>(threshold = 0.2) {
@@ -157,20 +159,20 @@ export function WhyGccSection() {
   return (
     <section
       id="why-gcc"
-      className="relative w-full overflow-hidden bg-[#6F1D1B] text-[#FFFCF2] py-[5rem] md:py-[7rem] px-[1.5rem] md:px-[3rem] lg:px-[6rem]"
-      style={{ fontFamily: '"Hanken Grotesk", sans-serif' }}
+      className="why-gcc-sec relative w-full overflow-hidden text-[#FFFCF2] py-[5rem] md:py-[7rem] px-[1.5rem] md:px-[3rem] lg:px-[6rem]"
     >
-      {/* Background Radial Glow */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[65rem] h-[35rem] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(251,139,36,0.18)_0%,rgba(111,29,27,0)_70%)] blur-[60px]"
-      />
+      {/* Background layers (Figma: BG / Glow, BG / Glow core, BG / Dot grid) */}
+      <div className="why-gcc-bg" aria-hidden="true">
+        <div className="why-gcc-glow" />
+        <div className="why-gcc-glow-core" />
+        <div className="why-gcc-dots" />
+      </div>
 
       <div className="max-w-7xl mx-auto relative z-10">
         {/* Heading */}
         <div
           ref={headRef}
-          className={`why-gcc-head transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none ${headIn ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
+          className={`why-gcc-head relative z-20 transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none ${headIn ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
             }`}
         >
           <p className="why-gcc-eyebrow">
@@ -184,7 +186,7 @@ export function WhyGccSection() {
         {/* Tabs (hidden on mobile) */}
         <div
           style={{ transitionDelay: headIn ? "120ms" : "0ms" }}
-          className={`why-gcc-tabs transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none ${headIn ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
+          className={`why-gcc-tabs relative z-20 transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none ${headIn ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
             }`}
           role="tablist"
           aria-label="Why GCC tabs"
@@ -229,10 +231,24 @@ export function WhyGccSection() {
               className="why-gcc__track"
               style={{
                 transform: `translateX(calc(var(--x0) - ${trackIndex} * (var(--w) + var(--gap))))`,
-                transition: instant ? "none" : "transform 0.65s cubic-bezier(0.22, 1, 0.36, 1)",
+                transition: instant ? "none" : `transform 0.65s ${EASE}`,
               }}
               onTransitionEnd={handleTransitionEnd}
             >
+              {/*
+                Figma: BG / Edge fade. Sits above the side cards, below the active card.
+                It lives inside the track (so it can sit between those layers) and is
+                counter-translated by the same amount, so it stays centered on the screen.
+              */}
+              <div
+                aria-hidden="true"
+                className="why-gcc__fade"
+                style={{
+                  transform: `translateX(calc(${trackIndex} * (var(--w) + var(--gap))))`,
+                  transition: instant ? "none" : `transform 0.65s ${EASE}`,
+                }}
+              />
+
               {TRACK_ITEMS.map((item) => {
                 const isActive = item.idx === trackIndex
                 const distFromActive = Math.abs(item.idx - trackIndex)
@@ -367,51 +383,88 @@ export function WhyGccSection() {
       </div>
 
       <style>{`
+        /* Figma tokens: primary #6F1D1B, accent/1 #E06422, accent/2 #FB8B24, secondary/3 #FFE6A7, neutral/4 #FFFCF2 */
         .why-gcc-sec {
           font-family: "Bai Jamjuree", sans-serif;
           position: relative;
           overflow: hidden;
-          background-color: #5b1311;
+          background-color: #6f1d1b;
         }
 
-        /* Ambient bottom glow */
+        /* ───────────── Background (Figma 1440 x 1180 artboard, centered) ───────────── */
+        .why-gcc-bg {
+          position: absolute;
+          top: 0;
+          bottom: 0;
+          left: 50%;
+          width: 1440px;
+          transform: translateX(-50%);
+          pointer-events: none;
+          z-index: 0;
+        }
+
+        /* BG / Glow — wide, soft base (stronger) */
         .why-gcc-glow {
           position: absolute;
-          inset: 0;
-          pointer-events: none;
+          left: 200px;
+          width: 1040px;
+          height: 560px;
+          bottom: -14px;
           background: radial-gradient(
-            ellipse 65% 35% at 50% 88%,
-            rgba(232, 118, 30, 0.85) 0%,
-            rgba(205, 92, 26, 0.45) 35%,
-            rgba(91, 19, 17, 0) 75%
+            ellipse 50% 50% at 50% 50%,
+            rgba(224, 100, 34, 0.50) 0%,
+            rgba(224, 100, 34, 0.45) 30%,
+            rgba(224, 100, 34, 0.28) 55%,
+            rgba(224, 100, 34, 0.10) 80%,
+            rgba(224, 100, 34, 0) 100%
           );
-          z-index: 0;
+          transform: scale(1.38, 1.71);
         }
 
-        /* Subtle animated dot grid background */
+        /* BG / Glow core — brighter hotspot under the card */
+        .why-gcc-glow-core {
+          position: absolute;
+          left: 460px;
+          width: 520px;
+          height: 300px;
+          bottom: 116px;
+          background: radial-gradient(
+            ellipse 50% 50% at 50% 50%,
+            rgba(250, 125, 30, 0.95) 0%,
+            rgba(250, 125, 30, 0.85) 30%,
+            rgba(250, 125, 30, 0.58) 50%,
+            rgba(250, 125, 30, 0.25) 75%,
+            rgba(250, 125, 30, 0) 100%
+          );
+          transform: scale(1.7, 2.3);
+        }
+
+        /* BG / Dot grid — 28px lattice, 3px dots (matches Figma vector) */
         .why-gcc-dots {
           position: absolute;
-          inset: -30px;
-          pointer-events: none;
-          background-image: radial-gradient(rgba(255, 245, 230, 0.16) 1.5px, transparent 1.6px);
-          background-size: 36px 36px;
-          animation: why-gcc-dots-float 8s ease-in-out infinite alternate;
-          z-index: 0;
+          inset: 0;
+          background-image: radial-gradient(circle at center, rgba(255, 252, 242, 0.28) 1.5px, transparent 1.8px);
+          background-size: 28px 28px;
+          background-position: 6px 0;
         }
 
-        @keyframes why-gcc-dots-float {
-          0% {
-            opacity: 0.65;
-            transform: translateY(0);
-          }
-          50% {
-            opacity: 0.95;
-            transform: translateY(-3px);
-          }
-          100% {
-            opacity: 0.7;
-            transform: translateY(0);
-          }
+        /* BG / Edge fade — transparent centre to solid #6F1D1B at the edges (ellipse 720 x 590) */
+        .why-gcc__fade {
+          position: absolute;
+          left: calc(var(--w) / 2 - 720px);
+          top: 50%;
+          width: 1440px;
+          height: 1180px;
+          margin-top: -590px;
+          pointer-events: none;
+          z-index: 1;
+          background: radial-gradient(
+            ellipse 720px 590px at 50% 50%,
+            rgba(111, 29, 27, 0) 0%,
+            rgba(111, 29, 27, 0.35) 60%,
+            rgba(111, 29, 27, 1) 100%
+          );
+          will-change: transform;
         }
 
         /* Headings */
@@ -422,29 +475,31 @@ export function WhyGccSection() {
         .why-gcc-eyebrow {
           display: inline-flex;
           align-items: center;
-          gap: 10px;
-          font-size: 11px;
+          gap: 12px;
+          font-family: "Hanken Grotesk", sans-serif;
+          font-size: 12px;
           font-weight: 600;
-          letter-spacing: 0.22em;
-          color: #f2c98a;
-          margin-bottom: 14px;
+          line-height: 16px;
+          letter-spacing: 0.08em;
+          color: #ffe6a7;
+          margin-bottom: 24px;
           text-transform: uppercase;
         }
         .why-gcc-dot {
-          width: 5px;
-          height: 5px;
-          background-color: #f2c98a;
-          border-radius: 1px;
+          width: 6px;
+          height: 6px;
+          background-color: #fb8b24;
           display: inline-block;
         }
         .why-gcc-title {
           font-size: clamp(28px, 4vw, 42px);
           font-weight: 500;
           line-height: 1.15;
-          color: #fff6e6;
+          letter-spacing: -0.015em;
+          color: #fffcf2;
         }
 
-        /* Tabs — solid fills so the dot grid and glow never show through */
+        /* Tabs (Figma: Index Pills) */
         .why-gcc-tabs {
           display: flex;
           flex-wrap: wrap;
@@ -456,32 +511,31 @@ export function WhyGccSection() {
           display: inline-flex;
           align-items: center;
           gap: 8px;
-          padding: 8px 16px;
-          font-size: 12px;
-          font-family: inherit;
+          padding: 10px 18px 10px 16px;
+          font-size: 14px;
+          font-weight: 500;
+          line-height: 20px;
+          font-family: "Hanken Grotesk", sans-serif;
           border-radius: 8px;
-          color: #f6e4cf;
-          background-color: #4a110e; /* solid */
-          border: 1px solid #7a3a33; /* solid, replaces white/16% */
+          color: #fffcf2;
+          background-color: #6f1d1b;
+          border: 1px solid rgba(255, 252, 242, 0.2);
           cursor: pointer;
           transition: background-color 0.35s ease, color 0.35s ease, border-color 0.35s ease, transform 0.2s ease;
         }
         .why-gcc-tab:hover {
-          background-color: #5a1713;
-          border-color: #94504a;
+          border-color: rgba(255, 252, 242, 0.4);
         }
         .why-gcc-tab__n {
-          opacity: 0.65;
-          font-size: 11px;
+          color: #ffe6a7;
         }
         .why-gcc-tab[data-active="true"] {
-          background-color: #fffdf2;
-          color: #252422;
-          border-color: #fffdf2;
-          font-weight: 500;
+          background-color: #fffcf2;
+          color: #6f1d1b;
+          border-color: #fffcf2;
         }
         .why-gcc-tab[data-active="true"] .why-gcc-tab__n {
-          opacity: 0.85;
+          color: #e06422;
         }
 
         /* Carousel container */
@@ -502,6 +556,7 @@ export function WhyGccSection() {
 
         /* Sliding track */
         .why-gcc__track {
+          position: relative;
           display: flex;
           align-items: center;
           gap: var(--gap);
@@ -519,7 +574,7 @@ export function WhyGccSection() {
           text-align: left;
           cursor: pointer;
           user-select: none;
-          background: #521410;
+          background: #591716; /* Figma inactive panel: #6F1D1B + 20% black */
           color: #d48d80;
           box-shadow: 0 14px 40px rgba(30, 5, 3, 0.35);
           transform: scale(0.96);
@@ -532,9 +587,9 @@ export function WhyGccSection() {
             opacity 0.5s ease;
         }
 
-        /* Active center card */
+        /* Active center card — sits above the edge fade */
         .why-gcc__card[data-active="true"] {
-          background: #fffdf2;
+          background: #fffcf2;
           color: #252422;
           cursor: default;
           transform: scale(1);
@@ -578,7 +633,7 @@ export function WhyGccSection() {
           font-size: 22px;
           font-weight: 500;
           line-height: 1;
-          color: #d48d80;
+          color: #ffe6a7;
           transition: font-size 0.65s cubic-bezier(0.22, 1, 0.36, 1), color 0.5s ease;
         }
         .why-gcc__card[data-active="true"] .why-gcc__num {
@@ -595,7 +650,7 @@ export function WhyGccSection() {
           font-weight: 600;
           line-height: 1.22;
           letter-spacing: -0.01em;
-          color: #d48d80;
+          color: #fffcf2;
           margin-bottom: 12px;
           transition: font-size 0.65s cubic-bezier(0.22, 1, 0.36, 1), color 0.5s ease;
         }
@@ -606,16 +661,17 @@ export function WhyGccSection() {
 
         /* Card body */
         .why-gcc__body {
+          font-family: "Hanken Grotesk", sans-serif;
           font-size: 12px;
           line-height: 1.5;
-          color: #b56f64;
+          color: rgba(255, 252, 242, 0.7);
           max-width: 32ch;
           transition: font-size 0.5s ease, color 0.5s ease;
         }
         .why-gcc__card[data-active="true"] .why-gcc__body {
           font-size: 14px;
           line-height: 1.55;
-          color: #55524e;
+          color: #403d39;
         }
 
         /* Mobile-only footer (hidden on desktop) */
@@ -657,7 +713,7 @@ export function WhyGccSection() {
           display: flex;
           justify-content: center;
           align-items: center;
-          gap: 12px;
+          gap: 24px;
           margin-top: 36px;
           position: relative;
           z-index: 10;
@@ -672,8 +728,8 @@ export function WhyGccSection() {
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          width: 42px;
-          height: 42px;
+          width: 52px;
+          height: 52px;
           border-radius: 8px;
           cursor: pointer;
           transition: transform 0.2s ease, background-color 0.2s ease, opacity 0.2s ease;
@@ -689,17 +745,17 @@ export function WhyGccSection() {
           cursor: not-allowed;
         }
         .why-gcc__arrow--prev {
-          background: #4a110e;
-          color: #f6e4cf;
-          border: 1px solid #7a3a33;
+          background: #6f1d1b;
+          color: #fffcf2;
+          border: 1px solid rgba(255, 252, 242, 0.2);
         }
         .why-gcc__arrow--prev:not(:disabled):hover {
-          background: #5b1612;
+          background: #7d2220;
         }
         .why-gcc__arrow--next {
-          background: #fffdf2;
+          background: #fffcf2;
           color: #252422;
-          border: 1px solid #fffdf2;
+          border: 1px solid #fffcf2;
         }
         .why-gcc__arrow--next:not(:disabled):hover {
           background: #ffffff;
@@ -709,7 +765,7 @@ export function WhyGccSection() {
         .why-gcc__arrow:focus-visible,
         .why-gcc__pip:focus-visible,
         .why-gcc-tab:focus-visible {
-          outline: 2px solid #f2c98a;
+          outline: 2px solid #ffe6a7;
           outline-offset: 3px;
         }
 
@@ -717,6 +773,50 @@ export function WhyGccSection() {
         @media (max-width: 640px) {
           section.why-gcc-sec {
             padding: 72px 20px 64px;
+          }
+
+          /* Mobile background: calm dark red, faint dots, soft glow near the bottom */
+          .why-gcc-bg {
+            left: 0;
+            width: 100%;
+            transform: none;
+          }
+          .why-gcc-glow {
+            left: 50%;
+            width: 150vw;
+            height: 420px;
+            bottom: -90px;
+            transform: translateX(-50%);
+            background: radial-gradient(
+              ellipse 50% 50% at 50% 50%,
+              rgba(224, 100, 34, 0.30) 0%,
+              rgba(224, 100, 34, 0.22) 35%,
+              rgba(224, 100, 34, 0.09) 65%,
+              rgba(224, 100, 34, 0) 100%
+            );
+          }
+          .why-gcc-glow-core {
+            left: 50%;
+            width: 90vw;
+            height: 200px;
+            bottom: -20px;
+            transform: translateX(-50%);
+            background: radial-gradient(
+              ellipse 50% 50% at 50% 50%,
+              rgba(224, 100, 34, 0.22) 0%,
+              rgba(224, 100, 34, 0.10) 50%,
+              rgba(224, 100, 34, 0) 100%
+            );
+          }
+          .why-gcc-dots {
+            background-image: radial-gradient(circle at center, rgba(255, 252, 242, 0.14) 1.1px, transparent 1.4px);
+            background-size: 24px 24px;
+            background-position: 0 0;
+          }
+
+          /* Desktop-only edge fade (peek card has its own mobile treatment) */
+          .why-gcc__fade {
+            display: none;
           }
 
           /* Heading: left-aligned, single orange square */
@@ -886,13 +986,21 @@ export function WhyGccSection() {
             width: 48px;
             height: 48px;
           }
+
+          /* Prev button: outlined, transparent (as in the mobile design) */
+          .why-gcc__arrow--prev {
+            background: transparent;
+            border: 1px solid rgba(255, 252, 242, 0.5);
+            color: #fffcf2;
+          }
+          .why-gcc__arrow--prev:not(:disabled):hover {
+            background: rgba(255, 252, 242, 0.08);
+          }
         }
 
         @media (prefers-reduced-motion: reduce) {
-          .why-gcc-dots {
-            animation: none;
-          }
           .why-gcc__track,
+          .why-gcc__fade,
           .why-gcc__card,
           .why-gcc__num,
           .why-gcc__ctitle,

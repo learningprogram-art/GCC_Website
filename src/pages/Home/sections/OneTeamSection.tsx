@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import gccLogo from '/assets/icons/logo/gcc-logo.svg'
 
 const baiJamjuree = { fontFamily: '"Bai Jamjuree", sans-serif' }
 const hankenGrotesk = { fontFamily: '"Hanken Grotesk", sans-serif' }
@@ -329,12 +330,12 @@ function TenToOneVisual() {
           }}
         >
           {/* Placeholder mark: swap for the exported GCC logo SVG */}
-          <span
-            style={baiJamjuree}
-            className="text-[52px] font-bold leading-none tracking-tight text-white"
-          >
-            GCC
-          </span>
+          <img
+            src={gccLogo}
+            alt="Garg Core Construction"
+            className="h-auto w-[130px] select-none"
+            draggable={false}
+          />
         </div>
 
         {/* Roles */}
@@ -588,12 +589,12 @@ function TenToOneVisualMobile() {
         }}
       >
         {/* Placeholder mark: swap for the exported GCC logo SVG */}
-        <span
-          style={baiJamjuree}
-          className="text-[32px] font-bold leading-none tracking-tight text-white"
-        >
-          GCC
-        </span>
+        <img
+          src={gccLogo}
+          alt="Garg Core Construction"
+          className="h-auto w-[82px] select-none"
+          draggable={false}
+        />
       </div>
 
       {/* Roles (wrap onto rows like the Figma frame) */}

@@ -107,13 +107,14 @@ function StatRow({ stat, order }: { stat: Stat; order: number }) {
     <div
       ref={ref}
       style={{ transitionDelay: `${order * 80}ms` }}
-      className={`flex flex-col gap-3 border-t border-[#403D39] bg-[#252422] py-6 sm:py-[28px] transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 sm:flex-row sm:items-start sm:gap-8 ${
+      className={`flex flex-col gap-3 border-t border-[#403D39] bg-[#252422] py-6 pr-4 sm:py-[28px] sm:pr-0 transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 sm:flex-row sm:items-start sm:gap-8 ${
         started ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
       }`}
     >
+      {/* flex-1 only from sm up, so on mobile the caption sits right under the number */}
       <p
         style={baiJamjuree}
-        className="min-w-0 flex-1 text-[54px] sm:text-[76px] lg:text-[104px] font-light leading-none tracking-[-0.03em] text-[#FFFCF2] tabular-nums"
+        className="min-w-0 whitespace-nowrap text-[clamp(36px,11.5vw,54px)] sm:flex-1 sm:text-[76px] lg:text-[104px] font-light leading-none tracking-[-0.03em] text-[#FFFCF2] tabular-nums"
       >
         <span>{display}</span>
         {stat.suffix && <span className="text-[#FFE6A7]">{stat.suffix}</span>}
@@ -123,7 +124,8 @@ function StatRow({ stat, order }: { stat: Stat; order: number }) {
         style={hankenGrotesk}
         className="flex w-full flex-col gap-2 pt-0 sm:w-[280px] sm:shrink-0 sm:pt-3.5"
       >
-        <p className="text-[12px] font-semibold uppercase leading-4 tracking-[0.96px] text-[#FFE6A7]">
+        {/* Index hidden on mobile, as in the design */}
+        <p className="hidden text-[12px] font-semibold uppercase leading-4 tracking-[0.96px] text-[#FFE6A7] sm:block">
           {stat.index}
         </p>
         <p className="text-[14px] sm:text-[16px] font-normal leading-6 text-[#CCC5B9]">
@@ -143,52 +145,53 @@ export function AboutStatsSection() {
       ref={sectionRef}
       className="bg-[#252422] px-6 md:px-12 lg:px-[92px] py-16 sm:py-20 lg:py-[87px]"
     >
-      <div className="mx-auto flex w-full max-w-[1252px] flex-col gap-12 sm:gap-[62px]">
-        {/* Statement: Eyebrow + Headline on Left, Link on Right */}
-        <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between sm:gap-8">
-          <div className="flex flex-col gap-6 sm:gap-[32px] items-start">
-            {/* Eyebrow */}
-            <div
-              className={`flex items-center gap-3 transition-all duration-700 ease-out ${
+      <div className="mx-auto flex w-full max-w-[1252px] flex-col gap-10 sm:gap-[62px]">
+        {/* Statement: eyebrow + link share a row on mobile, headline below */}
+        <div className="grid grid-cols-[1fr_auto] items-center gap-x-4 gap-y-6 sm:items-start sm:gap-x-8 sm:gap-y-[32px]">
+          {/* Eyebrow */}
+          <div
+            className={`flex items-center gap-3 transition-all duration-700 ease-out ${
+              inView ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
+            }`}
+          >
+            <div className="size-2 bg-[#FFE6A7] shrink-0" aria-hidden="true" />
+            <p
+              style={hankenGrotesk}
+              className="text-[12px] font-semibold uppercase leading-4 tracking-[0.96px] text-[#FFFCF2]"
+            >
+              About us
+            </p>
+          </div>
+
+          {/* Headline (Figma Node 211:5161)
+              Mobile: size scales with screen width so each line always fits on one line
+              ((100vw - 48px padding) / 12.8 ≈ widest line "TRUSTED BY FAMILIES."). */}
+          <h2
+            style={baiJamjuree}
+            className="col-span-2 text-[clamp(20px,calc((100vw-48px)/12.8),32px)] sm:col-span-1 sm:text-[48px] lg:text-[66px] font-medium uppercase leading-[1.05] tracking-[-0.02em] lg:tracking-[-0.66px]"
+          >
+            <span
+              className={`block whitespace-nowrap text-[#FFFCF2] transition-all duration-700 delay-100 ease-out ${
                 inView ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
               }`}
             >
-              <div className="size-2 bg-[#FFE6A7] shrink-0" aria-hidden="true" />
-              <p
-                style={hankenGrotesk}
-                className="text-[12px] font-semibold uppercase leading-4 tracking-[0.96px] text-[#FFFCF2]"
-              >
-                About us
-              </p>
-            </div>
-
-            {/* Headline (Figma Node 211:5161) */}
-            <h2
-              style={baiJamjuree}
-              className="text-[32px] sm:text-[48px] lg:text-[66px] font-medium uppercase leading-[1.05] tracking-[-0.66px]"
+              Built by engineers.
+            </span>
+            <span
+              className={`block whitespace-nowrap text-[#FFE6A7] transition-all duration-700 delay-200 ease-out ${
+                inView ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
+              }`}
             >
-              <span
-                className={`block text-[#FFFCF2] transition-all duration-700 delay-100 ease-out ${
-                  inView ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
-                }`}
-              >
-                Built by engineers.
-              </span>
-              <span
-                className={`block text-[#FFE6A7] transition-all duration-700 delay-200 ease-out ${
-                  inView ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
-                }`}
-              >
-                Trusted by families.
-              </span>
-            </h2>
-          </div>
+              Trusted by families.
+            </span>
+          </h2>
 
           {/* Link / Read our story (Figma Node 211:5164) */}
           <Link
             to="/about"
+            onClick={() => window.scrollTo({ top: 0, left: 0, behavior: 'instant' })}
             style={hankenGrotesk}
-            className={`group flex shrink-0 items-center gap-2 text-[18px] font-bold leading-7 tracking-[-0.36px] text-[#FFE6A7] transition-all duration-700 delay-300 ease-out ${
+            className={`group col-start-2 row-start-1 flex shrink-0 items-center gap-2 whitespace-nowrap text-[16px] font-bold leading-7 tracking-[-0.32px] text-[#FFE6A7] transition-all duration-700 delay-300 ease-out sm:row-span-2 sm:self-start sm:text-[18px] sm:tracking-[-0.36px] ${
               inView ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
             }`}
           >
@@ -230,8 +233,8 @@ export function AboutStatsSection() {
             </p>
           </div>
 
-          {/* Right Rows (Figma Node 211:5172) */}
-          <div className="flex-1 flex flex-col w-full border-b border-[#403D39]">
+          {/* Right Rows (Figma Node 211:5172): 2x2 grid on mobile, stacked rows from sm up */}
+          <div className="grid w-full flex-1 grid-cols-2 content-start border-b border-[#403D39] sm:flex sm:flex-col">
             {stats.map((stat, i) => (
               <StatRow key={stat.index} stat={stat} order={i} />
             ))}

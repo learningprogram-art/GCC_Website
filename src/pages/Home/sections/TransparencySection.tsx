@@ -1,22 +1,54 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import '@fontsource/hanken-grotesk/400.css'
+import '@fontsource/hanken-grotesk/500.css'
+import '@fontsource/hanken-grotesk/600.css'
+import '@fontsource/hanken-grotesk/700.css'
 
+// Figma node: 211:5270 — Section / Transparency
 const hanken = { fontFamily: '"Hanken Grotesk", sans-serif' }
 const bai = { fontFamily: '"Bai Jamjuree", sans-serif' }
 
+// Pinned inline so global CSS (h3 / p rules) can never override the Figma values
+const TITLE_STYLE = {
+  ...bai,
+  fontSize: '22px',
+  lineHeight: '28px',
+  letterSpacing: '-0.11px',
+  fontWeight: 600,
+  margin: 0,
+} as const
+const BODY_STYLE = {
+  ...hanken,
+  fontSize: '16px',
+  lineHeight: 1.3,
+  letterSpacing: 0,
+  fontWeight: 400,
+  margin: 0,
+} as const
+
+// Everything lives in public/assets/images/transparency/
 const IMG = '/assets/images/transparency'
 
+// Icons (spaces in file names are written as %20)
 const ICON_LIVE_APP = `${IMG}/Live%20App.svg`
 const ICON_QUALITY = `${IMG}/Quality%20Check.svg`
-const ICON_ONE_TEAM = `${IMG}/glyph.svg`
-const ICON_MAINTENANCE = `${IMG}/glyph-2.svg`
+const ICON_ONE_TEAM = `${IMG}/glyph.svg` // swap with glyph-2.svg if this shows a clock
+const ICON_MAINTENANCE = `${IMG}/glyph-2.svg` // swap with glyph.svg if this shows connected dots
 
 const ICONS = [ICON_LIVE_APP, ICON_QUALITY, ICON_ONE_TEAM, ICON_MAINTENANCE]
 
-const GAP = 12
+// First icon sits on top, each later one tucks underneath (as in Figma)
+const STACK = ['z-[4]', 'z-[3]', 'z-[2]', 'z-[1]']
 
-function useInViewOnce<T extends HTMLElement>(threshold = 0.15) {
+const GAP = 12 // matches gap-3
+const CARD_W = 304
+const CARD_H = 500
+const DESIGN_W = CARD_W * 4 + GAP * 3 // 1252: full Figma row width
+
+/** Fades + slides an element up the first time it scrolls into view. */
+function useReveal<T extends HTMLElement>(delay = 0) {
   const ref = useRef<T>(null)
-  const [inView, setInView] = useState(false)
+  const [shown, setShown] = useState(false)
 
   useEffect(() => {
     const el = ref.current
@@ -24,17 +56,24 @@ function useInViewOnce<T extends HTMLElement>(threshold = 0.15) {
     const io = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          setInView(true)
+          setShown(true)
           io.disconnect()
         }
       },
-      { threshold },
+      { threshold: 0.2 },
     )
     io.observe(el)
     return () => io.disconnect()
-  }, [threshold])
+  }, [])
 
-  return [ref, inView] as const
+  return {
+    ref,
+    shown,
+    style: { transitionDelay: `${delay}ms` },
+    className: `transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none ${
+      shown ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
+    }`,
+  }
 }
 
 function ChevronRight() {
@@ -65,7 +104,7 @@ function IconBadge({ src, className = '' }: { src: string; className?: string })
   )
 }
 
-/* ---------- Card art ---------- */
+/* ---------- Card art (positions taken from Figma) ---------- */
 
 function ArtLiveApp() {
   return (
@@ -84,94 +123,121 @@ function ArtQuality() {
   return (
     <div className="relative h-[247px] w-full overflow-hidden rounded-lg bg-[#99582A]">
       <img
-        src={`${IMG}/calendar.png`}
+        src={`${IMG}/bricks.png`}
         alt=""
-        className="pointer-events-none absolute left-[15px] top-[14px] h-[190px] w-[257px] max-w-none object-cover"
+        className="pointer-events-none absolute left-[-77.45px] top-[-23.82px] h-[293.6px] w-[440.9px] max-w-none object-cover"
       />
-      <div className="pointer-events-none absolute bottom-[-26px] right-[-24px] size-[187px] rounded-full bg-[#E06422] opacity-70 blur-[50px]" />
+      <img
+        src={`${IMG}/tick.png`}
+        alt=""
+        className="pointer-events-none absolute left-1/2 top-1/2 size-[251.3px] max-w-none -translate-x-1/2 -translate-y-1/2 object-cover"
+      />
     </div>
   )
 }
 
-function ArtOneTeam() {
+function ArtProject() {
   return (
-    <div className="relative h-[247px] w-full overflow-hidden rounded-lg bg-[#403D39]">
-      <div
-        className="pointer-events-none absolute inset-0 opacity-20"
-        style={{
-          backgroundImage:
-            'radial-gradient(circle at 50% 50%, #FFFCF2 1.5px, transparent 1.5px)',
-          backgroundSize: '16px 16px',
-        }}
-      />
-      <div className="pointer-events-none absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-2 text-center text-white">
-        <span
-          style={bai}
-          className="text-[44px] font-bold leading-none tracking-tight text-[#FFE6A7]"
-        >
-          1 Team
-        </span>
-        <span style={hanken} className="text-xs uppercase tracking-[1px] text-[#CCC5B9]">
-          Design to Handover
-        </span>
+    <>
+      <div className="relative h-[247px] w-full overflow-hidden rounded-lg bg-[#5B5B5B]">
+        <img
+          src={`${IMG}/site-bg.png`}
+          alt=""
+          className="pointer-events-none absolute left-[-17.06px] top-[-11.48px] h-[267px] w-[367.7px] max-w-none object-cover object-bottom"
+        />
       </div>
-      <div className="pointer-events-none absolute bottom-[-20px] left-[-20px] size-[160px] rounded-full bg-[#E06422] opacity-40 blur-[45px]" />
-    </div>
+      {/* Worker: cropped from the right, exactly like Figma */}
+      <div className="pointer-events-none absolute bottom-0 left-[-0.72px] h-[277.3px] w-[275.1px] overflow-hidden">
+        <img
+          src={`${IMG}/worker.png`}
+          alt=""
+          className="absolute left-0 top-0 h-full w-[110.29%] max-w-none"
+        />
+      </div>
+    </>
   )
 }
 
 function ArtMaintenance() {
   return (
-    <div className="relative h-[247px] w-full overflow-hidden rounded-lg bg-[#252422]">
-      <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-2 p-4 text-center">
-        <div className="flex size-14 items-center justify-center rounded-2xl bg-[#E06422]/20 text-[#E06422]">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-          </svg>
-        </div>
-        <span style={bai} className="text-lg font-bold text-white">
-          AMC Portal
-        </span>
-        <span style={hanken} className="text-xs text-[#CCC5B9]">
-          Post-handover warranty & service
-        </span>
+    <>
+      <div className="relative h-[247px] w-full overflow-hidden rounded-lg bg-[#6495B3]">
+        <img
+          src={`${IMG}/free.png`}
+          alt="1 year free maintenance"
+          className="pointer-events-none absolute inset-0 size-full max-w-none object-cover object-bottom"
+        />
       </div>
-    </div>
+      <img
+        src={`${IMG}/wrench.png`}
+        alt=""
+        className="pointer-events-none absolute left-[-6px] top-[-20px] h-auto w-[92px] max-w-none"
+      />
+    </>
   )
 }
 
 const CARDS = [
   {
-    title: 'Live App Tracking',
-    body: 'Daily site photos, progress logs, material receipts, and milestone verification updated right on your phone.',
+    title: 'Live progress on the Onsite app',
+    body: 'Follow your site stage by stage, wherever you are.',
     icon: ICON_LIVE_APP,
     Art: ArtLiveApp,
   },
   {
-    title: 'Stage QA Checks',
-    body: 'Over 200+ structural quality checks performed and certified before moving to each subsequent construction stage.',
+    title: 'Third-party quality assurance',
+    body: 'Independent checks, with reports shared with you.',
     icon: ICON_QUALITY,
     Art: ArtQuality,
   },
   {
-    title: 'One Dedicated Team',
-    body: 'Zero finger-pointing. Architecture, structural engineering, and construction handled seamlessly by one team.',
+    title: 'Project management on every project',
+    body: 'Design, execution and timelines under one team.',
     icon: ICON_ONE_TEAM,
-    Art: ArtOneTeam,
+    Art: ArtProject,
   },
   {
-    title: '10-Year Warranty',
-    body: 'Comprehensive structural warranty paired with digital AMC portal access for complete long-term peace of mind.',
+    title: '1 year of free maintenance (AMC)',
+    body: 'Covered after handover — so small fixes never become your problem.',
     icon: ICON_MAINTENANCE,
     Art: ArtMaintenance,
   },
 ]
 
 export function TransparencySection() {
-  const [sectionRef, inView] = useInViewOnce<HTMLElement>(0.1)
   const trackRef = useRef<HTMLDivElement>(null)
+  const wrapRef = useRef<HTMLDivElement>(null)
   const [active, setActive] = useState(0)
+  const [desktop, setDesktop] = useState(false)
+  const [scale, setScale] = useState(1)
 
+  // Scroll reveals
+  const eyebrow = useReveal<HTMLDivElement>(0)
+  const heading = useReveal<HTMLHeadingElement>(100)
+  const cards = useReveal<HTMLDivElement>(0) // one trigger for the whole card row
+  const strip = useReveal<HTMLDivElement>(0)
+
+  // Desktop (1024px+): keep all four cards in one row and scale the row to fit the width
+  useLayoutEffect(() => {
+    const mq = window.matchMedia('(min-width: 1024px)')
+    const wrap = wrapRef.current
+
+    const update = () => {
+      setDesktop(mq.matches)
+      if (wrap) setScale(Math.min(1, wrap.clientWidth / DESIGN_W))
+    }
+
+    update()
+    const ro = new ResizeObserver(update)
+    if (wrap) ro.observe(wrap)
+    mq.addEventListener('change', update)
+    return () => {
+      ro.disconnect()
+      mq.removeEventListener('change', update)
+    }
+  }, [])
+
+  // Mobile / tablet carousel: work out the current card from the scroll position
   const handleScroll = () => {
     const el = trackRef.current
     if (!el || !el.firstElementChild) return
@@ -191,16 +257,15 @@ export function TransparencySection() {
   return (
     <section
       id="transparency"
-      ref={sectionRef}
-      className="bg-[#FFE6A7] px-5 pt-[72px] pb-[100px] sm:px-6 sm:pt-[90px] sm:pb-[120px] lg:px-[96px] lg:pb-[140px]"
+      className="bg-[#FFE6A7] px-5 py-[72px] sm:px-6 sm:py-[90px] lg:px-12 min-[1440px]:px-[96px]"
     >
       <div className="mx-auto flex max-w-[1252px] flex-col items-center gap-10 sm:gap-[34px]">
         {/* Header */}
         <div className="flex w-full flex-col items-start gap-6">
           <div
-            className={`flex items-center gap-3 transition-all duration-700 ease-out ${
-              inView ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
-            }`}
+            ref={eyebrow.ref}
+            style={eyebrow.style}
+            className={`flex items-center gap-3 ${eyebrow.className}`}
           >
             <span className="size-2 bg-[#E06422]" aria-hidden />
             <p
@@ -211,58 +276,59 @@ export function TransparencySection() {
             </p>
           </div>
           <h2
-            style={bai}
-            className={`max-w-[700px] text-[28px] font-bold uppercase leading-[1.2] text-[#252422] sm:text-[clamp(32px,4vw,48px)] transition-all duration-700 delay-100 ease-out ${
-              inView ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
-            }`}
+            ref={heading.ref}
+            style={{ ...bai, ...heading.style }}
+            className={`max-w-[700px] text-[28px] font-bold uppercase leading-[1.2] text-[#252422] sm:text-[clamp(32px,4vw,48px)] ${heading.className}`}
           >
             Confidence built through transparency.
           </h2>
         </div>
 
-        {/* Cards: snap carousel on mobile, wrapped row from sm up */}
-        <div className="w-full">
+        {/* Cards: swipe carousel below 1024px, one row of four from 1024px */}
+        <div ref={cards.ref} className="w-full">
           <div
-            ref={trackRef}
-            onScroll={handleScroll}
-            className="-mx-5 flex w-auto scroll-pl-5 snap-x snap-mandatory gap-3 overflow-x-auto px-5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:w-full sm:snap-none sm:flex-wrap sm:justify-center sm:overflow-visible sm:px-0"
+            ref={wrapRef}
+            className="w-full lg:overflow-hidden"
+            style={desktop ? { height: CARD_H * scale } : undefined}
           >
-            {CARDS.map(({ title, body, icon, Art }, i) => (
-              <article
-                key={title}
-                style={{ transitionDelay: `${i * 120}ms` }}
-                className={`relative flex h-[500px] w-[78vw] max-w-[304px] shrink-0 snap-start flex-col justify-between overflow-hidden rounded-xl border border-solid border-[#CCC5B9] bg-white transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none sm:w-[304px] sm:max-w-full sm:shrink ${
-                  inView ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
-                }`}
-              >
-                <div className="flex flex-col gap-6 p-5">
-                  <IconBadge src={icon} />
-                  <div className="flex flex-col gap-[10px]">
-                    <h3
-                      style={bai}
-                      className="text-[22px] font-semibold leading-7 tracking-[-0.11px] text-[#252422]"
-                    >
-                      {title}
-                    </h3>
-                    <p
-                      style={hanken}
-                      className="text-[16px] font-normal leading-[1.3] text-[#403D39]"
-                    >
-                      {body}
-                    </p>
+            <div
+              ref={trackRef}
+              onScroll={handleScroll}
+              style={desktop ? { transform: `scale(${scale})` } : undefined}
+              className="-mx-5 flex w-auto scroll-pl-5 snap-x snap-mandatory gap-3 overflow-x-auto px-5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:-mx-6 sm:scroll-pl-6 sm:px-6 lg:mx-0 lg:w-[1252px] lg:origin-top-left lg:snap-none lg:overflow-visible lg:px-0"
+            >
+              {CARDS.map(({ title, body, icon, Art }, i) => (
+                <article
+                  key={title}
+                  style={{ transitionDelay: `${i * 120}ms` }}
+                  className={`relative flex h-[500px] w-[78vw] max-w-[304px] shrink-0 snap-start flex-col overflow-hidden rounded-xl border border-solid border-[#CCC5B9] bg-white transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none sm:w-[304px] lg:max-w-none ${
+                    cards.shown ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
+                  }`}
+                >
+                  <div className="flex flex-col gap-6 p-5">
+                    <IconBadge src={icon} />
+                    <div className="-mr-2 flex flex-col gap-[10px]">
+                      <h3 style={TITLE_STYLE} className="text-[#252422]">
+                        {title}
+                      </h3>
+                      <p style={BODY_STYLE} className="text-[#403D39]">
+                        {body}
+                      </p>
+                    </div>
                   </div>
-                </div>
 
-                <div className="relative flex w-full flex-col gap-[10px] p-2">
-                  <Art />
-                </div>
-              </article>
-            ))}
+                  {/* Art: pinned to the card bottom with 8px padding (same height in every card) */}
+                  <div className="absolute inset-x-0 bottom-0 flex flex-col gap-[10px] p-2">
+                    <Art />
+                  </div>
+                </article>
+              ))}
+            </div>
           </div>
 
-          {/* Pagination dots (mobile only) */}
+          {/* Pagination dots (carousel only, hidden once all four fit) */}
           <div
-            className="mt-6 flex items-center gap-2 sm:hidden"
+            className="mt-6 flex items-center gap-2 lg:hidden"
             role="tablist"
             aria-label="Transparency cards"
           >
@@ -284,18 +350,20 @@ export function TransparencySection() {
 
         {/* Closing strip */}
         <div
-          className={`w-full rounded-xl sm:w-auto sm:bg-white/30 sm:p-[14px] transition-all duration-700 delay-200 ease-out ${
-            inView ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
-          }`}
+          ref={strip.ref}
+          style={strip.style}
+          className={`w-full rounded-xl sm:w-auto sm:bg-white/30 sm:p-[14px] ${strip.className}`}
         >
           <div className="flex flex-col items-stretch gap-6 sm:flex-row sm:flex-wrap sm:items-center sm:justify-center sm:gap-x-10 sm:gap-y-4">
             <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
-              <div className="flex items-center">
+              <div className="isolate flex items-center">
                 {ICONS.map((src, i) => (
                   <IconBadge
                     key={src}
                     src={src}
-                    className={`border border-solid border-[#FFEEC1] ${i < ICONS.length - 1 ? 'mr-[-19px]' : ''}`}
+                    className={`relative border border-solid border-[#FFEEC1] ${STACK[i]} ${
+                      i < ICONS.length - 1 ? 'mr-[-19px]' : ''
+                    }`}
                   />
                 ))}
               </div>
@@ -310,7 +378,7 @@ export function TransparencySection() {
             </div>
 
             <a
-              href="/#contact-cta"
+              href="#contact-cta"
               style={hanken}
               className="flex w-full items-center justify-center gap-2 whitespace-nowrap rounded-lg bg-[#6F1D1B] px-5 py-4 text-[18px] font-bold leading-7 tracking-[-0.36px] text-white transition-colors hover:bg-[#5a1716] sm:w-auto sm:justify-start sm:py-3 sm:pl-6 sm:pr-5"
             >
@@ -323,5 +391,3 @@ export function TransparencySection() {
     </section>
   )
 }
-
-export default TransparencySection

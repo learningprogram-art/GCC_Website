@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/Button'
 import heroHome from '/assets/images/hero-home.png'
 import heroHomeMobile from '/assets/images/hero-home-mobile.png'
+import heroPlane from '/assets/images/hero-plane.png'
 
 // Digits only, with country code and no "+" (e.g. 919876543210). Replace when you have the number.
 const WHATSAPP_NUMBER = '91XXXXXXXXXX'
@@ -16,7 +17,11 @@ const fieldInput =
 
 function HeroMobile() {
   return (
-    <section id="hero-mobile" style={hanken} className="bg-[#FFFCF2] px-3 pb-10 pt-3 lg:hidden">
+    <section
+  id="hero-mobile"
+  style={hanken}
+  className="relative z-[1] -mb-px bg-[#FFFCF2] px-3 pb-10 pt-3 lg:hidden"
+>
       {/* Image card (Figma: 366 x 701, radius 12) */}
       <div className="relative isolate h-[701px] w-full overflow-hidden rounded-xl bg-[#347DA6]">
         <img
@@ -146,6 +151,14 @@ export function HeroSection() {
           alt="Engineer holding a model home above a family playing on the lawn"
           className="absolute inset-0 -z-10 h-full w-full object-cover object-top"
           fetchPriority="high"
+        />
+
+        {/* Plane */}
+        <img
+          src={heroPlane}
+          alt=""
+          aria-hidden="true"
+          className="pointer-events-none absolute left-[87.5%] top-[28%] w-[4.5%] select-none"
         />
 
         {/* Headline */}
