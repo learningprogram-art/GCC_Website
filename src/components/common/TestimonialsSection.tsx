@@ -103,7 +103,6 @@ export function TestimonialsSection({
   const [headRef, headIn] = useInViewOnce<HTMLDivElement>(0.2)
   const [carouselRef, carouselIn] = useInViewOnce<HTMLDivElement>(0.15)
   const [activeIndex, setActiveIndex] = useState(0)
-  const [gutter, setGutter] = useState<number>(0)
   const headerContainerRef = useRef<HTMLDivElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const cardRefs = useRef<(HTMLElement | null)[]>([])
@@ -116,25 +115,6 @@ export function TestimonialsSection({
     },
     [headRef]
   )
-
-  const DESKTOP_PADDING = 96 // px, matches lg:px-[6rem]
-
-  const updateGutter = useCallback(() => {
-    if (headerContainerRef.current) {
-      const rect = headerContainerRef.current.getBoundingClientRect()
-      const isDesktop = window.matchMedia('(min-width: 1024px)').matches
-      const base = Math.round(rect.left)
-      setGutter(
-        isDesktop ? base + DESKTOP_PADDING : Math.max(16, base)
-      )
-    }
-  }, [])
-
-  useEffect(() => {
-    updateGutter()
-    window.addEventListener('resize', updateGutter)
-    return () => window.removeEventListener('resize', updateGutter)
-  }, [updateGutter])
 
   // Smoothly scroll to a specific card
   const scrollToCard = useCallback(
@@ -155,9 +135,10 @@ export function TestimonialsSection({
       } else {
         const targetCard = cardRefs.current[targetIndex]
         if (targetCard) {
+          const pad = parseFloat(window.getComputedStyle(container).paddingLeft) || 96
           targetScroll = Math.min(
             maxScroll,
-            Math.max(0, targetCard.offsetLeft - gutter)
+            Math.max(0, targetCard.offsetLeft - pad)
           )
         }
       }
@@ -171,7 +152,7 @@ export function TestimonialsSection({
         isScrollingRef.current = false
       }, 500)
     },
-    [items.length, gutter]
+    [items.length]
   )
 
   const handlePrev = useCallback(() => {
@@ -217,13 +198,15 @@ export function TestimonialsSection({
       return
     }
 
+    const pad = parseFloat(window.getComputedStyle(container).paddingLeft) || 96
+
     let closestIdx = 0
     let minDistance = Infinity
 
     cardRefs.current.forEach((card, idx) => {
       if (!card) return
       const cardRect = card.getBoundingClientRect()
-      const distance = Math.abs(cardRect.left - gutter)
+      const distance = Math.abs(cardRect.left - pad)
       if (distance < minDistance) {
         minDistance = distance
         closestIdx = idx
@@ -233,7 +216,7 @@ export function TestimonialsSection({
     if (closestIdx !== activeIndex) {
       setActiveIndex(closestIdx)
     }
-  }, [activeIndex, items.length, gutter])
+  }, [activeIndex, items.length])
 
   // Attach global keyboard listener when mouse hovers over section
   useEffect(() => {
@@ -283,11 +266,11 @@ export function TestimonialsSection({
       )}
     >
       <div className="w-full flex flex-col gap-[2.5rem] sm:gap-[3.5rem] lg:gap-[5rem]">
-        {/* Header: constrained to standard grid (Figma Node 211:5405) */}
+        {/* Header: 96px (6rem) left & right padding */}
         <div
           ref={setHeaderRef}
           className={cn(
-            'mx-auto w-full max-w-[78rem] px-[1rem] sm:px-[2rem] lg:px-[6rem] transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none',
+            'w-full px-6 sm:px-12 md:px-[96px] lg:px-[6rem] transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none',
             headIn ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
           )}
         >
@@ -406,16 +389,9 @@ export function TestimonialsSection({
           <div
             ref={containerRef}
             onScroll={handleScroll}
-            className="relative w-full flex items-stretch gap-[24px] overflow-x-auto scroll-smooth [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+            className="relative w-full flex items-stretch gap-[24px] overflow-x-auto scroll-smooth px-6 sm:px-12 md:px-[96px] lg:px-[6rem] scroll-px-6 sm:scroll-px-12 md:scroll-px-[96px] lg:scroll-px-[6rem] [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
             style={{ WebkitOverflowScrolling: 'touch' }}
           >
-            {/* Dynamic Left Gutter Spacer */}
-            <div
-              style={{ width: `${gutter}px` }}
-              className="shrink-0 pointer-events-none"
-              aria-hidden="true"
-            />
-
             {/* Cards (Figma: width 720px, height 620px, no box-shadow) */}
             {items.map((item, idx) => {
               const isActive = idx === activeIndex
@@ -596,13 +572,6 @@ export function TestimonialsSection({
                 </article>
               )
             })}
-
-            {/* Dynamic Right Gutter Spacer */}
-            <div
-              style={{ width: `${gutter}px` }}
-              className="shrink-0 pointer-events-none"
-              aria-hidden="true"
-            />
           </div>
         </div>
       </div>

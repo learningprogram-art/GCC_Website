@@ -96,13 +96,93 @@ export function CostCalculatorSection() {
         id="cost-calculator"
         data-node-id="211:6073"
         aria-label="Home Construction Cost Estimator"
-        className="relative w-full bg-[#FFFCF2] py-8 sm:py-12 lg:py-14"
+        className="relative z-10 -mt-px w-full bg-[#FFFCF2] py-8 sm:py-12 lg:py-14 px-4 sm:px-6 md:px-[96px] lg:px-[6rem]"
       >
-        <div className="mx-auto max-w-[1248px] w-full">
-          {/* Banner Container: Figma Node 211:6073 (1248px x 160px, rounded-[12px], bg-[#701E1C], pl-[12px] pr-[30px] py-[12px]) */}
+        <div ref={bannerRef} className="mx-auto max-w-[1248px] w-full">
+          {/* ==============================================================
+              MOBILE CARD LAYOUT (Figma Node 214:6149 - ONLY FOR MOBILE VIEW)
+              350px x 464px, bg-[#701E1C], rounded-[12px], p-[20px]
+             ============================================================== */}
           <div
-            ref={bannerRef}
-            className={`relative w-full min-h-[160px] rounded-[12px] bg-[#701E1C] overflow-hidden flex flex-col md:flex-row items-center justify-between py-[12px] pl-[12px] pr-4 sm:pr-[30px] gap-6 md:gap-[30px] shadow-md transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none ${
+            data-node-id="214:6149"
+            className={`md:hidden relative w-full h-[480px] rounded-[12px] bg-[#701E1C] overflow-hidden p-[20px] flex flex-col justify-between shadow-md transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none ${
+              bannerIn ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
+            }`}
+          >
+            {/* Background Pattern at bottom (Figma Node 214:6150) */}
+            <div
+              className="pointer-events-none absolute -bottom-[10px] left-0 w-full h-[160px] select-none overflow-hidden opacity-30"
+              aria-hidden="true"
+            >
+              <img
+                src="/assets/images/how-we-build/calculator-design.webp"
+                alt=""
+                className="w-full h-full object-cover object-bottom"
+                loading="lazy"
+              />
+            </div>
+
+            {/* Top: 3D Calculator & House Preview (Figma Node 214:6180: h-[136px], rounded-[8px]) */}
+            <div
+              data-node-id="214:6180"
+              className="relative z-10 w-full h-[136px] rounded-[8px] overflow-hidden shrink-0 bg-[#E1DCDC] shadow-inner"
+            >
+              <img
+                src="/assets/images/how-we-build/calculator-img.webp"
+                alt="Home Construction Cost Preview"
+                className="w-full h-full object-cover object-center block select-none pointer-events-none"
+                loading="lazy"
+              />
+            </div>
+
+            {/* Middle: Headline (Figma Node 214:6184: Bai Jamjuree SemiBold 36px/44px, text-white) */}
+            <div className="relative z-10 my-[30px] flex flex-col items-start">
+              <h3
+                data-node-id="214:6184"
+                style={{ fontFamily: '"Bai Jamjuree", sans-serif' }}
+                className="m-0 text-white text-[32px] sm:text-[36px] font-semibold leading-[40px] sm:leading-[44px] tracking-[-0.36px] text-left"
+              >
+                Home <br />
+                Construction <br />
+                Estimator
+              </h3>
+            </div>
+
+            {/* Bottom: Button (Figma Node 214:6185: 310px x 56px, rounded-[8px], bg-[#FFFCF2], text-[#252422]) */}
+            <div className="relative z-10 w-full">
+              <button
+                type="button"
+                data-node-id="214:6185"
+                onClick={() => setIsModalOpen(true)}
+                style={{ fontFamily: '"Hanken Grotesk", sans-serif' }}
+                className="w-full h-[56px] rounded-[8px] bg-[#FFFCF2] hover:bg-white active:bg-[#F5F0E6] text-[#252422] text-[18px] font-bold leading-[28px] tracking-[-0.36px] flex items-center justify-center gap-[8px] shadow-sm transition-colors cursor-pointer border-none"
+              >
+                <span>Calculate now</span>
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="size-[20px]"
+                  aria-hidden="true"
+                >
+                  <path d="M9 18l6-6-6-6" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          {/* ==============================================================
+              DESKTOP BANNER LAYOUT (Figma Node 211:6073 - FROM MD: UP)
+              1248px x 160px, rounded-[12px], bg-[#701E1C], horizontal banner
+             ============================================================== */}
+          <div
+            data-node-id="211:6073"
+            className={`hidden md:flex relative w-full min-h-[160px] rounded-[12px] bg-[#701E1C] overflow-hidden flex-row items-center justify-between py-[12px] pl-[12px] pr-4 sm:pr-[30px] gap-6 md:gap-[30px] shadow-md transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none ${
               bannerIn ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
             }`}
           >
@@ -120,7 +200,7 @@ export function CostCalculatorSection() {
             </div>
 
             {/* Left / Content cluster */}
-            <div className="relative z-10 flex flex-col sm:flex-row items-center gap-4 sm:gap-6 md:gap-[30px] w-full md:w-auto">
+            <div className="relative z-10 flex flex-row items-center gap-[30px] w-auto">
               {/* Left Preview Image Card (Figma Node 213:6077: 206px x 136px, rounded-[12px]) */}
               <div className="relative w-[206px] h-[136px] rounded-[12px] overflow-hidden shrink-0 bg-[#E1DCDC] shadow-inner">
                 <img
@@ -134,20 +214,20 @@ export function CostCalculatorSection() {
               {/* Headline Title (Figma Node 211:6065: Bai Jamjuree SemiBold 36px/44px, text-white) */}
               <h3
                 style={{ fontFamily: '"Bai Jamjuree", sans-serif' }}
-                className="text-white text-[24px] sm:text-[30px] lg:text-[36px] font-semibold leading-[1.2] lg:leading-[44px] tracking-[-0.36px] text-center sm:text-left shrink-0 max-w-[340px]"
+                className="text-white text-[30px] lg:text-[36px] font-semibold leading-[1.2] lg:leading-[44px] tracking-[-0.36px] text-left shrink-0 max-w-[340px]"
               >
-                Home Construction <br className="hidden sm:inline" />
+                Home Construction <br />
                 Estimator
               </h3>
             </div>
 
             {/* Right Action Button (Figma Node 211:6066: Button on-dark, 226px x 56px, rounded-[8px]) */}
-            <div className="relative z-10 w-full md:w-auto flex justify-center md:justify-end shrink-0">
+            <div className="relative z-10 w-auto flex justify-end shrink-0">
               <Button
                 variant="on-dark"
                 size="lg"
                 onClick={() => setIsModalOpen(true)}
-                className="w-full sm:w-[226px] h-[52px] sm:h-[56px] text-[18px] font-bold rounded-[8px] tracking-[-0.36px] shadow-sm cursor-pointer"
+                className="w-[226px] h-[56px] text-[18px] font-bold rounded-[8px] tracking-[-0.36px] shadow-sm cursor-pointer"
               >
                 Calculate now
               </Button>

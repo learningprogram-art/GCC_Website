@@ -124,7 +124,7 @@ if (rect.bottom >= 0 && rect.top <= triggerPoint) {
       */}
       <div
         id="where-we-build"
-        className="relative z-30 -mt-[40px] sm:-mt-[55px] lg:-mt-[70px] w-full px-4 sm:px-6 lg:px-12"
+        className="relative z-30 -mt-[20px] sm:-mt-[35px] lg:-mt-[40px] w-full px-6 sm:px-12 md:px-[96px] lg:px-[6rem]"
       >
         <WhereWeBuildCard />
       </div>

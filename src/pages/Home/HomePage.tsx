@@ -31,11 +31,14 @@ export function HomePage() {
       {/* 5. Why GCC */}
       <WhyGccSection />
 
-      {/* 6. How We Build */}
-      <HowWeBuildSection />
+      {/* Cream wrapper for How We Build & Cost Calculator eliminates any subpixel seam */}
+      <div className="w-full bg-[#FFFCF2]">
+        {/* 6. How We Build */}
+        <HowWeBuildSection />
 
-      {/* 7. Cost Calculator */}
-      <CostCalculatorSection />
+        {/* 7. Cost Calculator */}
+        <CostCalculatorSection />
+      </div>
 
       {/* 8. Transparency */}
       <TransparencySection />
