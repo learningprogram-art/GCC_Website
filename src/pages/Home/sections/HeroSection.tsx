@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/Button'
-import heroHome from '/assets/images/hero-home.png'
-import heroHomeMobile from '/assets/images/hero-home-mobile.png'
-import heroPlane from '/assets/images/hero-plane.png'
+import heroHome from '/assets/images/hero-home.webp'
+import heroHomeMobile from '/assets/images/hero-home-mobile.webp'
+import heroPlane from '/assets/images/hero-plane.webp'
 
 // Digits only, with country code and no "+" (e.g. 919876543210). Replace when you have the number.
 const WHATSAPP_NUMBER = '91XXXXXXXXXX'

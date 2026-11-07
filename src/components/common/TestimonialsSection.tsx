@@ -37,7 +37,7 @@ const DEFAULT_TESTIMONIALS: TestimonialItem[] = [
     },
     author: 'Rohit & Neha Malhotra',
     role: 'Homeowners · 4BHK Villa, Gurugram',
-    photo: '/assets/images/testimonials/01_testimonial.png',
+    photo: '/assets/images/testimonials/01_testimonial.webp',
     accentColor: '#E06422',
   },
   {
@@ -54,7 +54,7 @@ const DEFAULT_TESTIMONIALS: TestimonialItem[] = [
     },
     author: 'Priya Nair',
     role: 'Homeowner · G+1 Home, Panchkula',
-    photo: '/assets/images/testimonials/03_testimonial.png',
+    photo: '/assets/images/testimonials/03_testimonial.webp',
     accentColor: '#BB9457',
   },
   {
@@ -71,7 +71,7 @@ const DEFAULT_TESTIMONIALS: TestimonialItem[] = [
     },
     author: 'Vikram & Anjali Sethi',
     role: 'NRI Homeowners · Farmhouse, Sohna',
-    photo: '/assets/images/testimonials/02_testimonial.png',
+    photo: '/assets/images/testimonials/02_testimonial.webp',
     accentColor: '#BB9457',
   },
 ]

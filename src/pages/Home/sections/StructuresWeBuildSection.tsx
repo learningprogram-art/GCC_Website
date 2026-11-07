@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
-import villaImg from '/assets/images/structures/villa.png'
-import farmhouseImg from '/assets/images/structures/farmhouse.png'
-import hospitalityImg from '/assets/images/structures/hospitality.png'
+import villaImg from '/assets/images/structures/villa.webp'
+import farmhouseImg from '/assets/images/structures/farmhouse.webp'
+import hospitalityImg from '/assets/images/structures/hospitality.webp'
 
 const baiJamjuree = { fontFamily: '"Bai Jamjuree", sans-serif' }
 const hankenGrotesk = { fontFamily: '"Hanken Grotesk", sans-serif' }

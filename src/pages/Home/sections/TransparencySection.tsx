@@ -111,7 +111,7 @@ function ArtLiveApp() {
     <>
       <div className="h-[247px] w-full rounded-lg bg-[#C3003E]" />
       <img
-        src={`${IMG}/phone.png`}
+        src={`${IMG}/phone.webp`}
         alt=""
         className="pointer-events-none absolute bottom-[-21px] left-[-3.13px] size-[326px] max-w-none object-cover"
       />
@@ -123,12 +123,12 @@ function ArtQuality() {
   return (
     <div className="relative h-[247px] w-full overflow-hidden rounded-lg bg-[#99582A]">
       <img
-        src={`${IMG}/bricks.png`}
+        src={`${IMG}/bricks.webp`}
         alt=""
         className="pointer-events-none absolute left-[-77.45px] top-[-23.82px] h-[293.6px] w-[440.9px] max-w-none object-cover"
       />
       <img
-        src={`${IMG}/tick.png`}
+        src={`${IMG}/tick.webp`}
         alt=""
         className="pointer-events-none absolute left-1/2 top-1/2 size-[251.3px] max-w-none -translate-x-1/2 -translate-y-1/2 object-cover"
       />
@@ -141,7 +141,7 @@ function ArtProject() {
     <>
       <div className="relative h-[247px] w-full overflow-hidden rounded-lg bg-[#5B5B5B]">
         <img
-          src={`${IMG}/site-bg.png`}
+          src={`${IMG}/site-bg.webp`}
           alt=""
           className="pointer-events-none absolute left-[-17.06px] top-[-11.48px] h-[267px] w-[367.7px] max-w-none object-cover object-bottom"
         />
@@ -149,7 +149,7 @@ function ArtProject() {
       {/* Worker: cropped from the right, exactly like Figma */}
       <div className="pointer-events-none absolute bottom-0 left-[-0.72px] h-[277.3px] w-[275.1px] overflow-hidden">
         <img
-          src={`${IMG}/worker.png`}
+          src={`${IMG}/worker.webp`}
           alt=""
           className="absolute left-0 top-0 h-full w-[110.29%] max-w-none"
         />
@@ -163,13 +163,13 @@ function ArtMaintenance() {
     <>
       <div className="relative h-[247px] w-full overflow-hidden rounded-lg bg-[#6495B3]">
         <img
-          src={`${IMG}/free.png`}
+          src={`${IMG}/free.webp`}
           alt="1 year free maintenance"
           className="pointer-events-none absolute inset-0 size-full max-w-none object-cover object-bottom"
         />
       </div>
       <img
-        src={`${IMG}/wrench.png`}
+        src={`${IMG}/wrench.webp`}
         alt=""
         className="pointer-events-none absolute left-[-6px] top-[-20px] h-auto w-[92px] max-w-none"
       />

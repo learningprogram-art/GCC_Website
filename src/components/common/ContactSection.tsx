@@ -64,7 +64,7 @@ export function ContactSection() {
       {/* Background Cover Image with 50% dark overlay */}
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
         <img
-          src="/assets/images/contact/contact-bg.png"
+          src="/assets/images/contact/contact-bg.webp"
           alt="Construction site groundwork"
           className="h-full w-full object-cover object-center"
         />

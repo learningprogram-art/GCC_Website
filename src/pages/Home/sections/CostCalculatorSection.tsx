@@ -89,13 +89,13 @@ export function CostCalculatorSection() {
       <div className="mx-auto max-w-[1248px] w-full">
         {/* Banner Container: Figma Node 211:6073 (1248px x 160px, rounded-[12px], bg-[#701E1C], pl-[12px] pr-[30px] py-[12px]) */}
         <div className="relative w-full min-h-[160px] rounded-[12px] bg-[#701E1C] overflow-hidden flex flex-col md:flex-row items-center justify-between py-[12px] pl-[12px] pr-4 sm:pr-[30px] gap-6 md:gap-[30px] shadow-md">
-          {/* Decorative geometric circle arc pattern (calculator-design.png aligned to right edge) */}
+          {/* Decorative geometric circle arc pattern (calculator-design.webp aligned to right edge) */}
           <div
             className="pointer-events-none absolute right-0 top-0 h-full select-none overflow-hidden"
             aria-hidden="true"
           >
             <img
-              src="/assets/images/how-we-build/calculator-design.png"
+              src="/assets/images/how-we-build/calculator-design.webp"
               alt=""
               className="h-full w-auto max-w-none object-cover object-right"
               loading="lazy"
@@ -107,7 +107,7 @@ export function CostCalculatorSection() {
             {/* Left Preview Image Card (Figma Node 213:6077: 206px x 136px, rounded-[12px]) */}
             <div className="relative w-[206px] h-[136px] rounded-[12px] overflow-hidden shrink-0 bg-[#E1DCDC] shadow-inner">
               <img
-                src="/assets/images/how-we-build/calculator-img.png"
+                src="/assets/images/how-we-build/calculator-img.webp"
                 alt="Home Construction Cost Preview"
                 className="w-full h-full object-cover object-left block select-none pointer-events-none"
                 loading="lazy"

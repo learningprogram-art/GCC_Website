@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 
-const HERO_IMG = '/assets/images/about/hero-img.png'
+const HERO_IMG = '/assets/images/about/hero-img.webp'
 
 function useInViewOnce<T extends HTMLElement>(threshold = 0.1) {
   const ref = useRef<T>(null)

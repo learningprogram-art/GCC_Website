@@ -1,6 +1,6 @@
 import React from 'react'
 
-const OFFICE_IMG = '/assets/images/about/office.png'
+const OFFICE_IMG = '/assets/images/about/office.webp'
 
 export const VisitOfficeSection: React.FC = () => {
   return (
