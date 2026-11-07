@@ -143,11 +143,11 @@ export function AboutStatsSection() {
     <section
       id="about-stats"
       ref={sectionRef}
-      className="bg-[#252422] px-6 md:px-12 lg:px-[92px] py-16 sm:py-20 lg:py-[87px]"
+      className="bg-[#252422] px-6 md:px-12 lg:px-24 py-16 sm:py-20 lg:py-[87px]"
     >
       <div className="mx-auto flex w-full max-w-[1252px] flex-col gap-10 sm:gap-[62px]">
-        {/* Statement: eyebrow + link share a row on mobile, headline below */}
-        <div className="grid grid-cols-[1fr_auto] items-center gap-x-4 gap-y-6 sm:items-start sm:gap-x-8 sm:gap-y-[32px]">
+        {/* Statement: eyebrow (left) + link (right) on the first row, headline below, on every screen size */}
+        <div className="grid grid-cols-[1fr_auto] items-center gap-x-4 gap-y-6 sm:gap-x-8 sm:gap-y-[32px]">
           {/* Eyebrow */}
           <div
             className={`flex items-center gap-3 transition-all duration-700 ease-out ${
@@ -168,7 +168,7 @@ export function AboutStatsSection() {
               ((100vw - 48px padding) / 12.8 ≈ widest line "TRUSTED BY FAMILIES."). */}
           <h2
             style={baiJamjuree}
-            className="col-span-2 text-[clamp(20px,calc((100vw-48px)/12.8),32px)] sm:col-span-1 sm:text-[48px] lg:text-[66px] font-medium uppercase leading-[1.05] tracking-[-0.02em] lg:tracking-[-0.66px]"
+            className="col-span-2 text-[clamp(20px,calc((100vw-48px)/12.8),32px)] sm:text-[48px] lg:text-[66px] font-medium uppercase leading-[1.05] tracking-[-0.02em] lg:tracking-[-0.66px]"
           >
             <span
               className={`block whitespace-nowrap text-[#FFFCF2] transition-all duration-700 delay-100 ease-out ${
@@ -191,7 +191,7 @@ export function AboutStatsSection() {
             to="/about"
             onClick={() => window.scrollTo({ top: 0, left: 0, behavior: 'instant' })}
             style={hankenGrotesk}
-            className={`group col-start-2 row-start-1 flex shrink-0 items-center gap-2 whitespace-nowrap text-[16px] font-bold leading-7 tracking-[-0.32px] text-[#FFE6A7] transition-all duration-700 delay-300 ease-out sm:row-span-2 sm:self-start sm:text-[18px] sm:tracking-[-0.36px] ${
+            className={`group col-start-2 row-start-1 flex shrink-0 items-center gap-2 whitespace-nowrap text-[16px] font-bold leading-7 tracking-[-0.32px] text-[#FFE6A7] transition-all duration-700 delay-300 ease-out sm:text-[18px] sm:tracking-[-0.36px] ${
               inView ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
             }`}
           >

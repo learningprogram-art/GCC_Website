@@ -82,7 +82,7 @@ export function StructuresWeBuildSection() {
   return (
     <section
       id="structures-we-build"
-      className="flex flex-col items-center gap-8 bg-[#FFFCF2] px-4 py-16 md:px-12 lg:px-[120px] lg:py-[100px]"
+      className="flex flex-col items-center gap-8 bg-[#FFFCF2] px-4 py-16 md:px-12 lg:px-24 lg:py-[100px]"
     >
       {/* Header */}
       <div
@@ -164,3 +164,5 @@ export function StructuresWeBuildSection() {
     </section>
   )
 }
+
+export default StructuresWeBuildSection

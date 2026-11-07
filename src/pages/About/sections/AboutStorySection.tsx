@@ -90,12 +90,12 @@ export function AboutStorySection() {
             </p>
           </div>
 
-          {/* Story copy */}
-          <div className="w-full font-['Bai_Jamjuree',sans-serif] text-2xl font-normal not-italic leading-[1.4] tracking-[-0.96px] text-[#403D39] md:text-3xl lg:text-[32px] flex flex-col gap-4">
+          {/* Story copy — matches Figma node 214:7166 */}
+          <div className="w-full font-['Bai_Jamjuree',sans-serif] text-2xl font-normal not-italic leading-[1.4] tracking-[-0.96px] text-[#403D39] [text-box-edge:cap_alphabetic] [text-box-trim:trim-both] md:text-3xl lg:text-[32px]">
             <p className="m-0">
               With a foundation in construction and engineering, and experience extending into design and execution, we know a successful project isn’t just about a strong structure.
             </p>
-            <p className="m-0 text-[#6F1D1B] font-medium">
+            <p className="m-0">
               It’s about bringing every part of the process together — from planning and design to execution and handover.
             </p>
           </div>
