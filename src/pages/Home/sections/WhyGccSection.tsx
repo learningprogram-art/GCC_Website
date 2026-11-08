@@ -450,22 +450,22 @@ export function WhyGccSection() {
 
         /* BG / Edge fade — transparent centre to solid #6F1D1B at the edges (ellipse 720 x 590) */
         .why-gcc__fade {
-          position: absolute;
-          left: calc(var(--w) / 2 - 720px);
-          top: 50%;
-          width: 1440px;
-          height: 1180px;
-          margin-top: -590px;
-          pointer-events: none;
-          z-index: 1;
-          background: radial-gradient(
-            ellipse 720px 590px at 50% 50%,
-            rgba(111, 29, 27, 0) 0%,
-            rgba(111, 29, 27, 0.35) 60%,
-            rgba(111, 29, 27, 1) 100%
-          );
-          will-change: transform;
-        }
+  position: absolute;
+  left: calc(var(--w) / 2 - 2000px);   /* was: calc(var(--w) / 2 - 720px) */
+  top: 50%;
+  width: 4000px;                        /* was: 1440px */
+  height: 1180px;
+  margin-top: -590px;
+  pointer-events: none;
+  z-index: 1;
+  background: radial-gradient(
+    ellipse 720px 590px at 50% 50%,
+    rgba(111, 29, 27, 0) 0%,
+    rgba(111, 29, 27, 0.35) 60%,
+    rgba(111, 29, 27, 1) 100%
+  );
+  will-change: transform;
+}
 
         /* Headings */
         .why-gcc-head {
@@ -540,7 +540,7 @@ export function WhyGccSection() {
 
         /* Carousel container */
         .why-gcc {
-          --w: min(86vw, 760px);
+          --w: min(86vw, 820px);
           --h: clamp(320px, 42vw, 430px);
           --gap: 28px;
           --x0: calc(50% - var(--w) / 2); /* active card centered */

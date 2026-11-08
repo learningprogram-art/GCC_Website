@@ -340,14 +340,14 @@ export function HeroSection() {
 
                 {/* Stretches to the full label + input height */}
                 <button
-                  type="submit"
-                  aria-label="Submit enquiry"
-                  className="flex h-9 w-full items-center justify-center rounded-md bg-[#6B1A1A] text-white transition hover:bg-[#561414] sm:h-auto sm:w-[58px]"
-                >
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                    <path d="M7 17L17 7M8.5 7H17v8.5" />
-                  </svg>
-                </button>
+  type="submit"
+  aria-label="Submit enquiry"
+  className="flex h-9 w-full items-center justify-center rounded-md bg-[#6B1A1A] text-white transition hover:bg-[#561414] sm:h-auto sm:w-[58px]"
+>
+  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M7 17L17 7M8.5 7H17v8.5" />
+  </svg>
+</button>
               </div>
             </form>
 

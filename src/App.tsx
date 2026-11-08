@@ -5,11 +5,20 @@ import { HomePage } from '@/pages/Home'
 import { AboutPage } from '@/pages/About'
 
 function ScrollToTop() {
-  const { pathname } = useLocation()
+  const { pathname, hash } = useLocation()
 
   useEffect(() => {
+    if (hash) {
+      // thoda wait, taaki page render ho jaye
+      const t = setTimeout(() => {
+        document
+          .getElementById(hash.slice(1))
+          ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }, 100)
+      return () => clearTimeout(t)
+    }
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
-  }, [pathname])
+  }, [pathname, hash])
 
   return null
 }

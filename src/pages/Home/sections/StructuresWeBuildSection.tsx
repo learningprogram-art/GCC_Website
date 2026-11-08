@@ -114,7 +114,7 @@ export function StructuresWeBuildSection() {
           <div
             ref={cardsRef}
             onScroll={handleScroll}
-            className="-mr-4 flex snap-x snap-mandatory gap-3 overflow-x-auto pr-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:mr-0 md:grid md:grid-cols-3 md:snap-none md:overflow-visible md:pr-0"
+            className="-ml-4 -mr-4 flex snap-x snap-mandatory scroll-pl-4 gap-3 overflow-x-auto pl-4 pr-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:ml-0 md:mr-0 md:grid md:grid-cols-3 md:snap-none md:overflow-visible md:pl-0 md:pr-0"
           >
             {structures.map((item, i) => (
               <article

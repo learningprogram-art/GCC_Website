@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
+import type { MouseEvent } from 'react'
+import { Link, useLocation } from 'react-router-dom'
 import { Button } from '@/components/ui/Button'
 import { cn } from '@/utils/cn'
 
@@ -59,6 +60,22 @@ export function Navbar({
   const lastY = useRef(0)
   const openRef = useRef(open)
   openRef.current = open
+  const { pathname } = useLocation()
+
+  // Same page pe ho toh smooth scroll. Warna Link navigate karega aur App.tsx scroll karega.
+  const handleNavClick = (e: MouseEvent, href: string) => {
+    setOpen(false)
+    const [path, hash] = href.split('#')
+    if (!hash) return
+    if (pathname === (path || '/')) {
+      const el = document.getElementById(hash)
+      if (el) {
+        e.preventDefault()
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        window.history.replaceState(null, '', `#${hash}`)
+      }
+    }
+  }
 
   useEffect(() => {
     let ticking = false
@@ -68,11 +85,11 @@ export function Navbar({
       const delta = y - lastY.current
 
       if (openRef.current || y < 80) {
-        setHidden(false)            // never hide near the top or while the menu is open
+        setHidden(false) // never hide near the top or while the menu is open
       } else if (delta > 6) {
-        setHidden(true)             // scrolling down
+        setHidden(true) // scrolling down
       } else if (delta < -6) {
-        setHidden(false)            // scrolling up
+        setHidden(false) // scrolling up
       }
 
       if (Math.abs(delta) > 6 || y < 80) lastY.current = y
@@ -143,18 +160,16 @@ export function Navbar({
             aria-label="Main Navigation"
             className="hidden items-center gap-8 font-['Hanken_Grotesk',sans-serif] text-[14px] font-medium uppercase leading-6 lg:flex"
           >
-            {links.map((link) => {
-              const isInternal = link.href.startsWith('/') && !link.href.includes('#')
-              return isInternal ? (
-                <Link key={link.label} to={link.href} className={linkClass}>
-                  {link.label}
-                </Link>
-              ) : (
-                <a key={link.label} href={link.href} className={linkClass}>
-                  {link.label}
-                </a>
-              )
-            })}
+            {links.map((link) => (
+              <Link
+                key={link.label}
+                to={link.href}
+                onClick={(e) => handleNavClick(e, link.href)}
+                className={linkClass}
+              >
+                {link.label}
+              </Link>
+            ))}
           </nav>
 
           {/* Reusable Primary Button (Desktop) */}
@@ -163,6 +178,7 @@ export function Navbar({
               href={consultationHref}
               variant="primary"
               size="sm"
+              onClick={(e) => handleNavClick(e, consultationHref)}
               className="tracking-[1.12px] uppercase"
             >
               Book a Consultation
@@ -209,31 +225,28 @@ export function Navbar({
               light ? 'border-[#252422]/15' : 'border-white/15'
             )}
           >
-            {links.map((link) => {
-              const isInternal = link.href.startsWith('/') && !link.href.includes('#')
-              const cls = cn(
-                'rounded-lg px-2 py-3 text-[14px] font-medium uppercase leading-6 transition-colors',
-                light
-                  ? 'text-[#252422] hover:bg-[#252422]/10'
-                  : 'text-white hover:bg-white/10'
-              )
-              return isInternal ? (
-                <Link key={link.label} to={link.href} onClick={() => setOpen(false)} className={cls}>
-                  {link.label}
-                </Link>
-              ) : (
-                <a key={link.label} href={link.href} onClick={() => setOpen(false)} className={cls}>
-                  {link.label}
-                </a>
-              )
-            })}
+            {links.map((link) => (
+              <Link
+                key={link.label}
+                to={link.href}
+                onClick={(e) => handleNavClick(e, link.href)}
+                className={cn(
+                  'rounded-lg px-2 py-3 text-[14px] font-medium uppercase leading-6 transition-colors',
+                  light
+                    ? 'text-[#252422] hover:bg-[#252422]/10'
+                    : 'text-white hover:bg-white/10'
+                )}
+              >
+                {link.label}
+              </Link>
+            ))}
             <div className="mt-2">
               <Button
                 href={consultationHref}
                 variant="primary"
                 size="sm"
                 fullWidth
-                onClick={() => setOpen(false)}
+                onClick={(e) => handleNavClick(e, consultationHref)}
                 className="tracking-[1.12px] uppercase justify-center"
               >
                 Book a Consultation

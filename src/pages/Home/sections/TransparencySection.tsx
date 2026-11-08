@@ -124,9 +124,8 @@ function useReveal<T extends HTMLElement>(delay = 0) {
     ref,
     shown,
     style: { transitionDelay: `${delay}ms` },
-    className: `transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none ${
-      shown ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
-    }`,
+    className: `transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none ${shown ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
+      }`,
   }
 }
 
@@ -259,7 +258,7 @@ function ArtMaintenance() {
         src={`${IMG}/wrench.webp`}
         alt=""
         className="pointer-events-none absolute h-auto max-w-none"
-        style={{ left: cq(-6), top: cq(-20), width: cq(92) }}
+        style={{ left: cq(6), top: cq(-20), width: cq(92) }}
       />
     </>
   )
@@ -355,9 +354,8 @@ export function TransparencySection() {
               {CARDS.map(({ title, body, icon, Art }, i) => (
                 <article
                   key={title}
-                  className={`tr-card relative overflow-hidden rounded-xl border border-solid border-[#CCC5B9] bg-white transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none ${
-                    cards.shown ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
-                  }`}
+                  className={`tr-card relative overflow-hidden rounded-xl border border-solid border-[#CCC5B9] bg-white transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none ${cards.shown ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
+                    }`}
                   style={{
                     transitionDelay: `${i * 120}ms`,
                     aspectRatio: '304 / 500',
@@ -404,9 +402,8 @@ export function TransparencySection() {
                   aria-selected={active === i}
                   aria-label={`Go to ${title}`}
                   onClick={() => scrollToCard(i)}
-                  className={`h-2 rounded-full transition-all duration-300 ${
-                    active === i ? 'w-6 bg-[#6F1D1B]' : 'w-2 bg-[#D9C28A]'
-                  }`}
+                  className={`h-2 rounded-full transition-all duration-300 ${active === i ? 'w-6 bg-[#6F1D1B]' : 'w-2 bg-[#D9C28A]'
+                    }`}
                 />
               ))}
             </div>
@@ -425,9 +422,8 @@ export function TransparencySection() {
                     <IconBadge
                       key={src}
                       src={src}
-                      className={`relative border border-solid border-[#FFEEC1] ${STACK[i]} ${
-                        i < ICONS.length - 1 ? 'mr-[-19px]' : ''
-                      }`}
+                      className={`relative border border-solid border-[#FFEEC1] ${STACK[i]} ${i < ICONS.length - 1 ? 'mr-[-19px]' : ''
+                        }`}
                     />
                   ))}
                 </div>
