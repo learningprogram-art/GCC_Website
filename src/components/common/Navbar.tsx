@@ -183,7 +183,7 @@ export function Navbar({
     >
       <div
         className={cn(
-          'relative rounded-[13px] border px-4 py-3 transition-all duration-300 lg:px-4 lg:py-2',
+          'relative rounded-[12px] border px-3.5 py-2 transition-all duration-300 sm:px-4 sm:py-2 lg:px-4 lg:py-1.5',
           open ? 'backdrop-blur-xl' : 'backdrop-blur-md',
           isScrolledPastHero
             ? 'border-[rgba(133,133,133,0.2)] bg-white shadow-sm'
@@ -195,25 +195,25 @@ export function Navbar({
           <Link
             to="/"
             aria-label="Garg Core Construction home"
-            className="shrink-0 relative flex items-center h-[34px] w-[177px]"
+            className="shrink-0 relative flex items-center h-[28px] w-[146px] sm:h-[30px] sm:w-[156px]"
           >
             <img
               src={logoSrc}
               alt="Garg Core Construction"
-              width={177}
-              height={34}
+              width={156}
+              height={30}
               className={cn(
-                'absolute left-0 top-0 h-[34px] w-auto max-w-[177px] transition-opacity duration-300',
+                'absolute left-0 top-0 h-[28px] sm:h-[30px] w-auto max-w-[156px] transition-opacity duration-300',
                 isScrolledPastHero ? 'opacity-0 pointer-events-none' : 'opacity-100'
               )}
             />
             <img
               src={logoDarkSrc}
               alt="Garg Core Construction"
-              width={177}
-              height={34}
+              width={156}
+              height={30}
               className={cn(
-                'absolute left-0 top-0 h-[34px] w-auto max-w-[177px] transition-opacity duration-300',
+                'absolute left-0 top-0 h-[28px] sm:h-[30px] w-auto max-w-[156px] transition-opacity duration-300',
                 isScrolledPastHero ? 'opacity-100' : 'opacity-0 pointer-events-none'
               )}
             />
@@ -222,7 +222,7 @@ export function Navbar({
           {/* Links (Desktop) */}
           <nav
             aria-label="Main Navigation"
-            className="hidden items-center gap-8 font-['Hanken_Grotesk',sans-serif] text-[14px] font-medium uppercase leading-6 lg:flex"
+            className="hidden items-center gap-7 font-['Hanken_Grotesk',sans-serif] text-[13.5px] font-medium uppercase leading-5 lg:flex xl:gap-8"
           >
             {links.map((link) => (
               <Link
@@ -243,7 +243,7 @@ export function Navbar({
               variant="primary"
               size="sm"
               onClick={(e) => handleNavClick(e, consultationHref)}
-              className="tracking-[1.12px] uppercase"
+              className="py-2 pl-5 pr-4 text-[13px] tracking-[1.12px] uppercase [&_svg]:size-5"
             >
               Book a Consultation
             </Button>
@@ -256,15 +256,15 @@ export function Navbar({
             aria-expanded={open}
             onClick={() => setOpen((v) => !v)}
             className={cn(
-              'flex size-11 items-center justify-center rounded-xl transition-colors lg:hidden cursor-pointer',
+              'flex size-9 items-center justify-center rounded-lg transition-colors lg:hidden cursor-pointer',
               isScrolledPastHero
                 ? 'bg-[#FFFCF2] border border-[rgba(133,133,133,0.25)] text-[#6F1D1B] hover:bg-[#F5F0E6]'
                 : 'bg-white/15 text-white hover:bg-white/20'
             )}
           >
             <svg
-              width="24"
-              height="24"
+              width="20"
+              height="20"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -285,7 +285,7 @@ export function Navbar({
         {open && (
           <div
             className={cn(
-              "mt-3 flex flex-col gap-1 border-t pt-3 font-['Hanken_Grotesk',sans-serif] lg:hidden",
+              "mt-2 flex flex-col gap-0.5 border-t pt-2 font-['Hanken_Grotesk',sans-serif] lg:hidden",
               isScrolledPastHero ? 'border-[rgba(133,133,133,0.2)]' : 'border-white/15'
             )}
           >
@@ -295,7 +295,7 @@ export function Navbar({
                 to={link.href}
                 onClick={(e) => handleNavClick(e, link.href)}
                 className={cn(
-                  'rounded-lg px-2 py-3 text-[14px] font-medium uppercase leading-6 transition-colors',
+                  'rounded-lg px-2 py-2 text-[13px] font-medium uppercase leading-5 transition-colors',
                   isScrolledPastHero
                     ? 'text-[#6F6F6F] hover:text-[#6F1D1B] hover:bg-black/5'
                     : 'text-white hover:bg-white/10'
@@ -304,14 +304,14 @@ export function Navbar({
                 {link.label}
               </Link>
             ))}
-            <div className="mt-2">
+            <div className="mt-1.5">
               <Button
                 href={consultationHref}
                 variant="primary"
                 size="sm"
                 fullWidth
                 onClick={(e) => handleNavClick(e, consultationHref)}
-                className="tracking-[1.12px] uppercase justify-center"
+                className="py-2 text-[13px] tracking-[1.12px] uppercase justify-center [&_svg]:size-5"
               >
                 Book a Consultation
               </Button>
