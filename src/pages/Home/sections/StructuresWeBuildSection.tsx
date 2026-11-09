@@ -114,6 +114,7 @@ export function StructuresWeBuildSection() {
           <div
             ref={cardsRef}
             onScroll={handleScroll}
+            style={{ touchAction: 'pan-y' }}
             className="-ml-4 -mr-4 flex snap-x snap-mandatory scroll-pl-4 gap-3 overflow-x-auto pl-4 pr-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:ml-0 md:mr-0 md:grid md:grid-cols-3 md:snap-none md:overflow-visible md:pl-0 md:pr-0"
           >
             {structures.map((item, i) => (
@@ -129,8 +130,9 @@ export function StructuresWeBuildSection() {
                     src={item.image}
                     alt={item.alt}
                     loading="lazy"
+                    draggable={false}
                     style={{ transitionDelay: cardsIn ? `${i * 150}ms` : '0ms' }}
-                    className={`h-full w-full object-cover transition-transform duration-[1400ms] ease-out group-hover:scale-105 motion-reduce:scale-100 motion-reduce:transition-none ${
+                    className={`h-full w-full object-cover pointer-events-none select-none transition-transform duration-[1400ms] ease-out group-hover:scale-105 motion-reduce:scale-100 motion-reduce:transition-none ${
                       cardsIn ? 'scale-100' : 'scale-110'
                     }`}
                   />

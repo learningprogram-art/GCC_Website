@@ -57,3 +57,14 @@ body {
   background-color: #252422;
   color: #fffcf2;
 }
+
+/* Prevent native image dragging and selection from hijacking page scroll */
+img {
+  -webkit-user-drag: none;
+  -khtml-user-drag: none;
+  -moz-user-drag: none;
+  -o-user-drag: none;
+  user-drag: none;
+  -webkit-user-select: none;
+  user-select: none;
+}

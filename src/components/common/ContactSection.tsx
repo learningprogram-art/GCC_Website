@@ -160,11 +160,12 @@ export function ContactSection() {
       style={{ fontFamily: '"Hanken Grotesk", sans-serif' }}
     >
       {/* Background Cover Image (no gradient / glow overlays) */}
-      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden select-none">
         <img
           src="/assets/images/contact/contact-bg.webp"
           alt="Construction site groundwork"
-          className="h-full w-full object-cover object-center"
+          className="h-full w-full object-cover object-center pointer-events-none select-none"
+          draggable={false}
         />
       </div>
 

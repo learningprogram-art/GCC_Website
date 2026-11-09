@@ -93,10 +93,11 @@ function HeroMobile() {
         <img
           src={heroHomeMobile}
           alt="Engineer holding a model home above a family playing on the lawn"
-          className="absolute inset-0 -z-20 h-full w-full object-cover object-[46%_0%]"
+          className="absolute inset-0 -z-20 h-full w-full object-cover object-[46%_0%] pointer-events-none select-none"
           fetchPriority="high"
           loading="eager"
           decoding="async"
+          draggable={false}
         />
         {/* Shade */}
         <div
@@ -325,10 +326,11 @@ export function HeroSection() {
         <img
           src={heroHome}
           alt="Engineer holding a model home above a family playing on the lawn"
-          className="absolute inset-0 -z-10 h-full w-full object-cover object-top"
+          className="absolute inset-0 -z-10 h-full w-full object-cover object-top pointer-events-none select-none"
           fetchPriority="high"
           loading="eager"
           decoding="async"
+          draggable={false}
         />
 
         {/* Plane */}

@@ -84,6 +84,7 @@ export function WhyGccSection() {
   const [instant, setInstant] = useState(false)
   const trackRef = useRef<HTMLDivElement>(null)
   const touchStartX = useRef<number | null>(null)
+  const touchStartY = useRef<number | null>(null)
 
   const activeCardIndex = ((trackIndex % N) + N) % N
 
@@ -146,12 +147,17 @@ export function WhyGccSection() {
   // Touch swipe (mobile)
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.touches[0].clientX
+    touchStartY.current = e.touches[0].clientY
   }
   const handleTouchEnd = (e: React.TouchEvent) => {
-    if (touchStartX.current === null) return
+    if (touchStartX.current === null || touchStartY.current === null) return
     const dx = e.changedTouches[0].clientX - touchStartX.current
+    const dy = e.changedTouches[0].clientY - touchStartY.current
     touchStartX.current = null
-    if (Math.abs(dx) > 40) {
+    touchStartY.current = null
+
+    // Only swipe if gesture was primarily horizontal (avoid hijacking vertical page scroll)
+    if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.5) {
       if (dx < 0) goNext()
       else goPrev()
     }
@@ -310,7 +316,12 @@ export function WhyGccSection() {
 
                     {/* Right image column */}
                     <div className="why-gcc__img">
-                      <img src={item.card.image} alt={item.card.alt} draggable={false} />
+                      <img
+                        src={item.card.image}
+                        alt={item.card.alt}
+                        draggable={false}
+                        className="pointer-events-none select-none"
+                      />
                       {/* Red overlay tint on inactive side cards */}
                       <div className="why-gcc__img-tint" />
                     </div>
@@ -553,6 +564,7 @@ export function WhyGccSection() {
           position: relative;
           width: 100%;
           overflow: visible;
+          touch-action: pan-y;
         }
 
         /* Sliding track */

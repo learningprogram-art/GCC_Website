@@ -180,19 +180,11 @@ export const OurPurposeSection: React.FC = () => {
           style={{
             fontFamily: '"Bai Jamjuree", sans-serif',
           }}
-          className="m-0 text-center font-medium text-[32px] sm:text-[clamp(32px,3.8vw,48px)] min-[1080px]:text-[60px] leading-[1.18] min-[1080px]:leading-[1.12] tracking-[-0.32px] min-[1080px]:tracking-[-0.9px] text-[#FFFCF2] w-full max-w-[342px] sm:max-w-[650px] min-[1080px]:max-w-[1040px]"
+          className="m-0 text-center font-medium text-[32px] sm:text-[clamp(36px,4.5vw,56px)] min-[1080px]:text-[60px] leading-[1.18] min-[1080px]:leading-[1.12] tracking-[-0.32px] min-[1080px]:tracking-[-0.9px] text-[#FFFCF2] w-full max-w-[342px] sm:max-w-[760px] min-[1080px]:max-w-[1040px] [text-wrap:balance]"
         >
           <span>GCC exists to bring </span>
-          <br className="block sm:hidden" />
-          <span className="text-[#FFE6A7]">clarity and</span>{' '}
-          <br className="hidden min-[1080px]:inline" />
-          <span className="text-[#FFE6A7]">confidence</span>
-          <span> to how spaces are</span>
-          <br className="block sm:hidden" />
-          <br className="hidden min-[1080px]:inline" />{' '}
-          <span>imagined, engineered </span>
-          <br className="block sm:hidden" />
-          <span>and built.</span>
+          <span className="text-[#FFE6A7]">clarity and confidence</span>
+          <span> to how spaces are imagined, engineered and built.</span>
         </h2>
       </div>
     </section>

@@ -75,6 +75,7 @@ const SECTION_CSS = `
   padding-right: 20px;
   scroll-padding-left: 20px;
   scrollbar-width: none;
+  touch-action: pan-y;
 }
 #transparency .tr-track::-webkit-scrollbar { display: none; }
 #transparency .tr-card {

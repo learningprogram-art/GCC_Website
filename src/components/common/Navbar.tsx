@@ -116,12 +116,12 @@ export function Navbar({
       const delta = y - lastY.current
 
       let nextHidden = hiddenRef.current
-      if (openRef.current || y < 120) {
-        nextHidden = false // never hide near the top or while the menu is open
-      } else if (delta > 20 && y > 800) {
-        nextHidden = true // scrolling down fast far past hero
-      } else if (delta < -8) {
-        nextHidden = false // scrolling up
+      if (openRef.current || y <= 30) {
+        nextHidden = false // always visible at the very top or while the mobile menu is open
+      } else if (delta > 2) {
+        nextHidden = true // scrolling down: slides up smoothly whether scrolling slowly or fast
+      } else if (delta < -3) {
+        nextHidden = false // scrolling up: slides back down smoothly
       }
 
       if (hiddenRef.current !== nextHidden) {
@@ -129,7 +129,7 @@ export function Navbar({
         setHidden(nextHidden)
       }
 
-      if (Math.abs(delta) > 6 || y < 80) lastY.current = y
+      lastY.current = y
 
       // Check if user has scrolled down to sections after the hero section
       const hero = document.getElementById('hero') || document.getElementById('hero-mobile')
