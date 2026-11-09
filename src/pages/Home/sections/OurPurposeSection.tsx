@@ -51,7 +51,7 @@ if (rect.bottom >= 0 && rect.top <= triggerPoint) {
       ref={sectionRef}
       id="our-purpose-section"
       data-node-id="211:5359"
-      className="relative w-full self-stretch min-h-[920px] lg:h-[1112px] lg:min-h-[1112px] flex flex-col justify-start"
+      className="relative w-full self-stretch min-h-[840px] sm:min-h-[920px] lg:h-[1112px] lg:min-h-[1112px] flex flex-col justify-start"
       style={{
         backgroundImage:
           'linear-gradient(123.65deg, #2A0A09 4.84%, #6F1D1B 32.26%, #E06422 61.29%, #FB8B24 85.48%)',
@@ -118,13 +118,13 @@ if (rect.bottom >= 0 && rect.top <= triggerPoint) {
       </div>
 
       {/* 
-        Where We Build Card (Figma Node 211:5553):
-        Positioned at the top with negative margin -mt-[70px].
-        Extends UP 70px on top of the yellowish Transparency background (#FFE6A7) completely unclipped!
+        Where We Build Card (Figma Node 211:5553 & 203:3977):
+        Mobile: pulled UP 250px onto yellowish Transparency background (#FFE6A7),
+        leaving 80px gap from the Book a Consultation button and exactly 250px yellow overlap per Figma Node 196:3203.
       */}
       <div
         id="where-we-build"
-        className="relative z-30 -mt-[20px] sm:-mt-[35px] lg:-mt-[40px] w-full px-5 sm:px-12 md:px-[96px] lg:px-[6rem]"
+        className="relative z-30 -mt-[250px] sm:-mt-[35px] lg:-mt-[40px] w-full px-5 sm:px-12 md:px-[96px] lg:px-[6rem]"
       >
         <WhereWeBuildCard />
       </div>
@@ -146,7 +146,7 @@ if (rect.bottom >= 0 && rect.top <= triggerPoint) {
           width: '100%',
           maxWidth: '1040px',
         }}
-        className={`relative z-20 mx-auto px-4 min-[1080px]:px-0 flex flex-col items-center gap-[32px] text-center mt-20 sm:mt-28 lg:mt-[215px] pb-12 sm:pb-16 lg:pb-[110px] transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none ${
+        className={`relative z-20 mx-auto px-4 min-[1080px]:px-0 flex flex-col items-center gap-[32px] text-center mt-[96px] sm:mt-28 lg:mt-[215px] pb-12 sm:pb-16 lg:pb-[110px] transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none ${
           purposeIn ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
         }`}
       >

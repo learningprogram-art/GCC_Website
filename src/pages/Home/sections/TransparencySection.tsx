@@ -322,7 +322,7 @@ export function TransparencySection() {
     <>
       <style>{SECTION_CSS}</style>
 
-      <section id="transparency" className="bg-[#FFE6A7] py-[72px] sm:py-[90px]">
+      <section id="transparency" className="bg-[#FFE6A7] pt-[72px] pb-[330px] sm:py-[90px]">
         <div className="mx-auto flex max-w-[1252px] flex-col items-center gap-10 sm:gap-[34px]">
           {/* Header */}
           <div className="flex w-full flex-col items-start gap-6">
