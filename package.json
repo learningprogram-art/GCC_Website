@@ -12,6 +12,7 @@
   "dependencies": {
     "@fontsource/bai-jamjuree": "^5.3.0",
     "@fontsource/hanken-grotesk": "^5.3.0",
+    "@supabase/supabase-js": "^2.119.0",
     "@tailwindcss/vite": "^4.3.4",
     "clsx": "^2.1.1",
     "lucide-react": "^1.70.0",

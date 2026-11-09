@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Button } from '@/components/ui/Button'
+import { submitLead } from '@/lib/supabase'
 
 // Bottom-up reveal: fade + slide up (same feel as the other sections)
 const REVEAL =
@@ -101,6 +102,8 @@ export function ContactSection() {
     message: '',
   })
   const [submitted, setSubmitted] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState<string | null>(null)
 
   // Scroll reveals
   const [introRef, introIn] = useReveal<HTMLDivElement>(0.3)
@@ -117,19 +120,37 @@ export function ContactSection() {
     })
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setSubmitted(true)
-    setTimeout(() => {
-      setFormData({
-        fullName: '',
-        phone: '',
-        locationPin: '',
-        projectType: '',
-        message: '',
-      })
-      setSubmitted(false)
-    }, 4000)
+    setSubmitError(null)
+    setIsSubmitting(true)
+
+    const result = await submitLead({
+      fullName: formData.fullName,
+      phone: formData.phone,
+      locationPin: formData.locationPin,
+      projectType: formData.projectType,
+      message: formData.message,
+      source: 'contact_section',
+    })
+
+    setIsSubmitting(false)
+
+    if (result.success) {
+      setSubmitted(true)
+      setTimeout(() => {
+        setFormData({
+          fullName: '',
+          phone: '',
+          locationPin: '',
+          projectType: '',
+          message: '',
+        })
+        setSubmitted(false)
+      }, 5000)
+    } else {
+      setSubmitError(result.error || 'Failed to submit enquiry. Please try again.')
+    }
   }
 
   return (
@@ -310,7 +331,7 @@ export function ContactSection() {
 
           {submitted ? (
             <div className="flex flex-col items-center justify-center gap-[1rem] py-[3rem] text-center">
-              <div className="flex size-[3rem] items-center justify-center rounded-full bg-[#E06422]/20 text-[#E06422]">
+              <div className="flex size-[3rem] items-center justify-center rounded-full bg-[#22C55E]/20 text-[#22C55E]">
                 <svg
                   className="size-[1.75rem]"
                   fill="none"
@@ -460,32 +481,64 @@ export function ContactSection() {
                 </div>
               </div>
 
+              {submitError && (
+                <div className="rounded-[6px] border border-red-500/40 bg-red-500/15 p-3 text-[13px] text-red-200">
+                  {submitError}
+                </div>
+              )}
+
               {/* Submit Button (Figma Node 211:5522) — dark red on mobile, original style from sm up */}
               <Button
                 type="submit"
                 variant="primary"
                 size="md"
                 fullWidth
-                className="relative h-[3.25rem] justify-center shadow-md max-sm:!bg-[#6F1D1B] max-sm:hover:!bg-[#7D2220] max-sm:!text-[#FFFCF2]"
+                disabled={isSubmitting}
+                className={`relative h-[3.25rem] justify-center shadow-md max-sm:!bg-[#6F1D1B] max-sm:hover:!bg-[#7D2220] max-sm:!text-[#FFFCF2] ${
+                  isSubmitting ? 'opacity-70 cursor-wait' : ''
+                }`}
                 icon={
-                  <svg
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="size-[20px] shrink-0 sm:absolute sm:right-[20px] sm:top-1/2 sm:-translate-y-1/2 sm:size-[24px]"
-                    aria-hidden="true"
-                  >
-                    <path d="M9 6l6 6-6 6" />
-                  </svg>
+                  isSubmitting ? (
+                    <svg
+                      className="size-[20px] animate-spin text-white sm:absolute sm:right-[20px] sm:top-1/2 sm:-translate-y-1/2"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      />
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8v8H4z"
+                      />
+                    </svg>
+                  ) : (
+                    <svg
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="size-[20px] shrink-0 sm:absolute sm:right-[20px] sm:top-1/2 sm:-translate-y-1/2 sm:size-[24px]"
+                      aria-hidden="true"
+                    >
+                      <path d="M9 6l6 6-6 6" />
+                    </svg>
+                  )
                 }
               >
                 <span className="font-bold text-[1.125rem] leading-[1.75rem] tracking-[-0.36px]">
-                  Submit Enquiry
+                  {isSubmitting ? 'Submitting...' : 'Submit Enquiry'}
                 </span>
               </Button>
             </form>

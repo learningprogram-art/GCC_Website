@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Button } from '@/components/ui/Button'
+import { submitLead } from '@/lib/supabase'
 import heroHome from '/assets/images/hero-home.webp'
 import heroHomeMobile from '/assets/images/hero-home-mobile.webp'
 import heroPlane from '/assets/images/hero-plane.webp'
@@ -52,6 +53,34 @@ function useReveal<T extends HTMLElement>(threshold = 0.2) {
 function HeroMobile() {
   const [headRef, headIn] = useReveal<HTMLDivElement>(0.2)
   const [formRef, formIn] = useReveal<HTMLFormElement>(0.2)
+  const [submitted, setSubmitted] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState<string | null>(null)
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    setSubmitError(null)
+    setIsSubmitting(true)
+    const form = e.currentTarget
+    const formData = new FormData(form)
+
+    const result = await submitLead({
+      fullName: (formData.get('name') as string) || '',
+      phone: (formData.get('phone') as string) || '',
+      locationPin: (formData.get('pincode') as string) || '',
+      projectType: (formData.get('type') as string) || '',
+      source: 'hero_mobile',
+    })
+
+    setIsSubmitting(false)
+    if (result.success) {
+      setSubmitted(true)
+      form.reset()
+      setTimeout(() => setSubmitted(false), 5000)
+    } else {
+      setSubmitError(result.error || 'Failed to submit enquiry. Please try again.')
+    }
+  }
 
   return (
     <section
@@ -122,10 +151,7 @@ function HeroMobile() {
       {/* Lead form, overlaps the image by 88px */}
       <form
         ref={formRef}
-        onSubmit={(e) => {
-          e.preventDefault()
-          // TODO: submit enquiry (Supabase / API route)
-        }}
+        onSubmit={handleSubmit}
         style={delayStyle(formIn, 0)}
         className={`relative z-10 mx-3 -mt-[88px] flex flex-col gap-4 rounded-2xl bg-white p-5 shadow-[0_2px_6px_rgba(37,36,34,0.06),0_16px_40px_rgba(37,36,34,0.1)] ${REVEAL} ${revealState(formIn)}`}
       >
@@ -139,92 +165,114 @@ function HeroMobile() {
           <p className="text-sm font-medium leading-5 text-[#403D39]">Free 30-min consultation</p>
         </div>
 
-        <label className={fieldLabel}>
-          Type
-          <span className="relative block">
-            <select
-              name="type"
-              defaultValue="Villa House"
-              className={`${fieldInput} appearance-none pr-11 text-[#403D39]/70`}
+        {submitError && (
+          <div className="rounded-md border border-red-500/30 bg-red-50 p-2 text-xs text-red-700">
+            {submitError}
+          </div>
+        )}
+
+        {submitted ? (
+          <div className="flex flex-col items-center justify-center gap-2 py-6 text-center">
+            <div className="flex size-10 items-center justify-center rounded-full bg-[#22C55E]/20 text-[#22C55E]">
+              <svg className="size-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <p className="font-semibold text-[#252422]">Thank you! Enquiry received.</p>
+            <p className="text-xs text-[#403D39]">Our engineer will connect with you shortly.</p>
+          </div>
+        ) : (
+          <>
+            <label className={fieldLabel}>
+              Type
+              <span className="relative block">
+                <select
+                  name="type"
+                  defaultValue="Villa House"
+                  className={`${fieldInput} appearance-none pr-11 text-[#403D39]/70`}
+                >
+                  <option value="Villa House">Villa House</option>
+                  <option value="Farmhouse">Farmhouse</option>
+                  <option value="Renovation">Renovation</option>
+                </select>
+                <svg
+                  className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-[#403D39]"
+                  width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"
+                >
+                  <path d="M6 9l6 6 6-6" />
+                </svg>
+              </span>
+            </label>
+
+            <label className={fieldLabel}>
+              Name
+              <input
+                name="name"
+                type="text"
+                required
+                minLength={2}
+                maxLength={60}
+                pattern="^[A-Za-z\s.'-]+$"
+                title="Please enter your full name (letters and spaces only)"
+                autoComplete="name"
+                placeholder="Enter your full name"
+                className={fieldInput}
+                onInput={(e) => {
+                  e.currentTarget.value = e.currentTarget.value.replace(/[^a-zA-Z\s.'-]/g, '')
+                }}
+              />
+            </label>
+
+            <label className={fieldLabel}>
+              Phone Number
+              <input
+                name="phone"
+                type="tel"
+                required
+                inputMode="numeric"
+                maxLength={10}
+                pattern="[6-9][0-9]{9}"
+                title="Please enter a valid 10-digit mobile number"
+                autoComplete="tel-national"
+                placeholder="e.g. 98765 43210"
+                className={fieldInput}
+                onInput={(e) => {
+                  e.currentTarget.value = e.currentTarget.value.replace(/\D/g, '').slice(0, 10)
+                }}
+              />
+            </label>
+
+            <label className={fieldLabel}>
+              Pin Code
+              <input
+                name="pincode"
+                type="text"
+                required
+                inputMode="numeric"
+                maxLength={6}
+                pattern="[1-9][0-9]{5}"
+                title="Please enter a valid 6-digit Indian PIN code"
+                placeholder="Enter 6-digit code"
+                className={fieldInput}
+                onInput={(e) => {
+                  e.currentTarget.value = e.currentTarget.value.replace(/\D/g, '').slice(0, 6)
+                }}
+              />
+            </label>
+
+            <Button
+              type="submit"
+              variant="primary"
+              size="lg"
+              fullWidth
+              disabled={isSubmitting}
+              className={isSubmitting ? 'opacity-70 cursor-wait' : ''}
             >
-              <option value="Villa House">Villa House</option>
-              <option value="Farmhouse">Farmhouse</option>
-              <option value="Renovation">Renovation</option>
-            </select>
-            <svg
-              className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-[#403D39]"
-              width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-              strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"
-            >
-              <path d="M6 9l6 6 6-6" />
-            </svg>
-          </span>
-        </label>
-
-        <label className={fieldLabel}>
-          Name
-          <input
-            name="name"
-            type="text"
-            required
-            minLength={2}
-            maxLength={60}
-            pattern="^[A-Za-z\s.'-]+$"
-            title="Please enter your full name (letters and spaces only)"
-            autoComplete="name"
-            placeholder="Enter your full name"
-            className={fieldInput}
-            onInput={(e) => {
-              e.currentTarget.value = e.currentTarget.value.replace(/[^a-zA-Z\s.'-]/g, '')
-            }}
-          />
-        </label>
-
-        <label className={fieldLabel}>
-          Phone Number
-          <input
-            name="phone"
-            type="tel"
-            required
-            inputMode="numeric"
-            maxLength={10}
-            pattern="[6-9][0-9]{9}"
-            title="Please enter a valid 10-digit mobile number"
-            autoComplete="tel-national"
-            placeholder="e.g. 98765 43210"
-            className={fieldInput}
-            onInput={(e) => {
-              e.currentTarget.value = e.currentTarget.value.replace(/\D/g, '').slice(0, 10)
-            }}
-          />
-        </label>
-
-        <label className={fieldLabel}>
-          Pin Code
-          <input
-            name="pincode"
-            type="text"
-            required
-            inputMode="numeric"
-            maxLength={6}
-            pattern="[1-9][0-9]{5}"
-            title="Please enter a valid 6-digit Indian PIN code"
-            placeholder="Enter 6-digit code"
-            className={fieldInput}
-            onInput={(e) => {
-              e.currentTarget.value = e.currentTarget.value.replace(/\D/g, '').slice(0, 6)
-            }}
-          />
-        </label>
-
-        <Button
-          type="submit"
-          variant="primary"
-          size="lg"
-          fullWidth
-        >
-          Book a Consultation
-        </Button>
+              {isSubmitting ? 'Submitting...' : 'Book a Consultation'}
+            </Button>
+          </>
+        )}
       </form>
     </section>
   )
@@ -233,6 +281,34 @@ function HeroMobile() {
 export function HeroSection() {
   const [headRef, headIn] = useReveal<HTMLDivElement>(0.2)
   const [barRef, barIn] = useReveal<HTMLDivElement>(0.2)
+  const [submitted, setSubmitted] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState<string | null>(null)
+
+  const handleDesktopSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    setSubmitError(null)
+    setIsSubmitting(true)
+    const form = e.currentTarget
+    const formData = new FormData(form)
+
+    const result = await submitLead({
+      fullName: (formData.get('name') as string) || '',
+      phone: (formData.get('phone') as string) || '',
+      locationPin: (formData.get('pincode') as string) || '',
+      projectType: (formData.get('type') as string) || '',
+      source: 'hero_desktop',
+    })
+
+    setIsSubmitting(false)
+    if (result.success) {
+      setSubmitted(true)
+      form.reset()
+      setTimeout(() => setSubmitted(false), 5000)
+    } else {
+      setSubmitError(result.error || 'Failed to submit enquiry. Please try again.')
+    }
+  }
 
   return (
     <>
@@ -297,10 +373,7 @@ export function HeroSection() {
         >
           <div className="mx-auto flex w-full flex-col gap-3 sm:flex-row sm:items-stretch lg:w-[87%]">
             <form
-              onSubmit={(e) => {
-                e.preventDefault()
-                // TODO: submit enquiry (Supabase / API route)
-              }}
+              onSubmit={handleDesktopSubmit}
               className="flex flex-1 flex-col gap-3 rounded-lg bg-[#FFE4A0] p-1.5 shadow-lg lg:flex-row lg:items-center lg:pl-[9px]"
             >
               {/* Left: image placeholder + heading */}
@@ -322,87 +395,119 @@ export function HeroSection() {
               </div>
 
               {/* Right: white panel with fields + tall submit button */}
-              <div className="flex flex-1 flex-col gap-2 rounded-md bg-white p-2.5 sm:flex-row sm:items-stretch">
-                <label className="flex flex-1 flex-col gap-1 text-[10px] font-medium leading-[14px] text-slate-700">
-                  Type
-                  <select
-                    name="type"
-                    defaultValue="Villa House"
-                    className="h-7 rounded-md bg-[#EEF2F6] px-2.5 text-[10px] text-slate-800 outline-none"
+              {submitted ? (
+                <div className="flex flex-1 items-center justify-center gap-2 rounded-md bg-white p-4 text-xs font-semibold text-[#252422]">
+                  <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-[#22C55E]/20 text-[#22C55E]">
+                    <svg className="size-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                  </span>
+                  <span>Thank you! We have received your consultation request.</span>
+                </div>
+              ) : submitError ? (
+                <div className="flex flex-1 items-center justify-between rounded-md bg-white p-3 text-xs text-red-700">
+                  <span>{submitError}</span>
+                  <button
+                    type="button"
+                    onClick={() => setSubmitError(null)}
+                    className="ml-2 font-medium text-[#6B1A1A] underline cursor-pointer"
                   >
-                    <option value="Villa House">Villa House</option>
-                    <option value="Farmhouse">Farmhouse</option>
-                    <option value="Renovation">Renovation</option>
-                  </select>
-                </label>
+                    Dismiss
+                  </button>
+                </div>
+              ) : (
+                <div className="flex flex-1 flex-col gap-2 rounded-md bg-white p-2.5 sm:flex-row sm:items-stretch">
+                  <label className="flex flex-1 flex-col gap-1 text-[10px] font-medium leading-[14px] text-slate-700">
+                    Type
+                    <select
+                      name="type"
+                      defaultValue="Villa House"
+                      className="h-7 rounded-md bg-[#EEF2F6] px-2.5 text-[10px] text-slate-800 outline-none"
+                    >
+                      <option value="Villa House">Villa House</option>
+                      <option value="Farmhouse">Farmhouse</option>
+                      <option value="Renovation">Renovation</option>
+                    </select>
+                  </label>
 
-                <label className="flex flex-1 flex-col gap-1 text-[10px] font-medium leading-[14px] text-slate-700">
-                  Name
-                  <input
-                    name="name"
-                    type="text"
-                    required
-                    minLength={2}
-                    maxLength={60}
-                    pattern="^[A-Za-z\s.'-]+$"
-                    title="Please enter your full name (letters and spaces only)"
-                    autoComplete="name"
-                    placeholder="Enter your full name"
-                    className="h-7 rounded-md border border-[#D9D9D9] bg-white px-2.5 text-[10px] text-slate-800 outline-none placeholder:text-[#9A9A9A] focus:border-[#6B1A1A]"
-                    onInput={(e) => {
-                      e.currentTarget.value = e.currentTarget.value.replace(/[^a-zA-Z\s.'-]/g, '')
-                    }}
-                  />
-                </label>
+                  <label className="flex flex-1 flex-col gap-1 text-[10px] font-medium leading-[14px] text-slate-700">
+                    Name
+                    <input
+                      name="name"
+                      type="text"
+                      required
+                      minLength={2}
+                      maxLength={60}
+                      pattern="^[A-Za-z\s.'-]+$"
+                      title="Please enter your full name (letters and spaces only)"
+                      autoComplete="name"
+                      placeholder="Enter your full name"
+                      className="h-7 rounded-md border border-[#D9D9D9] bg-white px-2.5 text-[10px] text-slate-800 outline-none placeholder:text-[#9A9A9A] focus:border-[#6B1A1A]"
+                      onInput={(e) => {
+                        e.currentTarget.value = e.currentTarget.value.replace(/[^a-zA-Z\s.'-]/g, '')
+                      }}
+                    />
+                  </label>
 
-                <label className="flex flex-1 flex-col gap-1 text-[10px] font-medium leading-[14px] text-slate-700">
-                  Phone Number
-                  <input
-                    name="phone"
-                    type="tel"
-                    required
-                    inputMode="numeric"
-                    maxLength={10}
-                    pattern="[6-9][0-9]{9}"
-                    title="Please enter a valid 10-digit mobile number"
-                    autoComplete="tel-national"
-                    placeholder="e.g. 98765 43210"
-                    className="h-7 rounded-md border border-[#D9D9D9] bg-white px-2.5 text-[10px] text-slate-800 outline-none placeholder:text-[#9A9A9A] focus:border-[#6B1A1A]"
-                    onInput={(e) => {
-                      e.currentTarget.value = e.currentTarget.value.replace(/\D/g, '').slice(0, 10)
-                    }}
-                  />
-                </label>
+                  <label className="flex flex-1 flex-col gap-1 text-[10px] font-medium leading-[14px] text-slate-700">
+                    Phone Number
+                    <input
+                      name="phone"
+                      type="tel"
+                      required
+                      inputMode="numeric"
+                      maxLength={10}
+                      pattern="[6-9][0-9]{9}"
+                      title="Please enter a valid 10-digit mobile number"
+                      autoComplete="tel-national"
+                      placeholder="e.g. 98765 43210"
+                      className="h-7 rounded-md border border-[#D9D9D9] bg-white px-2.5 text-[10px] text-slate-800 outline-none placeholder:text-[#9A9A9A] focus:border-[#6B1A1A]"
+                      onInput={(e) => {
+                        e.currentTarget.value = e.currentTarget.value.replace(/\D/g, '').slice(0, 10)
+                      }}
+                    />
+                  </label>
 
-                <label className="flex flex-1 flex-col gap-1 text-[10px] font-medium leading-[14px] text-slate-700">
-                  Pin Code
-                  <input
-                    name="pincode"
-                    type="text"
-                    required
-                    inputMode="numeric"
-                    maxLength={6}
-                    pattern="[1-9][0-9]{5}"
-                    title="Please enter a valid 6-digit Indian PIN code"
-                    placeholder="Enter 6-digit code"
-                    className="h-7 rounded-md border border-[#D9D9D9] bg-white px-2.5 text-[10px] text-slate-800 outline-none placeholder:text-[#9A9A9A] focus:border-[#6B1A1A]"
-                    onInput={(e) => {
-                      e.currentTarget.value = e.currentTarget.value.replace(/\D/g, '').slice(0, 6)
-                    }}
-                  />
-                </label>
+                  <label className="flex flex-1 flex-col gap-1 text-[10px] font-medium leading-[14px] text-slate-700">
+                    Pin Code
+                    <input
+                      name="pincode"
+                      type="text"
+                      required
+                      inputMode="numeric"
+                      maxLength={6}
+                      pattern="[1-9][0-9]{5}"
+                      title="Please enter a valid 6-digit Indian PIN code"
+                      placeholder="Enter 6-digit code"
+                      className="h-7 rounded-md border border-[#D9D9D9] bg-white px-2.5 text-[10px] text-slate-800 outline-none placeholder:text-[#9A9A9A] focus:border-[#6B1A1A]"
+                      onInput={(e) => {
+                        e.currentTarget.value = e.currentTarget.value.replace(/\D/g, '').slice(0, 6)
+                      }}
+                    />
+                  </label>
 
-                {/* Stretches to the full label + input height */}
-                <button
-  type="submit"
-  aria-label="Submit enquiry"
-  className="flex h-9 w-full items-center justify-center rounded-md bg-[#6B1A1A] text-white transition hover:bg-[#561414] sm:h-auto sm:w-[58px]"
->
-  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <path d="M7 17L17 7M8.5 7H17v8.5" />
-  </svg>
-</button>
-              </div>
+                  {/* Stretches to the full label + input height */}
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    aria-label="Submit enquiry"
+                    className={`flex h-9 w-full items-center justify-center rounded-md bg-[#6B1A1A] text-white transition hover:bg-[#561414] sm:h-auto sm:w-[58px] ${
+                      isSubmitting ? 'opacity-70 cursor-wait' : ''
+                    }`}
+                  >
+                    {isSubmitting ? (
+                      <svg className="size-5 animate-spin text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                      </svg>
+                    ) : (
+                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                        <path d="M7 17L17 7M8.5 7H17v8.5" />
+                      </svg>
+                    )}
+                  </button>
+                </div>
+              )}
             </form>
 
             {/* WhatsApp contact card */}
