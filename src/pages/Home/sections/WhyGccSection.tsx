@@ -39,8 +39,8 @@ const CARDS = [
 
 const N = CARDS.length
 const TOTAL = String(N).padStart(2, "0")
-const REPEATS = 9
-const BASE_INDEX = Math.floor(REPEATS / 2) * N // Center cycle starts at index 16
+const REPEATS = 5
+const BASE_INDEX = Math.floor(REPEATS / 2) * N // Center cycle starts at index 8
 
 const TRACK_ITEMS = Array.from({ length: REPEATS * N }, (_, idx) => ({
   idx,
@@ -116,7 +116,7 @@ export function WhyGccSection() {
     if (e.target !== trackRef.current || e.propertyName !== "transform") return
     setTrackIndex((current) => {
       const curMod = ((current % N) + N) % N
-      if (current < N * 2 || current >= N * (REPEATS - 2)) {
+      if (current < N || current >= N * (REPEATS - 1)) {
         setInstant(true)
         return BASE_INDEX + curMod
       }

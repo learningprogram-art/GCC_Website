@@ -279,35 +279,57 @@ function StepIllustration({ tone }: { tone: string }) {
 export function HowWeBuildSection() {
   const [activeStepIndex, setActiveStepIndex] = useState<number>(0)
   const cardRefs = useRef<(HTMLDivElement | null)[]>([])
+  const activeIdxRef = useRef<number>(0)
 
   // Base top offset below floating navbar (~6.75rem / 108px) + stacked tab offset (4.25rem / 68px)
   const baseStickyRem = 6.75
   const stepOffsetRem = 4.25
 
   useEffect(() => {
-    const onScroll = () => {
-      const rem =
-        typeof window !== 'undefined'
-          ? parseFloat(getComputedStyle(document.documentElement).fontSize) || 16
-          : 16
+    let ticking = false
+    let cachedRem = 16
 
+    const updateRem = () => {
+      if (typeof window !== 'undefined') {
+        cachedRem = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16
+      }
+    }
+
+    updateRem()
+    window.addEventListener('resize', updateRem, { passive: true })
+
+    const updateActive = () => {
       let activeIdx = 0
       for (let i = 0; i < cardRefs.current.length; i++) {
         const el = cardRefs.current[i]
         if (el) {
           const rect = el.getBoundingClientRect()
-          const stickyPinTop = (baseStickyRem + i * stepOffsetRem) * rem
+          const stickyPinTop = (baseStickyRem + i * stepOffsetRem) * cachedRem
           if (rect.top <= stickyPinTop + 15) {
             activeIdx = i
           }
         }
       }
-      setActiveStepIndex(activeIdx)
+      if (activeIdxRef.current !== activeIdx) {
+        activeIdxRef.current = activeIdx
+        setActiveStepIndex(activeIdx)
+      }
+      ticking = false
+    }
+
+    const onScroll = () => {
+      if (ticking) return
+      ticking = true
+      requestAnimationFrame(updateActive)
     }
 
     window.addEventListener('scroll', onScroll, { passive: true })
-    onScroll()
-    return () => window.removeEventListener('scroll', onScroll)
+    updateActive()
+
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', updateRem)
+    }
   }, [])
 
   return (
