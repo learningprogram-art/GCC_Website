@@ -108,17 +108,25 @@ export function Navbar({
 
   useEffect(() => {
     let ticking = false
+    const hiddenRef = { current: false }
+    const pastHeroRef = { current: false }
 
     const update = () => {
       const y = window.scrollY
       const delta = y - lastY.current
 
+      let nextHidden = hiddenRef.current
       if (openRef.current || y < 120) {
-        setHidden(false) // never hide near the top or while the menu is open
+        nextHidden = false // never hide near the top or while the menu is open
       } else if (delta > 20 && y > 800) {
-        setHidden(true) // scrolling down fast far past hero
+        nextHidden = true // scrolling down fast far past hero
       } else if (delta < -8) {
-        setHidden(false) // scrolling up
+        nextHidden = false // scrolling up
+      }
+
+      if (hiddenRef.current !== nextHidden) {
+        hiddenRef.current = nextHidden
+        setHidden(nextHidden)
       }
 
       if (Math.abs(delta) > 6 || y < 80) lastY.current = y
@@ -132,7 +140,11 @@ export function Navbar({
       } else {
         pastHero = y > 60
       }
-      setIsScrolledPastHero(pastHero)
+
+      if (pastHeroRef.current !== pastHero) {
+        pastHeroRef.current = pastHero
+        setIsScrolledPastHero(pastHero)
+      }
 
       ticking = false
     }

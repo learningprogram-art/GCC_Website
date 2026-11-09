@@ -95,8 +95,8 @@ function computeEstimate(input: {
   )
   const finishing = interior
     ? roundTo(
-        (area * RATES.finishing + bedrooms * RATES.bedroomFinish + bathrooms * RATES.bathroomFinish) * mult
-      )
+      (area * RATES.finishing + bedrooms * RATES.bedroomFinish + bathrooms * RATES.bathroomFinish) * mult
+    )
     : 0
   // Renovations happen on land you already own
   const land = type === 'renovation' ? 0 : roundTo((area / floors) * RATES.plotFactor * RATES.landPerSqFt)
@@ -486,7 +486,7 @@ function EstimatorModal({ onClose }: { onClose: () => void }) {
     const previouslyFocused = document.activeElement as HTMLElement | null
     const prevOverflow = document.body.style.overflow
     document.body.style.overflow = 'hidden'
-    ;(closeRef.current ?? dialogRef.current)?.focus()
+      ; (closeRef.current ?? dialogRef.current)?.focus()
     return () => {
       document.body.style.overflow = prevOverflow
       previouslyFocused?.focus?.()
@@ -567,13 +567,24 @@ function EstimatorModal({ onClose }: { onClose: () => void }) {
             <>
               {/* ---------- Page 1: Project Details (203:4156) ---------- */}
               <div className="flex flex-1 flex-col gap-6 overflow-y-auto px-5 pb-6 pt-6">
-                <p
-                  id={titleId}
-                  style={DISPLAY}
-                  className="text-[22px] font-semibold leading-[28px] tracking-[-0.11px] text-[#252422]"
-                >
-                  Project Details
-                </p>
+                <div className="flex items-center justify-between">
+                  <p
+                    id={titleId}
+                    style={DISPLAY}
+                    className="text-[22px] font-semibold leading-[28px] tracking-[-0.11px] text-[#252422]"
+                  >
+                    Project Details
+                  </p>
+                  <button
+                    ref={closeRef}
+                    type="button"
+                    onClick={onClose}
+                    aria-label="Close estimator"
+                    className="flex size-[32px] shrink-0 cursor-pointer items-center justify-center rounded-full bg-[#252422]/10 text-[#252422] transition-colors hover:bg-[#252422]/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#E06422]"
+                  >
+                    <CloseIcon />
+                  </button>
+                </div>
 
                 {/* Project type */}
                 <div className="flex flex-col gap-[10px]" role="radiogroup" aria-label="Project Type">
@@ -1135,9 +1146,8 @@ export function CostCalculatorSection() {
           {/* MOBILE CARD LAYOUT (Figma Node 214:6149) */}
           <div
             data-node-id="214:6149"
-            className={`md:hidden relative w-full max-w-[350px] mx-auto h-[464px] rounded-[12px] bg-[#701E1C] overflow-hidden p-[20px] flex flex-col justify-between shadow-md transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none ${
-              bannerIn ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
-            }`}
+            className={`md:hidden relative w-full max-w-[350px] mx-auto h-[464px] rounded-[12px] bg-[#701E1C] overflow-hidden p-[20px] flex flex-col justify-between shadow-md transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none ${bannerIn ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
+              }`}
           >
             {/* Background Arch Pattern (Figma Node 214:6150) */}
             <div
@@ -1207,9 +1217,8 @@ export function CostCalculatorSection() {
           {/* DESKTOP BANNER LAYOUT (Figma Node 211:6073) */}
           <div
             data-node-id="211:6073"
-            className={`hidden md:flex relative w-full min-h-[160px] rounded-[12px] bg-[#701E1C] overflow-hidden flex-row items-center justify-between py-[12px] pl-[12px] pr-4 sm:pr-[30px] gap-6 md:gap-[30px] shadow-md transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none ${
-              bannerIn ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
-            }`}
+            className={`hidden md:flex relative w-full min-h-[160px] rounded-[12px] bg-[#701E1C] overflow-hidden flex-row items-center justify-between py-[12px] pl-[12px] pr-4 sm:pr-[30px] gap-6 md:gap-[30px] shadow-md transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none ${bannerIn ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
+              }`}
           >
             <div
               className="pointer-events-none absolute right-0 top-0 h-full select-none overflow-hidden"

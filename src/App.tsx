@@ -1,15 +1,15 @@
-import { useEffect } from 'react'
+import { useEffect, lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
 import { MainLayout } from '@/layouts/MainLayout'
 import { HomePage } from '@/pages/Home'
-import { AboutPage } from '@/pages/About'
+
+const AboutPage = lazy(() => import('@/pages/About').then((m) => ({ default: m.AboutPage })))
 
 function ScrollToTop() {
   const { pathname, hash } = useLocation()
 
   useEffect(() => {
     if (hash) {
-      // thoda wait, taaki page render ho jaye
       const t = setTimeout(() => {
         document
           .getElementById(hash.slice(1))
@@ -30,7 +30,14 @@ export function App() {
       <Routes>
         <Route element={<MainLayout />}>
           <Route path="/" element={<HomePage />} />
-          <Route path="/about" element={<AboutPage />} />
+          <Route
+            path="/about"
+            element={
+              <Suspense fallback={<div className="min-h-screen bg-[#252422]" />}>
+                <AboutPage />
+              </Suspense>
+            }
+          />
         </Route>
       </Routes>
     </BrowserRouter>

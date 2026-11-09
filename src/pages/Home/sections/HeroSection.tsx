@@ -95,6 +95,8 @@ function HeroMobile() {
           alt="Engineer holding a model home above a family playing on the lawn"
           className="absolute inset-0 -z-20 h-full w-full object-cover object-[46%_0%]"
           fetchPriority="high"
+          loading="eager"
+          decoding="async"
         />
         {/* Shade */}
         <div
@@ -325,6 +327,8 @@ export function HeroSection() {
           alt="Engineer holding a model home above a family playing on the lawn"
           className="absolute inset-0 -z-10 h-full w-full object-cover object-top"
           fetchPriority="high"
+          loading="eager"
+          decoding="async"
         />
 
         {/* Plane */}

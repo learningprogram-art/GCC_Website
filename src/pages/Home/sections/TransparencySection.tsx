@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import type { CSSProperties } from 'react'
+import type { CSSProperties, MouseEvent } from 'react'
 import '@fontsource/hanken-grotesk/400.css'
 import '@fontsource/hanken-grotesk/500.css'
 import '@fontsource/hanken-grotesk/600.css'
@@ -48,6 +48,15 @@ const ICONS = [ICON_LIVE_APP, ICON_QUALITY, ICON_ONE_TEAM, ICON_MAINTENANCE]
 const STACK = ['z-[4]', 'z-[3]', 'z-[2]', 'z-[1]']
 
 const GAP = 12 // matches the carousel / grid gap
+
+// Scrolls to the contact section and shows /contact in the URL (no #hash)
+const goToContact = (e: MouseEvent) => {
+  e.preventDefault()
+  document
+    .getElementById('contact-cta')
+    ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  window.history.pushState(null, '', '/contact')
+}
 
 // Layout rules live in plain CSS so Tailwind config or global CSS can't change them
 const SECTION_CSS = `
@@ -124,8 +133,9 @@ function useReveal<T extends HTMLElement>(delay = 0) {
     ref,
     shown,
     style: { transitionDelay: `${delay}ms` },
-    className: `transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none ${shown ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
-      }`,
+    className: `transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none ${
+      shown ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
+    }`,
   }
 }
 
@@ -354,8 +364,9 @@ export function TransparencySection() {
               {CARDS.map(({ title, body, icon, Art }, i) => (
                 <article
                   key={title}
-                  className={`tr-card relative overflow-hidden rounded-xl border border-solid border-[#CCC5B9] bg-white transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none ${cards.shown ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
-                    }`}
+                  className={`tr-card relative overflow-hidden rounded-xl border border-solid border-[#CCC5B9] bg-white transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none ${
+                    cards.shown ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
+                  }`}
                   style={{
                     transitionDelay: `${i * 120}ms`,
                     aspectRatio: '304 / 500',
@@ -402,8 +413,9 @@ export function TransparencySection() {
                   aria-selected={active === i}
                   aria-label={`Go to ${title}`}
                   onClick={() => scrollToCard(i)}
-                  className={`h-2 rounded-full transition-all duration-300 ${active === i ? 'w-6 bg-[#6F1D1B]' : 'w-2 bg-[#D9C28A]'
-                    }`}
+                  className={`h-2 rounded-full transition-all duration-300 ${
+                    active === i ? 'w-6 bg-[#6F1D1B]' : 'w-2 bg-[#D9C28A]'
+                  }`}
                 />
               ))}
             </div>
@@ -422,8 +434,9 @@ export function TransparencySection() {
                     <IconBadge
                       key={src}
                       src={src}
-                      className={`relative border border-solid border-[#FFEEC1] ${STACK[i]} ${i < ICONS.length - 1 ? 'mr-[-19px]' : ''
-                        }`}
+                      className={`relative border border-solid border-[#FFEEC1] ${STACK[i]} ${
+                        i < ICONS.length - 1 ? 'mr-[-19px]' : ''
+                      }`}
                     />
                   ))}
                 </div>
@@ -438,7 +451,8 @@ export function TransparencySection() {
               </div>
 
               <a
-                href="#contact-cta"
+                href="/contact"
+                onClick={goToContact}
                 style={hanken}
                 className="flex w-full items-center justify-center gap-2 whitespace-nowrap rounded-lg bg-[#6F1D1B] px-5 py-4 text-[18px] font-bold leading-7 tracking-[-0.36px] text-white transition-colors hover:bg-[#5a1716] sm:w-auto sm:justify-start sm:py-3 sm:pl-6 sm:pr-5"
               >

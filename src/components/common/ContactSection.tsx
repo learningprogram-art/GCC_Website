@@ -184,9 +184,10 @@ export function ContactSection() {
 
             <h2
               style={{ fontFamily: '"Bai Jamjuree", sans-serif', ...delayStyle(introIn, 150) }}
-              className={`text-[2rem] sm:text-[2.75rem] lg:text-[48px] font-bold uppercase leading-[1.2] text-[#FFFCF2] tracking-normal m-0 ${REVEAL} ${revealState(introIn)}`}
+              className={`text-[2rem] sm:text-[2.75rem] lg:text-[48px] xl:text-[clamp(2rem,2.7vw,3rem)] xl:whitespace-nowrap font-bold uppercase leading-[1.2] text-[#FFFCF2] tracking-normal m-0 ${REVEAL} ${revealState(introIn)}`}
             >
-              Begin Your Construction Journey
+              Begin Your
+              <br className="hidden xl:inline" /> Construction Journey
             </h2>
 
             <p
@@ -494,9 +495,8 @@ export function ContactSection() {
                 size="md"
                 fullWidth
                 disabled={isSubmitting}
-                className={`relative h-[3.25rem] justify-center shadow-md max-sm:!bg-[#6F1D1B] max-sm:hover:!bg-[#7D2220] max-sm:!text-[#FFFCF2] ${
-                  isSubmitting ? 'opacity-70 cursor-wait' : ''
-                }`}
+                className={`relative h-[3.25rem] justify-center shadow-md max-sm:!bg-[#6F1D1B] max-sm:hover:!bg-[#7D2220] max-sm:!text-[#FFFCF2] ${isSubmitting ? 'opacity-70 cursor-wait' : ''
+                  }`}
                 icon={
                   isSubmitting ? (
                     <svg

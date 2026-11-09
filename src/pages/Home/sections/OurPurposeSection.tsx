@@ -1,37 +1,43 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { WhereWeBuildCard } from './WhereWeBuildSection';
 import { useInViewOnce } from '@/hooks/useInViewOnce';
 
 export const OurPurposeSection: React.FC = () => {
   const sectionRef = useRef<HTMLElement>(null);
+  const ghostMarkRef = useRef<HTMLDivElement>(null);
   const [purposeRef, purposeIn] = useInViewOnce<HTMLDivElement>(0.2);
   const animationFrameRef = useRef<number | null>(null);
-  const [parallaxY, setParallaxY] = useState(0);
 
   useEffect(() => {
+    let ticking = false;
+
     const handleScroll = () => {
-      if (!sectionRef.current) return;
+      if (!sectionRef.current || !ghostMarkRef.current) {
+        ticking = false;
+        return;
+      }
       const rect = sectionRef.current.getBoundingClientRect();
       const windowHeight = window.innerHeight;
 
       // Start the parallax effect as soon as the "Where We Build" card enters the viewport
-      const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
+      const isMobile = window.innerWidth < 640;
       const cardOffset = isMobile ? 360 : 60;
       const triggerPoint = windowHeight + cardOffset;
 
       if (rect.bottom >= 0 && rect.top <= triggerPoint) {
         const scrolledDistance = triggerPoint - rect.top;
         const PARALLAX_SPEED = isMobile ? 0.30 : 0.31;
-        setParallaxY(scrolledDistance * PARALLAX_SPEED);
+        const y = scrolledDistance * PARALLAX_SPEED;
+        ghostMarkRef.current.style.transform = `translate3d(0, ${y}px, 0)`;
       } else if (rect.top > triggerPoint) {
-        setParallaxY(0);
+        ghostMarkRef.current.style.transform = 'translate3d(0, 0px, 0)';
       }
+      ticking = false;
     };
 
     const onScroll = () => {
-      if (animationFrameRef.current !== null) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
+      if (ticking) return;
+      ticking = true;
       animationFrameRef.current = requestAnimationFrame(handleScroll);
     };
 
@@ -98,10 +104,11 @@ export const OurPurposeSection: React.FC = () => {
 
         {/* Ghost / GCC mark (Figma Node 211:5364 Desktop & 199:3355 Mobile) */}
         <div
+          ref={ghostMarkRef}
           data-node-id="211:5364"
           className="absolute left-[52px] sm:left-[51%] lg:left-[calc(50%+20px)] min-[1440px]:left-[calc(50%+40px)] xl:left-[calc(50%+30px)] top-[180px] sm:top-[120px] lg:top-[110px] w-[676.72px] sm:w-[1268.027px] h-[300px] sm:h-[562.132px] pointer-events-none select-none"
           style={{
-            transform: `translate3d(0, ${parallaxY}px, 0)`,
+            transform: 'translate3d(0, 0px, 0)',
             willChange: 'transform',
           }}
         >
@@ -120,7 +127,7 @@ export const OurPurposeSection: React.FC = () => {
       */}
       <div
         id="where-we-build"
-        className="relative z-30 -mt-[250px] sm:-mt-[35px] lg:-mt-[40px] w-full px-5 sm:px-12 md:px-[96px] lg:px-[6rem]"
+        className="relative z-30 -mt-[250px] sm:-mt-[35px] lg:-mt-[40px] w-full px-5 sm:px-12 lg:px-[96px]"
       >
         <WhereWeBuildCard />
       </div>
@@ -134,9 +141,8 @@ export const OurPurposeSection: React.FC = () => {
         ref={purposeRef}
         id="our-purpose"
         data-node-id="211:5376"
-        className={`relative z-20 mx-auto px-6 sm:px-4 min-[1080px]:px-0 flex flex-col items-center gap-[24px] lg:gap-[32px] text-center mt-[96px] sm:mt-28 lg:mt-[215px] pb-12 sm:pb-16 lg:pb-[110px] transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none ${
-          purposeIn ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
-        }`}
+        className={`relative z-20 mx-auto px-6 sm:px-4 min-[1080px]:px-0 flex flex-col items-center gap-[24px] lg:gap-[32px] text-center mt-[96px] sm:mt-28 lg:mt-[215px] pb-12 sm:pb-16 lg:pb-[110px] transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none ${purposeIn ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
+          }`}
       >
         {/* Eyebrow (Figma Node 211:5377 & 199:3367) */}
         <div

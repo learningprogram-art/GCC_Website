@@ -270,7 +270,7 @@ export function TestimonialsSection({
         <div
           ref={setHeaderRef}
           className={cn(
-            'w-full px-6 sm:px-12 md:px-[96px] lg:px-[6rem] transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none',
+            'w-full px-6 sm:px-12 md:px-[96px] lg:px-[6rem] lg:!pl-[82px] transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none',
             headIn ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
           )}
         >
@@ -389,7 +389,7 @@ export function TestimonialsSection({
           <div
             ref={containerRef}
             onScroll={handleScroll}
-            className="relative w-full flex items-stretch gap-[12px] sm:gap-[24px] overflow-x-auto scroll-smooth px-5 sm:px-12 md:px-[96px] lg:px-[6rem] scroll-px-5 sm:scroll-px-12 md:scroll-px-[96px] lg:scroll-px-[6rem] [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+            className="relative w-full flex items-stretch gap-[12px] sm:gap-[24px] overflow-x-auto scroll-smooth px-5 sm:px-12 md:px-[96px] lg:px-[102px] lg:!pl-[82px] scroll-px-5 sm:scroll-px-12 md:scroll-px-[96px] lg:scroll-px-[88px] [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
             style={{ WebkitOverflowScrolling: 'touch' }}
           >
             {/* Cards (Figma Node 211:5427: exact width 720px, height 620px on desktop; width 318px, height 490px on mobile) */}

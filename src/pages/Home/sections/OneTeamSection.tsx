@@ -109,6 +109,7 @@ function FlowString({
         animation: `gcc-flow ${duration}s linear ${delay}s infinite`,
         animationPlayState: playing ? 'running' : 'paused',
         filter: `drop-shadow(0 0 3px ${color})`,
+        willChange: playing ? 'stroke-dashoffset' : 'auto',
       }}
     />
   )
