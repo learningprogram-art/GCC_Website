@@ -279,35 +279,57 @@ function StepIllustration({ tone }: { tone: string }) {
 export function HowWeBuildSection() {
   const [activeStepIndex, setActiveStepIndex] = useState<number>(0)
   const cardRefs = useRef<(HTMLDivElement | null)[]>([])
+  const activeIdxRef = useRef<number>(0)
 
-  // Base top offset below floating navbar (~6.75rem / 108px) + stacked tab offset (4.25rem / 68px)
-  const baseStickyRem = 6.75
-  const stepOffsetRem = 4.25
+  // Base top offset below floating navbar (~4.75rem / 76px) + stacked tab offset (3.25rem / 52px)
+  const baseStickyRem = 4.75
+  const stepOffsetRem = 3.25
 
   useEffect(() => {
-    const onScroll = () => {
-      const rem =
-        typeof window !== 'undefined'
-          ? parseFloat(getComputedStyle(document.documentElement).fontSize) || 16
-          : 16
+    let ticking = false
+    let cachedRem = 16
 
+    const updateRem = () => {
+      if (typeof window !== 'undefined') {
+        cachedRem = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16
+      }
+    }
+
+    updateRem()
+    window.addEventListener('resize', updateRem, { passive: true })
+
+    const updateActive = () => {
       let activeIdx = 0
       for (let i = 0; i < cardRefs.current.length; i++) {
         const el = cardRefs.current[i]
         if (el) {
           const rect = el.getBoundingClientRect()
-          const stickyPinTop = (baseStickyRem + i * stepOffsetRem) * rem
+          const stickyPinTop = (baseStickyRem + i * stepOffsetRem) * cachedRem
           if (rect.top <= stickyPinTop + 15) {
             activeIdx = i
           }
         }
       }
-      setActiveStepIndex(activeIdx)
+      if (activeIdxRef.current !== activeIdx) {
+        activeIdxRef.current = activeIdx
+        setActiveStepIndex(activeIdx)
+      }
+      ticking = false
+    }
+
+    const onScroll = () => {
+      if (ticking) return
+      ticking = true
+      requestAnimationFrame(updateActive)
     }
 
     window.addEventListener('scroll', onScroll, { passive: true })
-    onScroll()
-    return () => window.removeEventListener('scroll', onScroll)
+    updateActive()
+
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', updateRem)
+    }
   }, [])
 
   return (
@@ -318,9 +340,9 @@ export function HowWeBuildSection() {
         id="how-we-build"
         data-node-id="211:5236"
         aria-label="How We Build"
-        className="relative w-full bg-[#FFFCF2] pt-[4rem] pb-[6rem] lg:pt-[7.5rem] lg:pb-[7.5rem] overflow-visible"
+        className="relative w-full bg-[#FFFCF2] pt-[3rem] pb-[5rem] lg:pt-[5rem] lg:pb-[6rem] overflow-visible"
       >
-        <div className="mx-auto max-w-[78rem] flex flex-col gap-[3rem] lg:gap-[4.5rem]">
+        <div className="mx-auto max-w-[78rem] flex flex-col gap-[2.5rem] lg:gap-[3.5rem]">
           {/* Header (Figma Node 211:5237) */}
           <div className="flex flex-col gap-[1.5rem] items-start">
             {/* Eyebrow */}
@@ -356,7 +378,7 @@ export function HowWeBuildSection() {
           </div>
 
           {/* Sticky Stacking Step Cards Container */}
-          <div className="relative flex flex-col gap-[2rem] lg:gap-[3rem] w-full pt-[1.5rem] sm:pt-[2rem] lg:pt-[2.5rem]">
+          <div className="relative flex flex-col gap-[1.5rem] lg:gap-[2.5rem] w-full pt-[1rem] sm:pt-[1.5rem] lg:pt-[1.5rem]">
             {STEPS.map((step, index) => {
               const isMaroon = step.tone === 'Maroon'
               const isTan = step.tone === 'Tan'
@@ -364,7 +386,7 @@ export function HowWeBuildSection() {
               const isWhite = step.tone === 'White'
               const isActive = activeStepIndex === index
 
-              // CSS Sticky offset per card: pins top below floating navbar (~6.75rem / 108px) + tab offset
+              // CSS Sticky offset per card: pins top below floating navbar (~4.75rem / 76px) + tab offset
               const stickyTop = `${baseStickyRem + index * stepOffsetRem}rem`
 
               return (
@@ -375,14 +397,14 @@ export function HowWeBuildSection() {
                   }}
                   style={{ top: stickyTop }}
                   className={cn(
-                    'sticky flex flex-col justify-between overflow-hidden rounded-[12px] transition-all duration-300 w-full min-h-[30rem] lg:h-[514px] shadow-[0px_-10px_28px_0px_rgba(37,36,34,0.14)]',
+                    'sticky flex flex-col justify-between overflow-hidden rounded-[12px] transition-all duration-300 w-full min-h-[26rem] sm:min-h-[28rem] lg:h-[clamp(440px,52vh,514px)] shadow-[0px_-10px_28px_0px_rgba(37,36,34,0.14)]',
                     isActive ? 'bg-white' : 'bg-[#FFFCF2]'
                   )}
                 >
                   {/* Step Card Header / Pin Tab (Figma Node 211:5247) */}
                   <div
                     onClick={() => setActiveStepIndex(index)}
-                    className="flex items-center justify-between w-full px-6 sm:px-[40px] pt-[18px] pb-[18px] shrink-0 cursor-pointer select-none"
+                    className="flex items-center justify-between w-full px-6 sm:px-[40px] pt-[14px] pb-[14px] lg:pt-[16px] lg:pb-[16px] shrink-0 cursor-pointer select-none"
                   >
                     <div className="flex items-center gap-[16px]">
                       {/* Badge (Figma Node 211:5249 - active is black #252422, inactive below/stacked is brown #6F1D1B) */}
@@ -403,7 +425,7 @@ export function HowWeBuildSection() {
                       <RevealText
                         as="h3"
                         style={{ fontFamily: '"Bai Jamjuree", sans-serif' }}
-                        className="m-0 text-[26px] sm:text-[32px] lg:text-[36px] font-semibold leading-[44px] tracking-[-0.36px] text-[#252422]"
+                        className="m-0 text-[24px] sm:text-[30px] lg:text-[34px] font-semibold leading-[40px] tracking-[-0.36px] text-[#252422]"
                       >
                         {step.title}
                       </RevealText>
@@ -424,24 +446,24 @@ export function HowWeBuildSection() {
                   {/* Card Body (Figma Node 211:5254) */}
                   <div className="flex flex-col lg:flex-row items-stretch flex-1 w-full overflow-hidden">
                     {/* Left Column: Copy + Deliverables (Figma Node 211:5255) */}
-                    <div className="flex flex-col justify-between w-full lg:w-1/2 px-6 sm:px-[40px] py-6 sm:py-[32px] relative z-10">
+                    <div className="flex flex-col justify-between w-full lg:w-1/2 px-6 sm:px-[40px] py-4 sm:py-5 lg:py-6 relative z-10">
                       <RevealText
                         as="p"
                         delay={150}
                         stagger={20}
                         style={{ fontFamily: '"Hanken Grotesk", sans-serif' }}
-                        className="m-0 text-[18px] sm:text-[20px] font-normal leading-[28px] text-[rgba(37,36,34,0.8)] max-w-[460px]"
+                        className="m-0 text-[16px] sm:text-[18px] lg:text-[20px] font-normal leading-[24px] sm:leading-[26px] lg:leading-[28px] text-[rgba(37,36,34,0.8)] max-w-[460px]"
                       >
                         {step.description}
                       </RevealText>
 
                       {/* Deliverables Chip Row (Figma Node 211:5259) */}
-                      <div className="flex flex-wrap gap-[8px] items-center pt-8">
+                      <div className="flex flex-wrap gap-[8px] items-center pt-3 sm:pt-4">
                         {step.deliverables.map((chip) => (
                           <span
                             key={chip}
                             style={{ fontFamily: '"Hanken Grotesk", sans-serif' }}
-                            className="rounded-full px-[12px] py-[6px] bg-[rgba(230,230,230,0.55)] text-[14px] font-medium leading-[20px] text-[#252422] whitespace-nowrap"
+                            className="rounded-full px-[12px] py-[5px] bg-[rgba(230,230,230,0.55)] text-[13px] sm:text-[14px] font-medium leading-[20px] text-[#252422] whitespace-nowrap"
                           >
                             {chip}
                           </span>
@@ -452,7 +474,7 @@ export function HowWeBuildSection() {
                     {/* Right Column: Visual Frame (Figma Node 211:5268) */}
                     <div
                       className={cn(
-                        'w-full lg:w-1/2 min-h-[220px] sm:min-h-[280px] lg:min-h-0 flex-1 relative flex flex-col justify-between overflow-hidden',
+                        'w-full lg:w-1/2 min-h-[200px] sm:min-h-[240px] lg:min-h-0 flex-1 relative flex flex-col justify-between overflow-hidden',
                         isMaroon && 'bg-[#403D39]',
                         isTan && 'bg-[#99582A]',
                         isSand && 'bg-[#BB9457]',
