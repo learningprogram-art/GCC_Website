@@ -31,7 +31,7 @@ export const WhereWeBuildCard: React.FC = () => {
   };
 
   return (
-    <div ref={cardRef} className="w-full">
+    <div ref={cardRef} className="w-full lg:relative lg:left-1/2 lg:w-screen lg:-translate-x-1/2 lg:px-[87px]">
       {/* ==============================================================
           MOBILE VIEW (Figma Node 203:3977: M / Where We Build)
           w-full max-w-[350px] mx-auto h-[600px], rounded-[16px]

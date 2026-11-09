@@ -127,7 +127,7 @@ export const OurPurposeSection: React.FC = () => {
       */}
       <div
         id="where-we-build"
-        className="relative z-30 -mt-[250px] sm:-mt-[35px] lg:-mt-[40px] w-full px-5 sm:px-12 md:px-[96px] lg:px-[6rem]"
+        className="relative z-30 -mt-[250px] sm:-mt-[35px] lg:-mt-[40px] w-full px-5 sm:px-12 lg:px-[96px]"
       >
         <WhereWeBuildCard />
       </div>
@@ -141,9 +141,8 @@ export const OurPurposeSection: React.FC = () => {
         ref={purposeRef}
         id="our-purpose"
         data-node-id="211:5376"
-        className={`relative z-20 mx-auto px-6 sm:px-4 min-[1080px]:px-0 flex flex-col items-center gap-[24px] lg:gap-[32px] text-center mt-[96px] sm:mt-28 lg:mt-[215px] pb-12 sm:pb-16 lg:pb-[110px] transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none ${
-          purposeIn ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
-        }`}
+        className={`relative z-20 mx-auto px-6 sm:px-4 min-[1080px]:px-0 flex flex-col items-center gap-[24px] lg:gap-[32px] text-center mt-[96px] sm:mt-28 lg:mt-[215px] pb-12 sm:pb-16 lg:pb-[110px] transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none ${purposeIn ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
+          }`}
       >
         {/* Eyebrow (Figma Node 211:5377 & 199:3367) */}
         <div
