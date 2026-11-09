@@ -163,12 +163,40 @@ function HeroMobile() {
 
         <label className={fieldLabel}>
           Name
-          <input name="name" type="text" required placeholder="Enter your full name" className={fieldInput} />
+          <input
+            name="name"
+            type="text"
+            required
+            minLength={2}
+            maxLength={60}
+            pattern="^[A-Za-z\s.'-]+$"
+            title="Please enter your full name (letters and spaces only)"
+            autoComplete="name"
+            placeholder="Enter your full name"
+            className={fieldInput}
+            onInput={(e) => {
+              e.currentTarget.value = e.currentTarget.value.replace(/[^a-zA-Z\s.'-]/g, '')
+            }}
+          />
         </label>
 
         <label className={fieldLabel}>
           Phone Number
-          <input name="phone" type="tel" required placeholder="e.g. +123 456 7890" className={fieldInput} />
+          <input
+            name="phone"
+            type="tel"
+            required
+            inputMode="numeric"
+            maxLength={10}
+            pattern="[6-9][0-9]{9}"
+            title="Please enter a valid 10-digit mobile number"
+            autoComplete="tel-national"
+            placeholder="e.g. 98765 43210"
+            className={fieldInput}
+            onInput={(e) => {
+              e.currentTarget.value = e.currentTarget.value.replace(/\D/g, '').slice(0, 10)
+            }}
+          />
         </label>
 
         <label className={fieldLabel}>
@@ -176,11 +204,16 @@ function HeroMobile() {
           <input
             name="pincode"
             type="text"
+            required
             inputMode="numeric"
             maxLength={6}
-            pattern="\d{6}"
+            pattern="[1-9][0-9]{5}"
+            title="Please enter a valid 6-digit Indian PIN code"
             placeholder="Enter 6-digit code"
             className={fieldInput}
+            onInput={(e) => {
+              e.currentTarget.value = e.currentTarget.value.replace(/\D/g, '').slice(0, 6)
+            }}
           />
         </label>
 
@@ -309,8 +342,16 @@ export function HeroSection() {
                     name="name"
                     type="text"
                     required
+                    minLength={2}
+                    maxLength={60}
+                    pattern="^[A-Za-z\s.'-]+$"
+                    title="Please enter your full name (letters and spaces only)"
+                    autoComplete="name"
                     placeholder="Enter your full name"
                     className="h-7 rounded-md border border-[#D9D9D9] bg-white px-2.5 text-[10px] text-slate-800 outline-none placeholder:text-[#9A9A9A] focus:border-[#6B1A1A]"
+                    onInput={(e) => {
+                      e.currentTarget.value = e.currentTarget.value.replace(/[^a-zA-Z\s.'-]/g, '')
+                    }}
                   />
                 </label>
 
@@ -320,8 +361,16 @@ export function HeroSection() {
                     name="phone"
                     type="tel"
                     required
-                    placeholder="e.g. +123 456 7890"
+                    inputMode="numeric"
+                    maxLength={10}
+                    pattern="[6-9][0-9]{9}"
+                    title="Please enter a valid 10-digit mobile number"
+                    autoComplete="tel-national"
+                    placeholder="e.g. 98765 43210"
                     className="h-7 rounded-md border border-[#D9D9D9] bg-white px-2.5 text-[10px] text-slate-800 outline-none placeholder:text-[#9A9A9A] focus:border-[#6B1A1A]"
+                    onInput={(e) => {
+                      e.currentTarget.value = e.currentTarget.value.replace(/\D/g, '').slice(0, 10)
+                    }}
                   />
                 </label>
 
@@ -330,11 +379,16 @@ export function HeroSection() {
                   <input
                     name="pincode"
                     type="text"
+                    required
                     inputMode="numeric"
                     maxLength={6}
-                    pattern="\d{6}"
+                    pattern="[1-9][0-9]{5}"
+                    title="Please enter a valid 6-digit Indian PIN code"
                     placeholder="Enter 6-digit code"
                     className="h-7 rounded-md border border-[#D9D9D9] bg-white px-2.5 text-[10px] text-slate-800 outline-none placeholder:text-[#9A9A9A] focus:border-[#6B1A1A]"
+                    onInput={(e) => {
+                      e.currentTarget.value = e.currentTarget.value.replace(/\D/g, '').slice(0, 6)
+                    }}
                   />
                 </label>
 

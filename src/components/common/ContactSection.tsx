@@ -323,15 +323,25 @@ export function ContactSection() {
             <form onSubmit={handleSubmit} className="flex flex-col gap-[1rem] w-full">
               {/* Full Name (Figma Node 211:5516) */}
               <div className="flex flex-col gap-[0.5rem] items-start w-full">
-                <label className="text-[0.875rem] font-medium leading-[1.25rem] text-[#D4CFC2] whitespace-nowrap">
+                <label htmlFor="contact-fullName" className="text-[0.875rem] font-medium leading-[1.25rem] text-[#D4CFC2] whitespace-nowrap">
                   Full name
                 </label>
                 <div className="flex h-[3.375rem] w-full items-center rounded-[0.375rem] border border-[#CCC5B9] bg-[#FFFCF2] pl-[1rem] pr-[0.875rem] py-[0.875rem] overflow-hidden focus-within:border-[#6F1D1B]">
                   <input
+                    id="contact-fullName"
+                    name="fullName"
                     type="text"
                     required
+                    minLength={2}
+                    maxLength={60}
+                    pattern="^[A-Za-z\s.'-]+$"
+                    title="Please enter your full name (letters and spaces only)"
+                    autoComplete="name"
                     value={formData.fullName}
-                    onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                    onChange={(e) => {
+                      const val = e.target.value.replace(/[^a-zA-Z\s.'-]/g, '')
+                      setFormData({ ...formData, fullName: val })
+                    }}
                     placeholder="Your name"
                     className="w-full bg-transparent text-[1rem] font-normal leading-[1.5rem] text-[#403D39] outline-none placeholder:text-[#403D39]/70"
                   />
@@ -340,20 +350,30 @@ export function ContactSection() {
 
               {/* Phone Number (Figma Node 211:5517) */}
               <div className="flex flex-col gap-[0.5rem] items-start w-full">
-                <label className="text-[0.875rem] font-medium leading-[1.25rem] text-[#D4CFC2] whitespace-nowrap">
+                <label htmlFor="contact-phone" className="text-[0.875rem] font-medium leading-[1.25rem] text-[#D4CFC2] whitespace-nowrap">
                   Phone Number
                 </label>
                 <div className="flex h-[3.375rem] w-full items-center gap-[0.625rem] rounded-[0.375rem] border border-[#CCC5B9] bg-[#FFFCF2] pl-[1rem] pr-[0.875rem] py-[0.875rem] overflow-hidden focus-within:border-[#6F1D1B]">
-                  <span className="text-[0.875rem] font-medium leading-[1.25rem] text-[#252422] shrink-0">
+                  <span className="text-[0.875rem] font-medium leading-[1.25rem] text-[#252422] shrink-0 select-none">
                     +91
                   </span>
                   <div className="h-[1.25rem] w-px bg-[#CCC5B9] shrink-0" />
                   <input
+                    id="contact-phone"
+                    name="phone"
                     type="tel"
                     required
+                    inputMode="numeric"
+                    maxLength={10}
+                    pattern="[6-9][0-9]{9}"
+                    title="Please enter a valid 10-digit mobile number"
+                    autoComplete="tel-national"
                     value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    placeholder="e.g. +91 98765 43210"
+                    onChange={(e) => {
+                      const val = e.target.value.replace(/\D/g, '').slice(0, 10)
+                      setFormData({ ...formData, phone: val })
+                    }}
+                    placeholder="e.g. 98765 43210"
                     className="w-full bg-transparent text-[0.875rem] font-medium leading-[1.25rem] text-[#403D39] outline-none placeholder:text-[#403D39]/70"
                   />
                 </div>
@@ -363,15 +383,25 @@ export function ContactSection() {
               <div className="flex flex-col sm:flex-row gap-[1rem] items-start w-full">
                 {/* Site Location PIN (Figma Node 211:5519) */}
                 <div className="flex flex-1 flex-col gap-[0.5rem] items-start w-full">
-                  <label className="text-[0.875rem] font-medium leading-[1.25rem] text-[#D4CFC2] whitespace-nowrap">
+                  <label htmlFor="contact-locationPin" className="text-[0.875rem] font-medium leading-[1.25rem] text-[#D4CFC2] whitespace-nowrap">
                     Site Location PIN
                   </label>
                   <div className="flex h-[3.375rem] w-full items-center rounded-[0.375rem] border border-[#CCC5B9] bg-[#FFFCF2] pl-[1rem] pr-[0.875rem] py-[0.875rem] overflow-hidden focus-within:border-[#6F1D1B]">
                     <input
+                      id="contact-locationPin"
+                      name="locationPin"
                       type="text"
+                      required
+                      inputMode="numeric"
+                      maxLength={6}
+                      pattern="[1-9][0-9]{5}"
+                      title="Please enter a valid 6-digit Indian PIN code"
                       value={formData.locationPin}
-                      onChange={(e) => setFormData({ ...formData, locationPin: e.target.value })}
-                      placeholder="e.g. 110001 (Delhi NCR)"
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/\D/g, '').slice(0, 6)
+                        setFormData({ ...formData, locationPin: val })
+                      }}
+                      placeholder="e.g. 110001"
                       className="w-full bg-transparent text-[0.875rem] font-medium leading-[1.25rem] text-[#403D39] outline-none placeholder:text-[#403D39]/70"
                     />
                   </div>
@@ -379,11 +409,14 @@ export function ContactSection() {
 
                 {/* Project Type (Figma Node 211:5520) */}
                 <div className="flex flex-1 flex-col gap-[0.5rem] items-start w-full">
-                  <label className="text-[0.875rem] font-medium leading-[1.25rem] text-[#D4CFC2] whitespace-nowrap">
+                  <label htmlFor="contact-projectType" className="text-[0.875rem] font-medium leading-[1.25rem] text-[#D4CFC2] whitespace-nowrap">
                     Project Type
                   </label>
                   <div className="relative flex h-[3.375rem] w-full items-center rounded-[0.375rem] border border-[#CCC5B9] bg-[#FFFCF2] pl-[1rem] pr-[0.875rem] py-[0.875rem] overflow-hidden focus-within:border-[#6F1D1B]">
                     <select
+                      id="contact-projectType"
+                      name="projectType"
+                      required
                       value={formData.projectType}
                       onChange={(e) => setFormData({ ...formData, projectType: e.target.value })}
                       style={{ colorScheme: 'light' }}
@@ -405,12 +438,15 @@ export function ContactSection() {
 
               {/* Message (Figma Node 211:5521) */}
               <div className="flex flex-col gap-[0.5rem] items-start w-full">
-                <label className="text-[0.875rem] font-medium leading-[1.25rem] text-[#D4CFC2] whitespace-nowrap">
+                <label htmlFor="contact-message" className="text-[0.875rem] font-medium leading-[1.25rem] text-[#D4CFC2] whitespace-nowrap">
                   Message
                 </label>
                 <div className="flex h-[3.375rem] w-full items-center rounded-[0.375rem] border border-[#CCC5B9] bg-[#FFFCF2] pl-[1rem] pr-[0.875rem] py-[0.875rem] overflow-hidden focus-within:border-[#6F1D1B]">
                   <input
+                    id="contact-message"
+                    name="message"
                     type="text"
+                    maxLength={500}
                     value={formData.message}
                     onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                     placeholder="Tell us about your project..."
