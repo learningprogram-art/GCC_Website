@@ -8,6 +8,7 @@ const CARDS = [
     title: ["Engineering", "Strength"],
     body: "Structural engineering and detailed drawings that ensure the design is built right from the start.",
     image: "/assets/images/why-gcc/engineering-strength.webp",
+    imageMobile: "/assets/images/why-gcc/engineering-strength-mobile.webp",
     alt: "Worker on a concrete beam while a crane lifts a concrete block",
   },
   {

@@ -1,8 +1,20 @@
 import { useEffect, useRef, useState } from 'react'
 import type { MouseEvent } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/Button'
 import { cn } from '@/utils/cn'
+
+const SECTION_IDS: Record<string, string> = {
+  '/services': 'structures-we-build',
+  '/process': 'one-team',
+  '/why-gcc': 'why-gcc',
+  '/how-we-build': 'how-we-build',
+  '/transparency': 'transparency',
+  '/client-stories': 'testimonials',
+  '/home-estimation': 'cost-calculator',
+  '/contact': 'contact-cta',
+  '/amc-portal': 'portal-access',
+}
 
 export interface NavLinkItem {
   label: string
@@ -19,14 +31,14 @@ export interface NavbarProps {
 }
 
 const DEFAULT_NAV_LINKS: NavLinkItem[] = [
-  { label: 'Services', href: '/#structures-we-build' },
-  { label: 'Process', href: '/#one-team' },
-  { label: 'Why GCC', href: '/#why-gcc' },
-  { label: 'How We Build', href: '/#how-we-build' },
+  { label: 'Services', href: '/services' },
+  { label: 'Process', href: '/process' },
+  { label: 'Why GCC', href: '/why-gcc' },
+  { label: 'How We Build', href: '/how-we-build' },
   { label: 'About', href: '/about' },
 ]
 
-const DEFAULT_CONSULTATION_HREF = '/#contact-cta'
+const DEFAULT_CONSULTATION_HREF = '/contact'
 
 /** Looks at what is behind the navbar: 'light' for a light section, 'dark' for photos and dark sections. */
 function detectTheme(header: HTMLElement | null): 'light' | 'dark' {
@@ -46,6 +58,29 @@ function detectTheme(header: HTMLElement | null): 'light' | 'dark' {
   return 'dark'
 }
 
+/** Changes only the address bar (no router navigation, no new history entry, no #hash). */
+function showPathInUrl(href: string) {
+  window.history.replaceState(window.history.state, '', href)
+}
+
+/**
+ * Scrolls to a section by id, retrying for ~2 seconds while the page renders.
+ * If a href is given, the address bar is updated to that clean path afterwards.
+ */
+function scrollToSection(id: string, href?: string) {
+  let tries = 0
+  const tick = () => {
+    const el = document.getElementById(id)
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      if (href) showPathInUrl(href)
+    } else if (tries++ < 40) {
+      window.setTimeout(tick, 50)
+    }
+  }
+  window.setTimeout(tick, 50)
+}
+
 export function Navbar({
   links = DEFAULT_NAV_LINKS,
   consultationHref = DEFAULT_CONSULTATION_HREF,
@@ -61,21 +96,33 @@ export function Navbar({
   const openRef = useRef(open)
   openRef.current = open
   const { pathname } = useLocation()
+  const navigate = useNavigate()
 
-  // Same page pe ho toh smooth scroll. Warna Link navigate karega aur App.tsx scroll karega.
+  const isHome = pathname === '/' || pathname in SECTION_IDS
+
+  // Section links (/why-gcc, /contact...) show a clean path in the URL, never a #hash.
   const handleNavClick = (e: MouseEvent, href: string) => {
     setOpen(false)
-    const [path, hash] = href.split('#')
-    if (!hash) return
-    if (pathname === (path || '/')) {
-      const el = document.getElementById(hash)
-      if (el) {
-        e.preventDefault()
-        el.scrollIntoView({ behavior: 'smooth', block: 'start' })
-        window.history.replaceState(null, '', `#${hash}`)
-      }
+    const id = SECTION_IDS[href]
+    if (!id) return // normal page link like /about
+
+    e.preventDefault()
+    if (isHome) {
+      // Already on the home page: scroll, and only update the address bar
+      document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      showPathInUrl(href)
+    } else {
+      // On another page: go home first (that route always exists), then scroll
+      navigate('/')
+      scrollToSection(id, href)
     }
   }
+
+  // Direct visit / refresh / back button on a section path (works once the routes are added in App.tsx)
+  useEffect(() => {
+    const id = SECTION_IDS[pathname]
+    if (id) scrollToSection(id)
+  }, [pathname])
 
   useEffect(() => {
     let ticking = false
