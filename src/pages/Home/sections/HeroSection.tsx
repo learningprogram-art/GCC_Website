@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
+import type { CSSProperties } from 'react'
+import { createPortal } from 'react-dom'
 import { Button } from '@/components/ui/Button'
 import { submitLead } from '@/lib/supabase'
 import heroHome from '/assets/images/hero-home.webp'
@@ -20,11 +22,44 @@ const fieldInput =
 // Bottom-up reveal: fade + slide up (same feel as the other sections)
 const REVEAL =
   'transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none'
+// Same reveal but only opacity/transform, so it never fights the bar's size/position animation
+const REVEAL_BAR =
+  'transition-[opacity,transform] duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none'
 const revealState = (shown: boolean) =>
   shown ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
 const delayStyle = (shown: boolean, ms: number) => ({
   transitionDelay: shown ? `${ms}ms` : '0ms',
 })
+
+// Width of the white fields panel when the floating bar is expanded
+const PANEL_W = 'min(62vw,780px)'
+
+// Floating bar sizing. The left block width is measured from the real text.
+// Collapsed width = left + 160  (9 pad + 12 gap + ~4 panel + 6 pad + 12 gap + 117 WhatsApp card)
+// Expanded width  = left + 156 + PANEL_W
+const LEFT_MIN = 210
+const COLLAPSED_EXTRA = 160
+const EXPANDED_EXTRA = 156
+
+// Floating bar: how far from the corner, and when it should leave the hero.
+const FLOAT_OFFSET = 16
+// Bar starts moving to the corner once the hero's bottom edge rises above this fraction of the screen height.
+const FLOAT_TRIGGER = 0.6
+// Extra distance (px) it must scroll back before the bar returns to the hero (prevents flip-flopping at the line)
+const FLOAT_HYSTERESIS = 48
+const MOVE_MS = 550
+const MOVE_EASE = 'cubic-bezier(0.22, 1, 0.36, 1)'
+
+// Collapse smoothing
+const LEAVE_DELAY_MS = 250 // wait before collapsing after the mouse leaves (prevents hover flicker)
+const FADE_OUT_MS = 150 // fields fade out fast, before the bar narrows much
+const FADE_IN_MS = 400 // fields fade in after the bar has mostly grown
+const FADE_IN_DELAY_MS = 200
+
+// Sits above everything on the page
+const FLOAT_Z = 2147483000
+
+const round2 = (n: number) => Math.round(n * 100) / 100
 
 /** Each group gets its own trigger: flips to true once, the first time it scrolls into view. */
 function useReveal<T extends HTMLElement>(threshold = 0.2) {
@@ -281,37 +316,526 @@ function HeroMobile() {
   )
 }
 
+const EMPTY_FORM = { type: 'Villa House', name: '', phone: '', pincode: '' }
+
+/**
+ * left / docBottom / width : where the hero slot is in the DOCUMENT (used while the bar sits in the hero,
+ *                            so it scrolls natively with the page and never lags).
+ * right / bottom           : where the hero slot is in the VIEWPORT (used only for the moment the bar
+ *                            switches to fixed, and for the glide back).
+ */
+type Geo = { left: number; docBottom: number; right: number; bottom: number; width: number }
+
 export function HeroSection() {
   const [headRef, headIn] = useReveal<HTMLDivElement>(0.2)
-  const [barRef, barIn] = useReveal<HTMLDivElement>(0.2)
+  const [slotRef, barIn] = useReveal<HTMLDivElement>(0.2) // empty slot in the hero that holds the bar's space
+  const innerRef = useRef<HTMLDivElement>(null)
+  const leftRef = useRef<HTMLDivElement>(null)
+  const heroRef = useRef<HTMLElement>(null)
+  const leaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const holdTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const launchRaf = useRef(0)
+  const floatingRef = useRef(false)
+  const holdRef = useRef(false)
+  const firstUpdate = useRef(true)
+
   const [submitted, setSubmitted] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
+
+  // Field values live here so they survive the bar changing state
+  const [values, setValues] = useState(EMPTY_FORM)
+  const setField = (key: keyof typeof EMPTY_FORM, value: string) =>
+    setValues((v) => ({ ...v, [key]: value }))
+
+  // Floating / collapse state
+  const [mounted, setMounted] = useState(false)
+  const [floating, setFloating] = useState(false) // past the trigger: bar belongs in the corner
+  const [launched, setLaunched] = useState(false) // 2 frames after floating: bar is allowed to glide to the corner
+  const [holdPin, setHoldPin] = useState(false) // keeps the bar fixed while it glides back to the hero
+  const [geo, setGeo] = useState<Geo | null>(null)
+  const [barHeight, setBarHeight] = useState(0)
+  const [hovered, setHovered] = useState(false)
+  const [focused, setFocused] = useState(false)
+  const [leftW, setLeftW] = useState(LEFT_MIN) // measured width of the icon + text block
+
+  // pinned   = bar is position:fixed (in the corner, or gliding to / from it)
+  // atCorner = bar is actually heading for / sitting in the corner
+  const pinned = floating || holdPin
+  const atCorner = floating && launched
+
+  // In the hero: always expanded. In the corner: expanded only on hover / focus / tap.
+  const expanded = !atCorner || hovered || focused
+
+  useEffect(() => setMounted(true), [])
+
+  const clearLeaveTimer = () => {
+    if (leaveTimer.current) {
+      clearTimeout(leaveTimer.current)
+      leaveTimer.current = null
+    }
+  }
+
+  const clearFloatTimers = () => {
+    if (holdTimer.current) {
+      clearTimeout(holdTimer.current)
+      holdTimer.current = null
+    }
+    if (launchRaf.current) {
+      cancelAnimationFrame(launchRaf.current)
+      launchRaf.current = 0
+    }
+  }
+
+  // Clean up timers on unmount
+  useEffect(
+    () => () => {
+      clearLeaveTimer()
+      clearFloatTimers()
+    },
+    [],
+  )
+
+  // Measure the left block (icon + text) so the collapsed bar fits the text exactly
+  useEffect(() => {
+    const el = leftRef.current
+    if (!el) return
+    const measure = () => setLeftW(Math.max(LEFT_MIN, Math.ceil(el.offsetWidth)))
+    measure()
+    const ro = new ResizeObserver(measure)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [mounted])
+
+  // Track the hero slot + decide when to float. The bar itself is never remounted.
+  useEffect(() => {
+    let raf = 0
+
+    const update = () => {
+      raf = 0
+      const slot = slotRef.current
+      const hero = heroRef.current
+      if (!slot || !hero) return
+      const r = slot.getBoundingClientRect()
+
+      if (r.width === 0) {
+        // Desktop hero is hidden (mobile layout): hide the bar
+        setGeo((g) => (g === null ? g : null))
+        return
+      }
+
+      const vw = document.documentElement.clientWidth
+      const vh = document.documentElement.clientHeight
+      const heroBottom = hero.getBoundingClientRect().bottom
+      const trigger = vh * FLOAT_TRIGGER
+
+      // Hysteresis: needs to scroll a bit further back before it leaves the corner again
+      const was = floatingRef.current
+      const nextFloating = was ? heroBottom < trigger + FLOAT_HYSTERESIS : heroBottom < trigger
+
+      // Viewport coordinates are only needed while the bar is fixed (or about to be)
+      const needViewport = nextFloating || was || holdRef.current
+
+      setGeo((g) => {
+        const next: Geo = {
+          left: round2(r.left + window.scrollX),
+          docBottom: round2(r.bottom + window.scrollY),
+          width: round2(r.width),
+          right: needViewport || !g ? round2(vw - r.right) : g.right,
+          bottom: needViewport || !g ? round2(vh - r.bottom) : g.bottom,
+        }
+        return g &&
+          g.left === next.left &&
+          g.docBottom === next.docBottom &&
+          g.width === next.width &&
+          g.right === next.right &&
+          g.bottom === next.bottom
+          ? g
+          : next
+      })
+
+      if (nextFloating !== was) {
+        floatingRef.current = nextFloating
+        setFloating(nextFloating)
+        clearFloatTimers()
+
+        if (nextFloating) {
+          holdRef.current = false
+          setHoldPin(false)
+          if (firstUpdate.current) {
+            // Page loaded already scrolled past the hero: go straight to the corner, no fly-in
+            setLaunched(true)
+          } else {
+            // Frame 1: bar switches to fixed at exactly the same screen spot.
+            // Frame 3: it is allowed to glide to the corner.
+            setLaunched(false)
+            launchRaf.current = requestAnimationFrame(() => {
+              launchRaf.current = requestAnimationFrame(() => {
+                launchRaf.current = 0
+                setLaunched(true)
+              })
+            })
+          }
+        } else {
+          // Glide back to the hero slot, then hand the bar back to the page flow
+          setLaunched(false)
+          holdRef.current = true
+          setHoldPin(true)
+          holdTimer.current = setTimeout(() => {
+            holdTimer.current = null
+            holdRef.current = false
+            setHoldPin(false)
+          }, MOVE_MS + 60)
+        }
+      }
+
+      firstUpdate.current = false
+    }
+
+    const schedule = () => {
+      if (!raf) raf = requestAnimationFrame(update)
+    }
+
+    update()
+    window.addEventListener('scroll', schedule, { passive: true })
+    window.addEventListener('resize', schedule)
+    // Re-measure if the layout shifts (fonts, images, content above the hero)
+    const ro = new ResizeObserver(schedule)
+    if (slotRef.current) ro.observe(slotRef.current)
+    if (heroRef.current) ro.observe(heroRef.current)
+    ro.observe(document.body)
+    return () => {
+      window.removeEventListener('scroll', schedule)
+      window.removeEventListener('resize', schedule)
+      ro.disconnect()
+      if (raf) cancelAnimationFrame(raf)
+    }
+  }, [slotRef])
+
+  // Remember the bar's height while it is in the hero, so the hero keeps its space when it floats
+  useEffect(() => {
+    if (floating) return
+    const el = innerRef.current
+    if (!el) return
+    const measure = () => setBarHeight(el.offsetHeight)
+    measure()
+    const ro = new ResizeObserver(measure)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [floating, mounted])
+
+  // Back in the hero -> reset hover/focus
+  useEffect(() => {
+    if (!floating) {
+      clearLeaveTimer()
+      setHovered(false)
+      setFocused(false)
+    }
+  }, [floating])
+
+  // Touch devices: tap outside the floating bar collapses it again
+  useEffect(() => {
+    if (!floating || !hovered) return
+    const onPointerDown = (e: PointerEvent) => {
+      if (innerRef.current && !innerRef.current.contains(e.target as Node)) {
+        clearLeaveTimer()
+        setHovered(false)
+        setFocused(false)
+      }
+    }
+    document.addEventListener('pointerdown', onPointerDown)
+    return () => document.removeEventListener('pointerdown', onPointerDown)
+  }, [floating, hovered])
 
   const handleDesktopSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setSubmitError(null)
     setIsSubmitting(true)
-    const form = e.currentTarget
-    const formData = new FormData(form)
 
     const result = await submitLead({
-      fullName: (formData.get('name') as string) || '',
-      phone: (formData.get('phone') as string) || '',
-      locationPin: (formData.get('pincode') as string) || '',
-      projectType: (formData.get('type') as string) || '',
+      fullName: values.name,
+      phone: values.phone,
+      locationPin: values.pincode,
+      projectType: values.type,
       source: 'hero_desktop',
     })
 
     setIsSubmitting(false)
     if (result.success) {
       setSubmitted(true)
-      form.reset()
+      setValues(EMPTY_FORM)
+      // The focused input is removed from the DOM, so its blur never fires: reset manually
+      setFocused(false)
       setTimeout(() => setSubmitted(false), 5000)
     } else {
       setSubmitError(result.error || 'Failed to submit enquiry. Please try again.')
     }
   }
+
+  // Hover with a small delay on leave, so brief exits / re-entries while the bar is
+  // resizing don't make it flip back and forth
+  const handleEnter = () => {
+    if (!floating) return
+    clearLeaveTimer()
+    setHovered(true)
+  }
+  const handleLeave = () => {
+    if (!floating) return
+    clearLeaveTimer()
+    leaveTimer.current = setTimeout(() => {
+      setHovered(false)
+      leaveTimer.current = null
+    }, LEAVE_DELAY_MS)
+  }
+
+  const tab = expanded ? 0 : -1
+
+  // Reveal on first view (if the page loads already scrolled past the hero, show it straight away)
+  const barShown = barIn || floating
+
+  const move = `${MOVE_MS}ms ${MOVE_EASE}`
+
+  const cornerWidth = expanded
+    ? `calc(${leftW + EXPANDED_EXTRA}px + ${PANEL_W})`
+    : leftW + COLLAPSED_EXTRA
+
+  const wrapperStyle: CSSProperties = pinned
+    ? {
+        // Fixed: in the corner, or gliding to / from it
+        position: 'fixed',
+        zIndex: FLOAT_Z,
+        right: atCorner ? FLOAT_OFFSET : geo?.right ?? 0,
+        bottom: atCorner ? FLOAT_OFFSET : geo?.bottom ?? 0,
+        width: atCorner ? cornerWidth : geo?.width ?? 0,
+        maxWidth: `calc(100vw - ${FLOAT_OFFSET * 2}px)`,
+        visibility: geo ? 'visible' : 'hidden',
+        transition: `right ${move}, bottom ${move}, width ${move}`,
+        willChange: 'right, bottom, width',
+      }
+    : {
+        // In the hero: absolute at the slot's document position, so it scrolls natively with the page.
+        // Anchored by its bottom edge (translateY(-100%)), so measuring its height never moves it.
+        position: 'absolute',
+        zIndex: FLOAT_Z,
+        left: geo?.left ?? 0,
+        top: geo?.docBottom ?? 0,
+        transform: 'translateY(-100%)',
+        width: geo?.width ?? 0,
+        visibility: geo ? 'visible' : 'hidden',
+        transition: 'none',
+      }
+
+  // Fields panel fade: fast out, delayed in
+  const panelStyle: CSSProperties = {
+    transitionProperty: 'opacity',
+    transitionTimingFunction: 'ease-out',
+    transitionDuration: `${expanded ? FADE_IN_MS : FADE_OUT_MS}ms`,
+    transitionDelay: `${expanded && floating ? FADE_IN_DELAY_MS : 0}ms`,
+  }
+
+  const bar = (
+    <div
+      ref={innerRef}
+      style={wrapperStyle}
+      onMouseEnter={handleEnter}
+      onMouseLeave={handleLeave}
+      onClick={() => {
+        if (!floating) return
+        clearLeaveTimer()
+        setHovered(true)
+      }}
+      onFocusCapture={() => floating && setFocused(true)}
+      onBlurCapture={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setFocused(false)
+      }}
+    >
+      <div
+        style={delayStyle(barShown, 500)}
+        className={`flex w-full flex-row items-stretch gap-3 ${REVEAL_BAR} ${revealState(barShown)}`}
+      >
+        {/* gap and padding are constant, so only the width animates (no layout shifting) */}
+        <form
+          onSubmit={handleDesktopSubmit}
+          className="flex min-w-0 flex-1 flex-row items-center gap-3 overflow-hidden rounded-lg bg-[#FFE4A0] p-1.5 pl-[9px] shadow-lg"
+        >
+          {/* Left: image placeholder + heading (sizes to its text, never wraps or clips) */}
+          <div
+            ref={leftRef}
+            className="flex w-max min-w-[210px] shrink-0 items-center gap-[18px] whitespace-nowrap pr-2"
+          >
+            <div className="flex h-[60px] w-[60px] shrink-0 items-center justify-center rounded-md bg-[#252422] text-[#FFE4A0] shadow-sm">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M2 20a10 10 0 0 1 20 0" />
+                <circle cx="12" cy="10" r="4" />
+                <path d="M12 2v2" />
+              </svg>
+            </div>
+            <div className="leading-tight">
+              <p className="text-[10px] font-medium uppercase tracking-wide text-slate-700">
+                Let&apos;s talk
+              </p>
+              <p className="text-sm font-semibold text-slate-900">Talk to an engineer</p>
+              <p className="text-[11px] text-slate-700">Free 30-min consultation</p>
+            </div>
+          </div>
+
+          {/* Right: fields panel. Its width simply follows the bar's width, which is what animates.
+              The content is a fixed, non-shrinking width and just gets clipped, so nothing reflows mid-animation. */}
+          <div
+            aria-hidden={!expanded}
+            style={panelStyle}
+            className={`flex min-w-0 flex-1 overflow-hidden rounded-md [&>*]:min-w-[500px] [&>*]:shrink-0 [&>*]:grow ${
+              expanded ? 'opacity-100' : 'pointer-events-none opacity-0'
+            }`}
+          >
+            {submitted ? (
+              <div className="flex flex-1 items-center justify-center gap-2 rounded-md bg-white p-4 text-xs font-semibold text-[#252422]">
+                <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-[#22C55E]/20 text-[#22C55E]">
+                  <svg className="size-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                </span>
+                <span>Thank you! We have received your consultation request.</span>
+              </div>
+            ) : submitError ? (
+              <div className="flex flex-1 items-center justify-between rounded-md bg-white p-3 text-xs text-red-700">
+                <span>{submitError}</span>
+                <button
+                  type="button"
+                  onClick={() => setSubmitError(null)}
+                  tabIndex={tab}
+                  className="ml-2 font-medium text-[#6B1A1A] underline cursor-pointer"
+                >
+                  Dismiss
+                </button>
+              </div>
+            ) : (
+              <div className="flex flex-1 flex-row items-stretch gap-2 rounded-md bg-white p-2.5">
+                <label className="flex flex-1 flex-col gap-1 text-[10px] font-medium leading-[14px] text-slate-700">
+                  Type
+                  <select
+                    name="type"
+                    value={values.type}
+                    onChange={(e) => setField('type', e.target.value)}
+                    tabIndex={tab}
+                    className="h-7 rounded-md bg-[#EEF2F6] px-2.5 text-[10px] text-slate-800 outline-none"
+                  >
+                    <option value="Villa House">Villa House</option>
+                    <option value="Farmhouse">Farmhouse</option>
+                    <option value="Renovation">Renovation</option>
+                  </select>
+                </label>
+
+                <label className="flex flex-1 flex-col gap-1 text-[10px] font-medium leading-[14px] text-slate-700">
+                  Name
+                  <input
+                    name="name"
+                    type="text"
+                    required
+                    minLength={2}
+                    maxLength={60}
+                    pattern="^[A-Za-z\s.'-]+$"
+                    title="Please enter your full name (letters and spaces only)"
+                    autoComplete="name"
+                    placeholder="Enter your full name"
+                    tabIndex={tab}
+                    value={values.name}
+                    onChange={(e) => setField('name', e.target.value.replace(/[^a-zA-Z\s.'-]/g, ''))}
+                    className="h-7 rounded-md border border-[#D9D9D9] bg-white px-2.5 text-[10px] text-slate-800 outline-none placeholder:text-[#9A9A9A] focus:border-[#6B1A1A]"
+                  />
+                </label>
+
+                <label className="flex flex-1 flex-col gap-1 text-[10px] font-medium leading-[14px] text-slate-700">
+                  Phone Number
+                  <input
+                    name="phone"
+                    type="tel"
+                    required
+                    inputMode="numeric"
+                    maxLength={10}
+                    pattern="[6-9][0-9]{9}"
+                    title="Please enter a valid 10-digit mobile number"
+                    autoComplete="tel-national"
+                    placeholder="e.g. 98765 43210"
+                    tabIndex={tab}
+                    value={values.phone}
+                    onChange={(e) => setField('phone', e.target.value.replace(/\D/g, '').slice(0, 10))}
+                    className="h-7 rounded-md border border-[#D9D9D9] bg-white px-2.5 text-[10px] text-slate-800 outline-none placeholder:text-[#9A9A9A] focus:border-[#6B1A1A]"
+                  />
+                </label>
+
+                <label className="flex flex-1 flex-col gap-1 text-[10px] font-medium leading-[14px] text-slate-700">
+                  Pin Code
+                  <input
+                    name="pincode"
+                    type="text"
+                    required
+                    inputMode="numeric"
+                    maxLength={6}
+                    pattern="[1-9][0-9]{5}"
+                    title="Please enter a valid 6-digit Indian PIN code"
+                    placeholder="Enter 6-digit code"
+                    tabIndex={tab}
+                    value={values.pincode}
+                    onChange={(e) => setField('pincode', e.target.value.replace(/\D/g, '').slice(0, 6))}
+                    className="h-7 rounded-md border border-[#D9D9D9] bg-white px-2.5 text-[10px] text-slate-800 outline-none placeholder:text-[#9A9A9A] focus:border-[#6B1A1A]"
+                  />
+                </label>
+
+                {/* Stretches to the full label + input height */}
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  aria-label="Submit enquiry"
+                  tabIndex={tab}
+                  className={`flex w-[58px] items-center justify-center rounded-md bg-[#6B1A1A] text-white transition hover:bg-[#561414] ${
+                    isSubmitting ? 'opacity-70 cursor-wait' : ''
+                  }`}
+                >
+                  {isSubmitting ? (
+                    <svg className="size-5 animate-spin text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                    </svg>
+                  ) : (
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <path d="M7 17L17 7M8.5 7H17v8.5" />
+                    </svg>
+                  )}
+                </button>
+              </div>
+            )}
+          </div>
+        </form>
+
+        {/* WhatsApp contact card */}
+        <a
+          href={whatsappUrl}
+          target="_blank"
+          rel="noreferrer"
+          aria-label="Chat with us on WhatsApp"
+          style={{ fontFamily: '"Hanken Grotesk", sans-serif' }}
+          className="flex w-[117px] shrink-0 flex-col justify-between overflow-hidden rounded-lg bg-[#0D8C27] px-4 py-3 text-white transition hover:bg-[#0b7a22]"
+        >
+          <div className="flex items-start justify-between">
+            {/* WhatsApp logo */}
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
+            </svg>
+
+            {/* Arrow up-right */}
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M7 17L17 7M8.5 7H17v8.5" />
+            </svg>
+          </div>
+
+          <p className="text-[12px] font-semibold uppercase leading-[16px] tracking-[0.96px]">
+            Contact
+          </p>
+        </a>
+      </div>
+    </div>
+  )
 
   return (
     <>
@@ -319,6 +843,7 @@ export function HeroSection() {
 
       {/* Desktop: your original section, unchanged except `hidden … lg:flex` */}
       <section
+        ref={heroRef}
         id="hero"
         className="relative isolate hidden min-h-[640px] flex-col overflow-hidden lg:flex lg:min-h-0 lg:aspect-[3/2]"
       >
@@ -371,179 +896,18 @@ export function HeroSection() {
           </p>
         </div>
 
-        {/* Quick enquiry bar */}
-        <div
-          ref={barRef}
-          style={delayStyle(barIn, 500)}
-          className={`mt-auto w-full px-4 pb-4 lg:pb-[2.6vw] ${REVEAL} ${revealState(barIn)}`}
-        >
-          <div className="mx-auto flex w-full flex-col gap-3 sm:flex-row sm:items-stretch lg:w-[87%]">
-            <form
-              onSubmit={handleDesktopSubmit}
-              className="flex flex-1 flex-col gap-3 rounded-lg bg-[#FFE4A0] p-1.5 shadow-lg lg:flex-row lg:items-center lg:pl-[9px]"
-            >
-              {/* Left: image placeholder + heading */}
-              <div className="flex items-center gap-[18px] lg:w-[210px] lg:shrink-0">
-                <div className="flex h-[60px] w-[60px] shrink-0 items-center justify-center rounded-md bg-[#252422] text-[#FFE4A0] shadow-sm">
-                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                    <path d="M2 20a10 10 0 0 1 20 0" />
-                    <circle cx="12" cy="10" r="4" />
-                    <path d="M12 2v2" />
-                  </svg>
-                </div>
-                <div className="leading-tight">
-                  <p className="text-[10px] font-medium uppercase tracking-wide text-slate-700">
-                    Let&apos;s talk
-                  </p>
-                  <p className="text-sm font-semibold text-slate-900">Talk to an engineer</p>
-                  <p className="text-[11px] text-slate-700">Free 30-min consultation</p>
-                </div>
-              </div>
-
-              {/* Right: white panel with fields + tall submit button */}
-              {submitted ? (
-                <div className="flex flex-1 items-center justify-center gap-2 rounded-md bg-white p-4 text-xs font-semibold text-[#252422]">
-                  <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-[#22C55E]/20 text-[#22C55E]">
-                    <svg className="size-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                    </svg>
-                  </span>
-                  <span>Thank you! We have received your consultation request.</span>
-                </div>
-              ) : submitError ? (
-                <div className="flex flex-1 items-center justify-between rounded-md bg-white p-3 text-xs text-red-700">
-                  <span>{submitError}</span>
-                  <button
-                    type="button"
-                    onClick={() => setSubmitError(null)}
-                    className="ml-2 font-medium text-[#6B1A1A] underline cursor-pointer"
-                  >
-                    Dismiss
-                  </button>
-                </div>
-              ) : (
-                <div className="flex flex-1 flex-col gap-2 rounded-md bg-white p-2.5 sm:flex-row sm:items-stretch">
-                  <label className="flex flex-1 flex-col gap-1 text-[10px] font-medium leading-[14px] text-slate-700">
-                    Type
-                    <select
-                      name="type"
-                      defaultValue="Villa House"
-                      className="h-7 rounded-md bg-[#EEF2F6] px-2.5 text-[10px] text-slate-800 outline-none"
-                    >
-                      <option value="Villa House">Villa House</option>
-                      <option value="Farmhouse">Farmhouse</option>
-                      <option value="Renovation">Renovation</option>
-                    </select>
-                  </label>
-
-                  <label className="flex flex-1 flex-col gap-1 text-[10px] font-medium leading-[14px] text-slate-700">
-                    Name
-                    <input
-                      name="name"
-                      type="text"
-                      required
-                      minLength={2}
-                      maxLength={60}
-                      pattern="^[A-Za-z\s.'-]+$"
-                      title="Please enter your full name (letters and spaces only)"
-                      autoComplete="name"
-                      placeholder="Enter your full name"
-                      className="h-7 rounded-md border border-[#D9D9D9] bg-white px-2.5 text-[10px] text-slate-800 outline-none placeholder:text-[#9A9A9A] focus:border-[#6B1A1A]"
-                      onInput={(e) => {
-                        e.currentTarget.value = e.currentTarget.value.replace(/[^a-zA-Z\s.'-]/g, '')
-                      }}
-                    />
-                  </label>
-
-                  <label className="flex flex-1 flex-col gap-1 text-[10px] font-medium leading-[14px] text-slate-700">
-                    Phone Number
-                    <input
-                      name="phone"
-                      type="tel"
-                      required
-                      inputMode="numeric"
-                      maxLength={10}
-                      pattern="[6-9][0-9]{9}"
-                      title="Please enter a valid 10-digit mobile number"
-                      autoComplete="tel-national"
-                      placeholder="e.g. 98765 43210"
-                      className="h-7 rounded-md border border-[#D9D9D9] bg-white px-2.5 text-[10px] text-slate-800 outline-none placeholder:text-[#9A9A9A] focus:border-[#6B1A1A]"
-                      onInput={(e) => {
-                        e.currentTarget.value = e.currentTarget.value.replace(/\D/g, '').slice(0, 10)
-                      }}
-                    />
-                  </label>
-
-                  <label className="flex flex-1 flex-col gap-1 text-[10px] font-medium leading-[14px] text-slate-700">
-                    Pin Code
-                    <input
-                      name="pincode"
-                      type="text"
-                      required
-                      inputMode="numeric"
-                      maxLength={6}
-                      pattern="[1-9][0-9]{5}"
-                      title="Please enter a valid 6-digit Indian PIN code"
-                      placeholder="Enter 6-digit code"
-                      className="h-7 rounded-md border border-[#D9D9D9] bg-white px-2.5 text-[10px] text-slate-800 outline-none placeholder:text-[#9A9A9A] focus:border-[#6B1A1A]"
-                      onInput={(e) => {
-                        e.currentTarget.value = e.currentTarget.value.replace(/\D/g, '').slice(0, 6)
-                      }}
-                    />
-                  </label>
-
-                  {/* Stretches to the full label + input height */}
-                  <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    aria-label="Submit enquiry"
-                    className={`flex h-9 w-full items-center justify-center rounded-md bg-[#6B1A1A] text-white transition hover:bg-[#561414] sm:h-auto sm:w-[58px] ${
-                      isSubmitting ? 'opacity-70 cursor-wait' : ''
-                    }`}
-                  >
-                    {isSubmitting ? (
-                      <svg className="size-5 animate-spin text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
-                      </svg>
-                    ) : (
-                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                        <path d="M7 17L17 7M8.5 7H17v8.5" />
-                      </svg>
-                    )}
-                  </button>
-                </div>
-              )}
-            </form>
-
-            {/* WhatsApp contact card */}
-            <a
-              href={whatsappUrl}
-              target="_blank"
-              rel="noreferrer"
-              aria-label="Chat with us on WhatsApp"
-              style={{ fontFamily: '"Hanken Grotesk", sans-serif' }}
-              className="flex w-full flex-col justify-between overflow-hidden rounded-lg bg-[#0D8C27] px-4 py-3 text-white transition hover:bg-[#0b7a22] sm:w-[117px] sm:shrink-0"
-            >
-              <div className="flex items-start justify-between">
-                {/* WhatsApp logo */}
-                <svg width="36" height="36" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
-                </svg>
-
-                {/* Arrow up-right */}
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <path d="M7 17L17 7M8.5 7H17v8.5" />
-                </svg>
-              </div>
-
-              <p className="text-[12px] font-semibold uppercase leading-[16px] tracking-[0.96px]">
-                Contact
-              </p>
-            </a>
-          </div>
+        {/* Empty slot: keeps the bar's space in the hero. The real bar lives in a portal on <body>
+            and sits over this slot (scrolling with the page) until you scroll into the next section. */}
+        <div className="mt-auto w-full px-4 pb-4 lg:pb-[2.6vw]">
+          <div
+            ref={slotRef}
+            style={{ height: barHeight || undefined }}
+            className="mx-auto w-full lg:w-[87%]"
+          />
         </div>
       </section>
+
+      {mounted ? createPortal(bar, document.body) : null}
     </>
   )
 }
