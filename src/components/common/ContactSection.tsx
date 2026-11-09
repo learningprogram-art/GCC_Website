@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Button } from '@/components/ui/Button'
 import { submitLead } from '@/lib/supabase'
 
-// Bottom-up reveal: fade + slide up (same feel as the other sections)
+// Bottom-up reveal: fade + slide up
 const REVEAL =
   'transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none'
 const revealState = (shown: boolean) =>
