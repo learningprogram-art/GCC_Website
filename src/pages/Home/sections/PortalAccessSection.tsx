@@ -1,4 +1,3 @@
-import { Button } from '@/components/ui/Button'
 import { cn } from '@/utils/cn'
 import { useInViewOnce } from '@/hooks/useInViewOnce'
 
@@ -35,16 +34,15 @@ export function PortalAccessSection({
           className
         )}
       >
-        <div className="mx-auto max-w-[1248px] w-full">
+        <div ref={cardRef} className="mx-auto max-w-[1248px] w-full">
           {/* ==============================================================
               MOBILE VIEW (Figma Node 211:4814 / 211:4785)
               Card: 351px x 764px, rounded-[12px], bg image gcc-amc-card-mob.webp
              ============================================================== */}
           <div
-            ref={cardRef}
             data-node-id="211:4785"
             className={cn(
-              'sm:hidden relative w-full max-w-[351px] h-[764px] mx-auto rounded-[12px] overflow-hidden transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none',
+              'sm:hidden relative w-full max-w-[351px] h-[764px] mx-auto rounded-[12px] overflow-hidden bg-[#252422] transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none',
               cardIn ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
             )}
           >
@@ -53,7 +51,8 @@ export function PortalAccessSection({
               src="/assets/images/amc/gcc-amc-card-mob.webp"
               alt="GCC AMC Portal"
               className="absolute inset-0 size-full object-cover pointer-events-none select-none"
-              loading="lazy"
+              decoding="async"
+              loading="eager"
             />
 
             {/* Screen reader heading */}
@@ -135,16 +134,17 @@ export function PortalAccessSection({
           <div
             data-node-id="297:4035"
             className={cn(
-              'hidden sm:block relative w-full sm:min-h-[500px] lg:min-h-0 lg:h-[560px] lg:aspect-[1248/560] overflow-hidden rounded-[12px] bg-transparent transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none',
+              'hidden sm:block relative w-full sm:min-h-[500px] lg:min-h-0 lg:h-[560px] lg:aspect-[1248/560] overflow-hidden rounded-[12px] bg-[#252422] transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none',
               cardIn ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
             )}
           >
-            {/* Background image (4992x2240, exactly 1248:560 ratio) */}
+            {/* Background image (2496x1120, optimized 2x retina display) */}
             <img
               src="/assets/images/amc/GCC-AMC-Portal-access-card.webp"
               alt="GCC AMC Portal Access"
               className="absolute inset-0 size-full object-cover object-[70%_center] lg:object-fill pointer-events-none select-none"
-              loading="lazy"
+              decoding="async"
+              loading="eager"
             />
 
             {/* Left Content Area (Figma Node 211:5396) */}
@@ -185,25 +185,45 @@ export function PortalAccessSection({
                   </p>
                 </div>
 
-                <div className="flex items-center gap-[1rem] pt-[0.25rem]">
-                  <Button
-                    variant="on-dark"
-                    size="md"
+                {/* Actions: Log in (Node 211:5401) & Register (Node 214:6266) */}
+                <div className="flex items-center gap-[12px] pt-[0.25rem]">
+                  {/* Log in Button (Figma Node 211:5401) */}
+                  <a
                     href={loginHref}
-                    className="cursor-default select-none shadow-sm px-[1.5rem] py-[0.75rem] text-[16px] font-semibold"
+                    data-node-id="211:5401"
+                    style={{ fontFamily: '"Hanken Grotesk", sans-serif' }}
+                    className="w-[168px] pl-[24px] pr-[20px] py-[12px] flex items-center gap-[8px] rounded-[8px] bg-[#FFFCF2] hover:bg-white active:bg-[#F5F0E6] text-[#252422] no-underline shadow-sm transition-colors cursor-pointer select-none"
                   >
-                    Log in
-                  </Button>
+                    <span className="flex-1 font-bold text-[18px] leading-[28px] tracking-[-0.36px]">
+                      Log in
+                    </span>
+                    <svg
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="size-[24px] shrink-0 pointer-events-none"
+                      aria-hidden="true"
+                    >
+                      <path d="M9 18l6-6-6-6" />
+                    </svg>
+                  </a>
 
-                  <Button
-                    variant="secondary"
-                    size="md"
-                    showIcon={false}
+                  {/* Register Button (Figma Node 214:6266) */}
+                  <a
                     href={registerHref}
-                    className="border border-white/20 bg-transparent text-[#FFFCF2] hover:bg-white/10 active:bg-white/15 cursor-default select-none px-[1.5rem] py-[0.75rem] text-[16px] font-semibold"
+                    data-node-id="214:6266"
+                    style={{ fontFamily: '"Hanken Grotesk", sans-serif' }}
+                    className="w-[168px] pl-[24px] pr-[20px] py-[12px] flex items-center justify-center gap-[8px] rounded-[8px] border border-[#403D39] bg-[#252422] hover:bg-[#2e2d2a] hover:border-[#524e49] active:bg-[#1f1e1c] text-white no-underline transition-colors cursor-pointer select-none"
                   >
-                    Register
-                  </Button>
+                    <span className="flex-1 font-bold text-[18px] leading-[28px] tracking-[-0.36px] text-center">
+                      Register
+                    </span>
+                  </a>
                 </div>
               </div>
             </div>

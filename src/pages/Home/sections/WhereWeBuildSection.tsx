@@ -31,14 +31,13 @@ export const WhereWeBuildCard: React.FC = () => {
   };
 
   return (
-    <>
+    <div ref={cardRef} className="w-full">
       {/* ==============================================================
           MOBILE VIEW (Figma Node 203:3977: M / Where We Build)
           w-full max-w-[350px] mx-auto h-[600px], rounded-[16px]
           Glass card: 310px wide, top: 156px, backdrop-blur-[8px], bg-[rgba(37,36,34,0.55)]
          ============================================================== */}
       <div
-        ref={cardRef}
         data-node-id="203:3978"
         className={`sm:hidden relative w-full max-w-[350px] mx-auto h-[600px] rounded-[16px] overflow-hidden border border-white/20 shadow-2xl transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none ${
           cardIn ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
@@ -50,7 +49,8 @@ export const WhereWeBuildCard: React.FC = () => {
             src="/assets/images/where-we-build-mob.webp"
             alt="Where We Build - Noida, Delhi, Jewar Aerial Map"
             className="w-full h-full object-cover object-center"
-            loading="lazy"
+            decoding="async"
+            loading="eager"
           />
         </div>
 
@@ -147,7 +147,8 @@ export const WhereWeBuildCard: React.FC = () => {
             src="/assets/images/where-we-build.webp"
             alt="Where We Build - Noida, Delhi, Jewar Aerial Map"
             className="w-full h-full object-cover object-center"
-            loading="lazy"
+            decoding="async"
+            loading="eager"
           />
         </div>
 
@@ -230,7 +231,7 @@ export const WhereWeBuildCard: React.FC = () => {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

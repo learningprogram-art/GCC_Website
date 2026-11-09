@@ -389,10 +389,10 @@ export function TestimonialsSection({
           <div
             ref={containerRef}
             onScroll={handleScroll}
-            className="relative w-full flex items-stretch gap-[24px] overflow-x-auto scroll-smooth px-6 sm:px-12 md:px-[96px] lg:px-[6rem] scroll-px-6 sm:scroll-px-12 md:scroll-px-[96px] lg:scroll-px-[6rem] [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+            className="relative w-full flex items-stretch gap-[12px] sm:gap-[24px] overflow-x-auto scroll-smooth px-5 sm:px-12 md:px-[96px] lg:px-[6rem] scroll-px-5 sm:scroll-px-12 md:scroll-px-[96px] lg:scroll-px-[6rem] [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
             style={{ WebkitOverflowScrolling: 'touch' }}
           >
-            {/* Cards (Figma: width 720px, height 620px, no box-shadow) */}
+            {/* Cards (Figma Node 211:5427: exact width 720px, height 620px on desktop; width 318px, height 490px on mobile) */}
             {items.map((item, idx) => {
               const isActive = idx === activeIndex
               return (
@@ -404,38 +404,35 @@ export function TestimonialsSection({
                   onClick={() => scrollToCard(idx)}
                   className={cn(
                     'relative flex flex-col justify-between shrink-0 overflow-clip transition-all duration-300 cursor-default select-none',
-                    'w-[86vw] sm:w-[36rem] lg:w-[720px] min-h-[34rem] sm:min-h-[36rem] lg:h-[620px]',
+                    'w-[318px] sm:w-[720px] h-[490px] sm:h-[620px]',
                     isActive
                       ? 'bg-[#252422] text-[#FFFCF2]'
                       : 'bg-white border border-[#CCC5B9] text-[#252422]'
                   )}
                 >
                   {/* Card Content Top Body (Figma Node 211:5428) */}
-                  <div className="flex flex-1 flex-col justify-between p-[1.5rem] sm:p-[2.25rem] lg:p-[48px]">
-                    {/* Quote Block (Figma Node 211:5431 / 211:5453)
+                  <div className="flex flex-1 flex-col justify-between p-[22px] sm:p-[48px]">
+                    {/* Quote Block (Figma Node 211:5429 / 211:5431)
                       GCC/Quote/L: Bai Jamjuree, Medium, 30px, 42px line-height, -0.15px letter-spacing
                   */}
                     <blockquote className="m-0 cursor-text select-text">
                       <p
                         style={{
                           fontFamily: '"Bai Jamjuree", sans-serif',
-                          fontSize: '30px',
-                          lineHeight: '42px',
-                          letterSpacing: '-0.15px',
                           fontWeight: 500,
                           fontStyle: 'normal',
                           color: isActive ? '#FFFCF2' : '#403D39',
                         }}
-                        className="m-0 cursor-text select-text"
+                        className="m-0 cursor-text select-text text-[20px] leading-[29px] tracking-[-0.1px] sm:text-[30px] sm:leading-[42px] sm:tracking-[-0.15px]"
                       >
                         {item.quote}
                       </p>
                     </blockquote>
 
-                    {/* Metrics Row (Figma Node 211:5432 / 211:5454 - gap 56px) */}
-                    <div className="flex flex-wrap gap-[2rem] sm:gap-[3.5rem] lg:gap-[56px] pt-[1.5rem] sm:pt-[2rem] cursor-text select-text">
+                    {/* Metrics Row (Figma Node 211:5432 - gap 56px) */}
+                    <div className="flex flex-wrap gap-[28px] sm:gap-[56px] pt-[1rem] sm:pt-0 cursor-text select-text">
                       {/* Metric 1 */}
-                      <div className="flex flex-col gap-[4px] cursor-text select-text">
+                      <div className="flex flex-col gap-[2px] sm:gap-[4px] cursor-text select-text">
                         {/* GCC/Stat/M: Bai Jamjuree, SemiBold, 28px, 36px line-height, -0.14px letter-spacing */}
                         <span
                           style={{
@@ -468,7 +465,7 @@ export function TestimonialsSection({
                       </div>
 
                       {/* Metric 2 */}
-                      <div className="flex flex-col gap-[4px] cursor-text select-text">
+                      <div className="flex flex-col gap-[2px] sm:gap-[4px] cursor-text select-text">
                         {/* GCC/Stat/M: Bai Jamjuree, SemiBold, 28px, 36px line-height, -0.14px letter-spacing */}
                         <span
                           style={{
@@ -502,15 +499,15 @@ export function TestimonialsSection({
                     </div>
                   </div>
 
-                  {/* Author Bar (Figma Node 211:5439 / 211:5461) */}
+                  {/* Author Bar (Figma Node 211:5439: height 137px) */}
                   <div
                     className={cn(
-                      'flex items-stretch justify-between border-t border-solid overflow-clip',
+                      'flex items-stretch justify-between border-t border-solid overflow-clip h-[120px] sm:h-[137px] shrink-0',
                       isActive ? 'border-[#403D39]' : 'border-[#CCC5B9]'
                     )}
                   >
                     {/* Author Details (Figma: pl-48px, pr-24px) */}
-                    <div className="flex flex-1 flex-col justify-center gap-[4px] pl-[1.5rem] sm:pl-[2.25rem] lg:pl-[48px] pr-[1rem] sm:pr-[1.5rem] lg:pr-[24px] py-[1rem] sm:py-[1.5rem] cursor-text select-text">
+                    <div className="flex flex-1 flex-col justify-center gap-[2px] sm:gap-[4px] pl-[22px] sm:pl-[48px] pr-[16px] sm:pr-[24px] py-[16px] sm:py-[1.5rem] cursor-text select-text">
                       {/* GCC/Name: Hanken Grotesk, SemiBold, 20px, 28px line-height, -0.2px letter-spacing */}
                       <h4
                         style={{
@@ -522,21 +519,19 @@ export function TestimonialsSection({
                           fontStyle: 'normal',
                           color: isActive ? '#FFFCF2' : '#252422',
                         }}
-                        className="m-0 cursor-text select-text"
+                        className="m-0 cursor-text select-text text-[16px] leading-[24px] sm:text-[20px] sm:leading-[28px]"
                       >
                         {item.author}
                       </h4>
-                      {/* GCC/Body/S: Hanken Grotesk, 14px, 20px line-height */}
+                      {/* GCC/Body/M: Hanken Grotesk, Regular, 16px, 24px line-height */}
                       <p
                         style={{
                           fontFamily: '"Hanken Grotesk", sans-serif',
-                          fontSize: '14px',
-                          lineHeight: '20px',
-                          fontWeight: 500,
+                          fontWeight: 400,
                           fontStyle: 'normal',
                           color: isActive ? '#CCC5B9' : '#403D39',
                         }}
-                        className="m-0 cursor-text select-text"
+                        className="m-0 cursor-text select-text text-[12px] leading-[1.3] sm:text-[16px] sm:leading-[24px]"
                       >
                         {item.role}
                       </p>
@@ -545,7 +540,7 @@ export function TestimonialsSection({
                     {/* Portrait Photo or Silhouette (Figma Node 211:5443: size 136px) */}
                     <div
                       className={cn(
-                        'relative shrink-0 size-[6rem] sm:size-[7.5rem] lg:size-[136px] overflow-clip',
+                        'relative shrink-0 size-[120px] sm:size-[136px] overflow-clip',
                         isActive ? 'bg-[#403D39]' : 'bg-[#CCC5B9]'
                       )}
                     >
@@ -554,6 +549,7 @@ export function TestimonialsSection({
                           src={item.photo}
                           alt={item.author}
                           className="h-full w-full object-cover object-top block"
+                          loading="lazy"
                         />
                       ) : (
                         <Silhouette className="size-full text-current" />
@@ -563,7 +559,7 @@ export function TestimonialsSection({
 
                   {/* Accent Stripe at bottom (Figma Node 211:5448: height 10px, orange when active like card 1, tan when idle) */}
                   <div
-                    className="h-[10px] w-full shrink-0 block transition-colors duration-300"
+                    className="h-[8px] sm:h-[10px] w-full shrink-0 block transition-colors duration-300"
                     style={{
                       backgroundColor: isActive ? '#E06422' : '#BB9457',
                     }}
