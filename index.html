@@ -19,6 +19,24 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/site.webmanifest" />
 
+    <!-- Preload Hero LCP Images for instantaneous first-paint -->
+    <link
+      rel="preload"
+      as="image"
+      type="image/webp"
+      href="/assets/images/hero-home-mobile.webp"
+      media="(max-width: 1023px)"
+      fetchpriority="high"
+    />
+    <link
+      rel="preload"
+      as="image"
+      type="image/webp"
+      href="/assets/images/hero-home.webp"
+      media="(min-width: 1024px)"
+      fetchpriority="high"
+    />
+
     <!-- Open Graph (Facebook, WhatsApp, LinkedIn) -->
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Garg Core Construction" />
