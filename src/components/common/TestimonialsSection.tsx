@@ -261,7 +261,7 @@ export function TestimonialsSection({
       tabIndex={0}
       onKeyDown={handleKeyDown}
       className={cn(
-        'relative w-full bg-[#FFFCF2] pt-[4rem] pb-[5rem] lg:pt-[5.0625rem] lg:pb-[6.3125rem] overflow-x-clip focus:outline-none',
+        'relative z-10 -mt-[2px] w-full bg-[#FFFCF2] pt-[4rem] pb-[5rem] lg:pt-[5.0625rem] lg:pb-[6.3125rem] overflow-x-clip focus:outline-none',
         className
       )}
     >

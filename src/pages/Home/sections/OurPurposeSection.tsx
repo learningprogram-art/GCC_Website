@@ -14,16 +14,18 @@ export const OurPurposeSection: React.FC = () => {
       const rect = sectionRef.current.getBoundingClientRect();
       const windowHeight = window.innerHeight;
 
-      // Only start moving when the user arrives at the section
-      const triggerPoint = windowHeight * 0.5; // Halfway in viewport
+      // Start the parallax effect as soon as the "Where We Build" card enters the viewport
+      const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
+      const cardOffset = isMobile ? 360 : 60;
+      const triggerPoint = windowHeight + cardOffset;
 
-if (rect.bottom >= 0 && rect.top <= triggerPoint) {
-  const scrolledDistance = triggerPoint - rect.top;
-  const PARALLAX_SPEED = 0.4;
-  setParallaxY(scrolledDistance * PARALLAX_SPEED);
-} else if (rect.top > triggerPoint) {
-  setParallaxY(0);
-}
+      if (rect.bottom >= 0 && rect.top <= triggerPoint) {
+        const scrolledDistance = triggerPoint - rect.top;
+        const PARALLAX_SPEED = isMobile ? 0.30 : 0.31;
+        setParallaxY(scrolledDistance * PARALLAX_SPEED);
+      } else if (rect.top > triggerPoint) {
+        setParallaxY(0);
+      }
     };
 
     const onScroll = () => {
@@ -94,13 +96,11 @@ if (rect.bottom >= 0 && rect.top <= triggerPoint) {
           style={{ background: 'radial-gradient(circle, #E06422 0%, transparent 70%)' }}
         />
 
-        {/* Ghost / GCC mark (Figma Node 211:5364: w=1268.027px, h=562.132px, with 60fps parallax effect) */}
+        {/* Ghost / GCC mark (Figma Node 211:5364 Desktop & 199:3355 Mobile) */}
         <div
           data-node-id="211:5364"
-          className="absolute left-[48%] sm:left-[51%] lg:left-[calc(50%+20px)] min-[1440px]:left-[calc(50%+40px)] xl:left-[calc(50%+30px)] top-[166px] lg:top-[160px] pointer-events-none select-none transition-transform duration-75 ease-out"
+          className="absolute left-[52px] sm:left-[51%] lg:left-[calc(50%+20px)] min-[1440px]:left-[calc(50%+40px)] xl:left-[calc(50%+30px)] top-[180px] sm:top-[120px] lg:top-[110px] w-[676.72px] sm:w-[1268.027px] h-[300px] sm:h-[562.132px] pointer-events-none select-none"
           style={{
-            width: '1268.027px',
-            height: '562.132px',
             transform: `translate3d(0, ${parallaxY}px, 0)`,
             willChange: 'transform',
           }}
@@ -108,11 +108,7 @@ if (rect.bottom >= 0 && rect.top <= triggerPoint) {
           <img
             src="/assets/images/gcc-mark-purpose.svg"
             alt=""
-            style={{
-              width: '1268.027px',
-              height: '562.132px',
-            }}
-            className="max-w-none object-contain object-left pointer-events-none select-none"
+            className="w-full h-full object-contain object-left pointer-events-none select-none max-w-none"
           />
         </div>
       </div>
@@ -130,30 +126,22 @@ if (rect.bottom >= 0 && rect.top <= triggerPoint) {
       </div>
 
       {/* 
-        Purpose Content Block (Figma Node 211:5376):
-        width: 1040px;
-        height: 249px;
-        display: inline-flex / flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 32px;
+        Purpose Content Block (Figma Node 211:5376 Desktop & 203:3975 Mobile):
+        width: 342px (mobile) / 1040px (desktop);
+        gap: 24px (mobile) / 32px (desktop);
       */}
       <div
         ref={purposeRef}
         id="our-purpose"
         data-node-id="211:5376"
-        style={{
-          width: '100%',
-          maxWidth: '1040px',
-        }}
-        className={`relative z-20 mx-auto px-4 min-[1080px]:px-0 flex flex-col items-center gap-[32px] text-center mt-[96px] sm:mt-28 lg:mt-[215px] pb-12 sm:pb-16 lg:pb-[110px] transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none ${
+        className={`relative z-20 mx-auto px-6 sm:px-4 min-[1080px]:px-0 flex flex-col items-center gap-[24px] lg:gap-[32px] text-center mt-[96px] sm:mt-28 lg:mt-[215px] pb-12 sm:pb-16 lg:pb-[110px] transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none ${
           purposeIn ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
         }`}
       >
-        {/* Eyebrow (Figma Node 211:5377) */}
+        {/* Eyebrow (Figma Node 211:5377 & 199:3367) */}
         <div
           data-node-id="211:5377"
-          className="flex items-center gap-[12px] overflow-hidden shrink-0"
+          className="flex items-center gap-[10px] sm:gap-[12px] overflow-hidden shrink-0"
         >
           <div
             data-node-id="211:5378"
@@ -180,28 +168,25 @@ if (rect.bottom >= 0 && rect.top <= triggerPoint) {
           />
         </div>
 
-        {/* Statement (Figma Node 211:5381: width: 1040px, height: 201px, font-size: 60px) */}
+        {/* Statement (Figma Node 211:5381 Desktop & 199:3371 Mobile) */}
         <h2
           data-node-id="211:5381"
           style={{
             fontFamily: '"Bai Jamjuree", sans-serif',
-            fontWeight: 500,
-            fontSize: 'clamp(26px, 4.16vw, 60px)',
-            lineHeight: '112%',
-            letterSpacing: '-0.9px',
-            color: '#FFFCF2',
-            width: '100%',
-            maxWidth: '1040px',
           }}
-          className="m-0 text-center min-[1080px]:w-[1040px] min-[1080px]:h-[201px]"
+          className="m-0 text-center font-medium text-[32px] sm:text-[clamp(32px,3.8vw,48px)] min-[1080px]:text-[60px] leading-[1.18] min-[1080px]:leading-[1.12] tracking-[-0.32px] min-[1080px]:tracking-[-0.9px] text-[#FFFCF2] w-full max-w-[342px] sm:max-w-[650px] min-[1080px]:max-w-[1040px]"
         >
           <span>GCC exists to bring </span>
-          <span style={{ color: '#FFE6A7' }}>clarity and</span>
-          <br className="hidden min-[1080px]:inline" />{' '}
-          <span style={{ color: '#FFE6A7' }}>confidence</span>
+          <br className="block sm:hidden" />
+          <span className="text-[#FFE6A7]">clarity and</span>{' '}
+          <br className="hidden min-[1080px]:inline" />
+          <span className="text-[#FFE6A7]">confidence</span>
           <span> to how spaces are</span>
+          <br className="block sm:hidden" />
           <br className="hidden min-[1080px]:inline" />{' '}
-          <span>imagined, engineered and built.</span>
+          <span>imagined, engineered </span>
+          <br className="block sm:hidden" />
+          <span>and built.</span>
         </h2>
       </div>
     </section>

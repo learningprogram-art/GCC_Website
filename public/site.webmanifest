@@ -1,0 +1,22 @@
+{
+  "name": "GCC — Garg Core Construction",
+  "short_name": "GCC",
+  "description": "Engineered Right. Executed Responsibly. Turnkey villa and farmhouse construction across Noida, Jewar, Greater Noida, and Delhi NCR.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#252422",
+  "theme_color": "#6F1D1B",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
+

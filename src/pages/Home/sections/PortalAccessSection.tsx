@@ -30,7 +30,7 @@ export function PortalAccessSection({
         data-node-id="211:5382"
         aria-label="GCC AMC Portal Access"
         className={cn(
-          'relative w-full bg-[#FFFCF2]',
+          'relative z-10 -mt-[2px] w-full bg-[#FFFCF2]',
           className
         )}
       >

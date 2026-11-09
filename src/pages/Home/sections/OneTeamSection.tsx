@@ -707,7 +707,7 @@ export function OneTeamSection() {
   const [capsRef, capsIn] = useInViewOnce<HTMLDivElement>(0.2)
 
   return (
-    <div id="one-team">
+    <div id="one-team" className="relative z-10 w-full bg-[#FFFCF2]">
       {/* Animation keyframes (shared by mobile + desktop) */}
       <style>{`
         @keyframes gcc-flow {

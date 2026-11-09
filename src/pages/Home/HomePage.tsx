@@ -19,11 +19,14 @@ export function HomePage() {
       {/* 1. Hero */}
       <HeroSection />
 
-      {/* 2. One Team, Not 10 */}
-      <OneTeamSection />
+      {/* Cream wrapper for One Team & Structures We Build eliminates any subpixel seam */}
+      <div className="w-full bg-[#FFFCF2] relative z-10">
+        {/* 2. One Team, Not 10 */}
+        <OneTeamSection />
 
-      {/* 3. Structures We Build */}
-      <StructuresWeBuildSection />
+        {/* 3. Structures We Build */}
+        <StructuresWeBuildSection />
+      </div>
 
       {/* 4. About & Stats */}
       <AboutStatsSection />
@@ -46,11 +49,14 @@ export function HomePage() {
       {/* 9. Where We Build & Our Purpose */}
       <OurPurposeSection />
 
-      {/* 11. GCC AMC Portal Access */}
-      <PortalAccessSection />
+      {/* Cream wrapper for Portal Access & Testimonials eliminates any subpixel seam */}
+      <div className="w-full bg-[#FFFCF2] -mt-[2px] relative z-10">
+        {/* 11. GCC AMC Portal Access */}
+        <PortalAccessSection />
 
-      {/* 12. Testimonials */}
-      <TestimonialsSection />
+        {/* 12. Testimonials */}
+        <TestimonialsSection />
+      </div>
 
       {/* 13. Contact / Journey CTA */}
       <ContactSection />

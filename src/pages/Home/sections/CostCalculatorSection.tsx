@@ -1129,24 +1129,26 @@ export function CostCalculatorSection() {
         id="cost-calculator"
         data-node-id="211:6073"
         aria-label="Home Construction Cost Estimator"
-        className="relative z-10 -mt-px w-full bg-[#FFFCF2] py-8 sm:py-12 lg:py-14 px-4 sm:px-6 md:px-[96px] lg:px-[6rem]"
+        className="relative z-10 -mt-px w-full bg-[#FFFCF2] pt-8 pb-[72px] sm:pt-12 sm:pb-[80px] lg:py-14 px-4 sm:px-6 md:px-[96px] lg:px-[6rem]"
       >
         <div ref={bannerRef} className="mx-auto max-w-[1248px] w-full">
           {/* MOBILE CARD LAYOUT (Figma Node 214:6149) */}
           <div
             data-node-id="214:6149"
-            className={`md:hidden relative w-full h-[480px] rounded-[12px] bg-[#701E1C] overflow-hidden p-[20px] flex flex-col justify-between shadow-md transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none ${
+            className={`md:hidden relative w-full max-w-[350px] mx-auto h-[464px] rounded-[12px] bg-[#701E1C] overflow-hidden p-[20px] flex flex-col justify-between shadow-md transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none ${
               bannerIn ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
             }`}
           >
+            {/* Background Arch Pattern (Figma Node 214:6150) */}
             <div
-              className="pointer-events-none absolute -bottom-[10px] left-0 w-full h-[160px] select-none overflow-hidden opacity-30"
+              data-node-id="214:6150"
+              className="pointer-events-none absolute -bottom-[50px] left-0 w-[626px] h-[157px] select-none overflow-hidden"
               aria-hidden="true"
             >
               <img
                 src="/assets/images/how-we-build/calculator-design.webp"
                 alt=""
-                className="w-full h-full object-cover object-bottom"
+                className="w-full h-full object-contain object-left-bottom pointer-events-none select-none"
                 loading="lazy"
               />
             </div>
@@ -1163,11 +1165,11 @@ export function CostCalculatorSection() {
               />
             </div>
 
-            <div className="relative z-10 my-[30px] flex flex-col items-start">
+            <div className="relative z-10 flex flex-col items-start">
               <h3
                 data-node-id="214:6184"
                 style={{ fontFamily: '"Bai Jamjuree", sans-serif' }}
-                className="m-0 text-white text-[32px] sm:text-[36px] font-semibold leading-[40px] sm:leading-[44px] tracking-[-0.36px] text-left"
+                className="m-0 text-white text-[36px] font-semibold leading-[44px] tracking-[-0.36px] text-left"
               >
                 Home <br />
                 Construction <br />

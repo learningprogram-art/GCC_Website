@@ -92,7 +92,7 @@ export function StructuresWeBuildSection() {
 
       <section
         id="structures-we-build"
-        className="flex flex-col items-center gap-8 bg-[#FFFCF2] py-16 lg:py-[100px]"
+        className="relative z-10 -mt-px flex flex-col items-center gap-8 bg-[#FFFCF2] py-16 lg:py-[100px]"
       >
         {/* Header */}
         <div

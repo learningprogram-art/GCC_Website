@@ -40,24 +40,6 @@ const DEFAULT_NAV_LINKS: NavLinkItem[] = [
 
 const DEFAULT_CONSULTATION_HREF = '/contact'
 
-/** Looks at what is behind the navbar: 'light' for a light section, 'dark' for photos and dark sections. */
-function detectTheme(header: HTMLElement | null): 'light' | 'dark' {
-  if (!header) return 'dark'
-  // Sample at the page edge (outside the navbar pill) so we get the section colour, not content
-  const els = document.elementsFromPoint(12, 48)
-  for (const el of els) {
-    if (header.contains(el)) continue
-    if (el instanceof HTMLImageElement || el instanceof HTMLVideoElement) return 'dark'
-    const m = getComputedStyle(el).backgroundColor.match(/[\d.]+/g)
-    if (!m) continue
-    const [r, g, b, a = 1] = m.map(Number)
-    if (a < 0.5) continue
-    const lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255
-    return lum > 0.6 ? 'light' : 'dark'
-  }
-  return 'dark'
-}
-
 /** Changes only the address bar (no router navigation, no new history entry, no #hash). */
 function showPathInUrl(href: string) {
   window.history.replaceState(window.history.state, '', href)
@@ -85,12 +67,12 @@ export function Navbar({
   links = DEFAULT_NAV_LINKS,
   consultationHref = DEFAULT_CONSULTATION_HREF,
   logoSrc = '/assets/icons/logo/gcc-logo-white.svg',
-  logoDarkSrc = '/assets/icons/logo/gcc-logo.svg',
+  logoDarkSrc = '/assets/icons/logo/gcc-logo-brown.svg',
   className,
 }: NavbarProps) {
   const [open, setOpen] = useState(false)
   const [hidden, setHidden] = useState(false)
-  const [theme, setTheme] = useState<'light' | 'dark'>('dark')
+  const [isScrolledPastHero, setIsScrolledPastHero] = useState(false)
   const headerRef = useRef<HTMLElement>(null)
   const lastY = useRef(0)
   const openRef = useRef(open)
@@ -131,16 +113,27 @@ export function Navbar({
       const y = window.scrollY
       const delta = y - lastY.current
 
-      if (openRef.current || y < 80) {
+      if (openRef.current || y < 120) {
         setHidden(false) // never hide near the top or while the menu is open
-      } else if (delta > 6) {
-        setHidden(true) // scrolling down
-      } else if (delta < -6) {
+      } else if (delta > 20 && y > 800) {
+        setHidden(true) // scrolling down fast far past hero
+      } else if (delta < -8) {
         setHidden(false) // scrolling up
       }
 
       if (Math.abs(delta) > 6 || y < 80) lastY.current = y
-      setTheme(detectTheme(headerRef.current))
+
+      // Check if user has scrolled down to sections after the hero section
+      const hero = document.getElementById('hero') || document.getElementById('hero-mobile')
+      let pastHero = false
+      if (hero && hero.offsetHeight > 0) {
+        const rect = hero.getBoundingClientRect()
+        pastHero = rect.bottom <= 80
+      } else {
+        pastHero = y > 60
+      }
+      setIsScrolledPastHero(pastHero)
+
       ticking = false
     }
 
@@ -159,12 +152,11 @@ export function Navbar({
     }
   }, [])
 
-  // The menu is transparent now, so colours follow the section behind it (open or closed)
-  const light = theme === 'light'
-
   const linkClass = cn(
     'whitespace-nowrap transition-colors',
-    light ? 'text-[#252422] hover:text-[#6F1D1B]' : 'text-white hover:text-[#FFE6A7]'
+    isScrolledPastHero
+      ? 'text-[#6F6F6F] hover:text-[#6F1D1B]'
+      : 'text-white hover:text-[#FFE6A7]'
   )
 
   return (
@@ -179,26 +171,39 @@ export function Navbar({
     >
       <div
         className={cn(
-          'relative rounded-[13px] border px-4 py-3 transition-colors duration-300 lg:px-4 lg:py-2',
+          'relative rounded-[13px] border px-4 py-3 transition-all duration-300 lg:px-4 lg:py-2',
           open ? 'backdrop-blur-xl' : 'backdrop-blur-md',
-          light
-            ? 'border-[#252422]/15 bg-transparent'
+          isScrolledPastHero
+            ? 'border-[rgba(133,133,133,0.2)] bg-white shadow-sm'
             : 'border-white/20 bg-transparent'
         )}
       >
         <div className="flex items-center justify-between">
-          {/* Logo */}
+          {/* Logo with smooth crossfade */}
           <Link
             to="/"
             aria-label="Garg Core Construction home"
-            className="shrink-0 flex items-center"
+            className="shrink-0 relative flex items-center h-[34px] w-[177px]"
           >
             <img
-              src={light ? logoDarkSrc : logoSrc}
+              src={logoSrc}
               alt="Garg Core Construction"
               width={177}
               height={34}
-              className="h-[34px] w-auto max-w-[177px]"
+              className={cn(
+                'absolute left-0 top-0 h-[34px] w-auto max-w-[177px] transition-opacity duration-300',
+                isScrolledPastHero ? 'opacity-0 pointer-events-none' : 'opacity-100'
+              )}
+            />
+            <img
+              src={logoDarkSrc}
+              alt="Garg Core Construction"
+              width={177}
+              height={34}
+              className={cn(
+                'absolute left-0 top-0 h-[34px] w-auto max-w-[177px] transition-opacity duration-300',
+                isScrolledPastHero ? 'opacity-100' : 'opacity-0 pointer-events-none'
+              )}
             />
           </Link>
 
@@ -240,8 +245,8 @@ export function Navbar({
             onClick={() => setOpen((v) => !v)}
             className={cn(
               'flex size-11 items-center justify-center rounded-xl transition-colors lg:hidden cursor-pointer',
-              light
-                ? 'bg-[#252422]/10 text-[#252422] hover:bg-[#252422]/15'
+              isScrolledPastHero
+                ? 'bg-[#FFFCF2] border border-[rgba(133,133,133,0.25)] text-[#6F1D1B] hover:bg-[#F5F0E6]'
                 : 'bg-white/15 text-white hover:bg-white/20'
             )}
           >
@@ -269,7 +274,7 @@ export function Navbar({
           <div
             className={cn(
               "mt-3 flex flex-col gap-1 border-t pt-3 font-['Hanken_Grotesk',sans-serif] lg:hidden",
-              light ? 'border-[#252422]/15' : 'border-white/15'
+              isScrolledPastHero ? 'border-[rgba(133,133,133,0.2)]' : 'border-white/15'
             )}
           >
             {links.map((link) => (
@@ -279,8 +284,8 @@ export function Navbar({
                 onClick={(e) => handleNavClick(e, link.href)}
                 className={cn(
                   'rounded-lg px-2 py-3 text-[14px] font-medium uppercase leading-6 transition-colors',
-                  light
-                    ? 'text-[#252422] hover:bg-[#252422]/10'
+                  isScrolledPastHero
+                    ? 'text-[#6F6F6F] hover:text-[#6F1D1B] hover:bg-black/5'
                     : 'text-white hover:bg-white/10'
                 )}
               >

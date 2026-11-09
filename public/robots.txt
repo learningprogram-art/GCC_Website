@@ -1,0 +1,10 @@
+# robots.txt for GCC - Garg Core Construction
+User-agent: *
+Allow: /
+
+# Disallow build / admin / internal routes if any
+Disallow: /api/
+
+# Sitemaps
+Sitemap: https://gargcoreconstruction.com/sitemap.xml
+
