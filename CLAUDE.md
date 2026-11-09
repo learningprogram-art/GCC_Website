@@ -1,5 +1,4 @@
 # CLAUDE.md — Reidius Infra website
-
 Next.js (App Router) website for Reidius Infra, a Jaipur construction and
 architecture company. **These rules are mandatory for every change.**
 
