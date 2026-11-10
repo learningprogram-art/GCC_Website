@@ -59,7 +59,7 @@ export const OurPurposeSection: React.FC = () => {
       ref={sectionRef}
       id="our-purpose-section"
       data-node-id="211:5359"
-      className="relative w-full self-stretch min-h-[840px] sm:min-h-[920px] lg:h-[1112px] lg:min-h-[1112px] flex flex-col justify-start"
+      className="our-purpose-sec relative w-full self-stretch flex flex-col justify-start"
       style={{
         backgroundImage:
           'linear-gradient(123.65deg, #2A0A09 4.84%, #6F1D1B 32.26%, #E06422 61.29%, #FB8B24 85.48%)',
@@ -87,7 +87,7 @@ export const OurPurposeSection: React.FC = () => {
         {/* Glow / sand (bottom-right) - Figma Node 211:5362 (#FFE6A7 · 55%) */}
         <div
           data-node-id="211:5362"
-          className="absolute top-[360px] lg:top-[390px] left-[45%] sm:left-[50%] lg:left-[calc(50%+40px)] min-[1440px]:left-[calc(50%+80px)] w-[700px] lg:w-[820px] h-[480px] lg:h-[520px] rounded-full pointer-events-none select-none"
+          className="our-purpose-glow-sand absolute rounded-full pointer-events-none select-none"
           style={{
             background:
               'radial-gradient(ellipse at center, rgba(255, 230, 167, 0.75) 0%, rgba(255, 230, 167, 0.55) 40%, rgba(255, 230, 167, 0.25) 65%, transparent 80%)',
@@ -98,7 +98,7 @@ export const OurPurposeSection: React.FC = () => {
         {/* Glow / orange (right) - Figma Node 211:5363 */}
         <div
           data-node-id="211:5363"
-          className="absolute top-[120px] left-[1000px] min-[1440px]:left-[calc(50%+280px)] w-[600px] h-[420px] rounded-full blur-[120px] opacity-40"
+          className="our-purpose-glow-orange absolute top-[120px] w-[600px] h-[420px] rounded-full blur-[120px] opacity-40"
           style={{ background: 'radial-gradient(circle, #E06422 0%, transparent 70%)' }}
         />
 
@@ -106,7 +106,7 @@ export const OurPurposeSection: React.FC = () => {
         <div
           ref={ghostMarkRef}
           data-node-id="211:5364"
-          className="absolute left-[52px] sm:left-[51%] lg:left-[calc(50%+20px)] min-[1440px]:left-[calc(50%+40px)] xl:left-[calc(50%+30px)] top-[180px] sm:top-[120px] lg:top-[110px] w-[676.72px] sm:w-[1268.027px] h-[300px] sm:h-[562.132px] pointer-events-none select-none"
+          className="our-purpose-ghost absolute pointer-events-none select-none"
           style={{
             transform: 'translate3d(0, 0px, 0)',
             willChange: 'transform',
@@ -127,7 +127,7 @@ export const OurPurposeSection: React.FC = () => {
       */}
       <div
         id="where-we-build"
-        className="relative z-30 -mt-[250px] sm:-mt-[35px] lg:-mt-[40px] w-full px-5 sm:px-12 lg:px-[96px]"
+        className="our-purpose-card-slot relative z-30 w-full px-5 sm:px-12 lg:px-[96px]"
       >
         <WhereWeBuildCard />
       </div>
@@ -141,13 +141,14 @@ export const OurPurposeSection: React.FC = () => {
         ref={purposeRef}
         id="our-purpose"
         data-node-id="211:5376"
-        className={`relative z-20 mx-auto px-6 sm:px-4 min-[1080px]:px-0 flex flex-col items-center gap-[24px] lg:gap-[32px] text-center mt-[96px] sm:mt-28 lg:mt-[215px] pb-12 sm:pb-16 lg:pb-[110px] transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none ${purposeIn ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
-          }`}
+        className={`our-purpose-content relative z-20 mx-auto w-full flex flex-col items-center text-center transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none ${
+          purposeIn ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
+        }`}
       >
         {/* Eyebrow (Figma Node 211:5377 & 199:3367) */}
         <div
           data-node-id="211:5377"
-          className="flex items-center gap-[10px] sm:gap-[12px] overflow-hidden shrink-0"
+          className="our-purpose-eyebrow flex items-center overflow-hidden shrink-0"
         >
           <div
             data-node-id="211:5378"
@@ -180,13 +181,158 @@ export const OurPurposeSection: React.FC = () => {
           style={{
             fontFamily: '"Bai Jamjuree", sans-serif',
           }}
-          className="m-0 text-center font-medium text-[32px] sm:text-[clamp(36px,4.5vw,56px)] min-[1080px]:text-[60px] leading-[1.18] min-[1080px]:leading-[1.12] tracking-[-0.32px] min-[1080px]:tracking-[-0.9px] text-[#FFFCF2] w-full max-w-[342px] sm:max-w-[760px] min-[1080px]:max-w-[1040px] [text-wrap:balance]"
+          className="our-purpose-heading m-0 text-center font-medium antialiased text-[#FFFCF2] w-full"
         >
           <span>GCC exists to bring </span>
-          <span className="text-[#FFE6A7]">clarity and confidence</span>
-          <span> to how spaces are imagined, engineered and built.</span>
+          <span className="text-[#FFE6A7]">
+            clarity and
+            <br className="our-purpose-br" /> confidence
+          </span>
+          <span>
+            {' '}
+            to how spaces are
+            <br className="our-purpose-br" /> imagined, engineered and built.
+          </span>
         </h2>
       </div>
+
+      <style>{`
+        .our-purpose-sec {
+          min-height: 840px;
+        }
+        .our-purpose-glow-sand {
+          top: 360px;
+          left: 45%;
+          width: 700px;
+          height: 480px;
+        }
+        .our-purpose-glow-orange {
+          left: 1000px;
+        }
+        .our-purpose-ghost {
+          left: 52px;
+          top: 180px;
+          width: 676.72px;
+          height: 300px;
+        }
+        .our-purpose-card-slot {
+          margin-top: -250px;
+        }
+        .our-purpose-content {
+          margin-top: 96px;
+          padding: 0 24px 48px;
+          gap: 24px;
+        }
+        .our-purpose-eyebrow {
+          gap: 10px;
+        }
+        .our-purpose-heading {
+          font-size: 32px;
+          line-height: 1.18;
+          letter-spacing: -0.32px;
+          max-width: 342px;
+        }
+        .our-purpose-br {
+          display: none;
+        }
+
+        @media (min-width: 640px) {
+          .our-purpose-sec {
+            min-height: 920px;
+          }
+          .our-purpose-glow-sand {
+            left: 50%;
+          }
+          .our-purpose-ghost {
+            left: 51%;
+            top: 120px;
+            width: 1268.027px;
+            height: 562.132px;
+          }
+          .our-purpose-card-slot {
+            margin-top: -35px;
+          }
+          .our-purpose-content {
+            margin-top: 112px;
+            padding: 0 16px 64px;
+          }
+          .our-purpose-eyebrow {
+            gap: 12px;
+          }
+          .our-purpose-heading {
+            font-size: clamp(36px, 4.5vw, 56px);
+            line-height: 1.15;
+            letter-spacing: -0.6px;
+            max-width: 760px;
+          }
+        }
+
+        @media (min-width: 1080px) {
+          .our-purpose-sec {
+            min-height: 1040px;
+          }
+          .our-purpose-card-slot {
+            margin-top: -70px;
+          }
+          .our-purpose-content {
+            margin-top: 122px;
+            padding-left: 0;
+            padding-right: 0;
+            padding-bottom: 110px;
+            gap: 32px;
+          }
+          .our-purpose-heading {
+            font-size: 60px;
+            line-height: 1.12;
+            letter-spacing: -0.9px;
+            max-width: 1040px;
+          }
+          .our-purpose-br {
+            display: inline;
+          }
+        }
+
+        @media (min-width: 1280px) {
+          .our-purpose-sec {
+            height: 1112px;
+            min-height: 1112px;
+          }
+          .our-purpose-glow-sand {
+            top: 390px;
+            left: calc(50% + 40px);
+            width: 820px;
+            height: 520px;
+          }
+          .our-purpose-ghost {
+            left: calc(50% + 30px);
+            top: 110px;
+          }
+          .our-purpose-card-slot {
+            margin-top: -70px;
+          }
+          .our-purpose-content {
+            margin-top: 122px;
+            padding-bottom: 0;
+            gap: 32px;
+          }
+        }
+
+        @media (min-width: 1440px) {
+          .our-purpose-glow-sand {
+            left: calc(50% + 80px);
+          }
+          .our-purpose-glow-orange {
+            left: calc(50% + 280px);
+          }
+          .our-purpose-ghost {
+            left: calc(50% + 40px);
+          }
+          .our-purpose-heading {
+            font-size: clamp(60px, 4.16667vw, 80px);
+            max-width: clamp(1040px, 72.2222vw, 1386px);
+          }
+        }
+      `}</style>
     </section>
   );
 };

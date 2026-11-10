@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import type { CSSProperties, MouseEvent } from 'react'
+import { useAutoSlide } from '@/hooks/useAutoSlide'
 import '@fontsource/hanken-grotesk/400.css'
 import '@fontsource/hanken-grotesk/500.css'
 import '@fontsource/hanken-grotesk/600.css'
@@ -48,6 +49,7 @@ const ICONS = [ICON_LIVE_APP, ICON_QUALITY, ICON_ONE_TEAM, ICON_MAINTENANCE]
 const STACK = ['z-[4]', 'z-[3]', 'z-[2]', 'z-[1]']
 
 const GAP = 12 // matches the carousel / grid gap
+const AUTO_SLIDE_MS = 3000
 
 // Scrolls to the contact section and shows /contact in the URL (no #hash)
 const goToContact = (e: MouseEvent) => {
@@ -304,6 +306,7 @@ const CARDS = [
 
 export function TransparencySection() {
   const trackRef = useRef<HTMLDivElement>(null)
+  const activeRef = useRef(0)
   const [active, setActive] = useState(0)
 
   // Scroll reveals
@@ -311,6 +314,10 @@ export function TransparencySection() {
   const heading = useReveal<HTMLHeadingElement>(100)
   const cards = useReveal<HTMLDivElement>(0) // one trigger for the whole card row
   const strip = useReveal<HTMLDivElement>(0)
+
+  useEffect(() => {
+    activeRef.current = active
+  }, [active])
 
   // Mobile / tablet carousel: work out the current card from the scroll position
   const handleScroll = () => {
@@ -322,18 +329,29 @@ export function TransparencySection() {
     setActive(Math.min(Math.max(index, 0), CARDS.length - 1))
   }
 
-  const scrollToCard = (i: number) => {
+  const scrollToCard = useCallback((i: number) => {
     const el = trackRef.current
     if (!el || !el.firstElementChild) return
     const step = (el.firstElementChild as HTMLElement).offsetWidth + GAP
     el.scrollTo({ left: i * step, behavior: 'smooth' })
-  }
+  }, [])
+
+  const advanceMobileSlide = useCallback(() => {
+    scrollToCard((activeRef.current + 1) % CARDS.length)
+  }, [scrollToCard])
+
+  const { setIsPaused, pause, resume, resetTimer } = useAutoSlide({
+    targetRef: trackRef,
+    intervalMs: AUTO_SLIDE_MS,
+    mediaQuery: '(max-width: 1023px)',
+    onSlide: advanceMobileSlide,
+  })
 
   return (
     <>
       <style>{SECTION_CSS}</style>
 
-      <section id="transparency" className="bg-[#FFE6A7] pt-[72px] pb-[330px] sm:py-[90px]">
+      <section id="transparency" className="relative z-10 -mt-[2px] bg-[#FFE6A7] pt-[74px] pb-[330px] sm:pt-[92px] sm:pb-[90px]">
         <div className="mx-auto flex max-w-[1252px] flex-col items-center gap-10 sm:gap-[34px]">
           {/* Header */}
           <div className="flex w-full flex-col items-start gap-6">
@@ -361,7 +379,14 @@ export function TransparencySection() {
 
           {/* Cards: swipe carousel below 1024px, four-column grid from 1024px */}
           <div ref={cards.ref} className="w-full">
-            <div ref={trackRef} onScroll={handleScroll} className="tr-track">
+            <div
+              ref={trackRef}
+              onScroll={handleScroll}
+              onTouchStart={pause}
+              onTouchEnd={resume}
+              onTouchCancel={() => setIsPaused(false)}
+              className="tr-track"
+            >
               {CARDS.map(({ title, body, icon, Art }, i) => (
                 <article
                   key={title}
@@ -413,7 +438,10 @@ export function TransparencySection() {
                   role="tab"
                   aria-selected={active === i}
                   aria-label={`Go to ${title}`}
-                  onClick={() => scrollToCard(i)}
+                  onClick={() => {
+                    scrollToCard(i)
+                    resetTimer()
+                  }}
                   className={`h-2 rounded-full transition-all duration-300 ${
                     active === i ? 'w-6 bg-[#6F1D1B]' : 'w-2 bg-[#D9C28A]'
                   }`}

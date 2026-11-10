@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react"
+import { useAutoSlide } from "@/hooks/useAutoSlide"
 
 // Figma node: 211:5177 — Section / Why GCC (bg layers: 211:5178 glow, 211:5179 glow core, 211:5180 dot grid, 211:5198 edge fade)
 const CARDS = [
@@ -8,7 +9,6 @@ const CARDS = [
     title: ["Engineering", "Strength"],
     body: "Structural engineering and detailed drawings that ensure the design is built right from the start.",
     image: "/assets/images/why-gcc/engineering-strength.webp",
-    imageMobile: "/assets/images/why-gcc/engineering-strength-mobile.webp",
     alt: "Worker on a concrete beam while a crane lifts a concrete block",
   },
   {
@@ -44,11 +44,11 @@ const BASE_INDEX = Math.floor(REPEATS / 2) * N // Center cycle starts at index 8
 
 const TRACK_ITEMS = Array.from({ length: REPEATS * N }, (_, idx) => ({
   idx,
-  cardIndex: idx % N,
   card: CARDS[idx % N],
 }))
 
 const EASE = "cubic-bezier(0.22, 1, 0.36, 1)"
+const AUTO_SLIDE_MS = 3000
 
 /** Returns [ref, inView]. Flips to true once, the first time the element scrolls into view. */
 function useInViewOnce<T extends HTMLElement>(threshold = 0.2) {
@@ -82,35 +82,52 @@ export function WhyGccSection() {
   // Track position in infinite buffer
   const [trackIndex, setTrackIndex] = useState(BASE_INDEX)
   const [instant, setInstant] = useState(false)
+
   const trackRef = useRef<HTMLDivElement>(null)
   const touchStartX = useRef<number | null>(null)
   const touchStartY = useRef<number | null>(null)
 
   const activeCardIndex = ((trackIndex % N) + N) % N
 
+  const advanceSlide = useCallback(() => {
+    setInstant(false)
+    setTrackIndex((prev) => (prev >= REPEATS * N - 1 ? BASE_INDEX : prev + 1))
+  }, [])
+
+  const { setIsPaused, pause, resume, resetTimer } = useAutoSlide({
+    targetRef: carouselRef,
+    intervalMs: AUTO_SLIDE_MS,
+    onSlide: advanceSlide,
+  })
+
   // Navigate to next card (infinite loop)
   const goNext = useCallback(() => {
-    setInstant(false)
-    setTrackIndex((prev) => prev + 1)
-  }, [])
+    advanceSlide()
+    resetTimer()
+  }, [advanceSlide, resetTimer])
 
   // Navigate to previous card (infinite loop)
   const goPrev = useCallback(() => {
     setInstant(false)
-    setTrackIndex((prev) => prev - 1)
-  }, [])
+    setTrackIndex((prev) => (prev <= 0 ? BASE_INDEX : prev - 1))
+    resetTimer()
+  }, [resetTimer])
 
   // Navigate to a specific tab / dot via the shortest path
-  const goToCard = useCallback((target: number) => {
-    setInstant(false)
-    setTrackIndex((prev) => {
-      const curMod = ((prev % N) + N) % N
-      let diff = target - curMod
-      if (diff > N / 2) diff -= N
-      if (diff < -N / 2) diff += N
-      return prev + diff
-    })
-  }, [])
+  const goToCard = useCallback(
+    (target: number) => {
+      setInstant(false)
+      setTrackIndex((prev) => {
+        const curMod = ((prev % N) + N) % N
+        let diff = target - curMod
+        if (diff > N / 2) diff -= N
+        if (diff < -N / 2) diff += N
+        return prev + diff
+      })
+      resetTimer()
+    },
+    [resetTimer]
+  )
 
   // Silently re-center when drifting near buffer edges
   const handleTransitionEnd = useCallback((e: React.TransitionEvent<HTMLDivElement>) => {
@@ -148,8 +165,10 @@ export function WhyGccSection() {
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.touches[0].clientX
     touchStartY.current = e.touches[0].clientY
+    pause()
   }
   const handleTouchEnd = (e: React.TouchEvent) => {
+    resume()
     if (touchStartX.current === null || touchStartY.current === null) return
     const dx = e.changedTouches[0].clientX - touchStartX.current
     const dy = e.changedTouches[0].clientY - touchStartY.current
@@ -190,6 +209,21 @@ export function WhyGccSection() {
           <h2 className="why-gcc-title">The GCC Difference</h2>
         </div>
 
+        {/* Tabs + Carousel wrapper (pauses auto-slide while hovered with mouse or focused) */}
+        <div
+          onPointerEnter={(e) => {
+            if (e.pointerType === "mouse") setIsPaused(true)
+          }}
+          onPointerLeave={(e) => {
+            if (e.pointerType === "mouse") setIsPaused(false)
+          }}
+          onFocusCapture={() => setIsPaused(true)}
+          onBlurCapture={(e) => {
+            if (!e.currentTarget.contains(e.relatedTarget as Node | null)) {
+              setIsPaused(false)
+            }
+          }}
+        >
         {/* Tabs (hidden on mobile) */}
         <div
           style={{ transitionDelay: headIn ? "120ms" : "0ms" }}
@@ -232,7 +266,11 @@ export function WhyGccSection() {
             onKeyDown={handleKeyDown}
             onTouchStart={handleTouchStart}
             onTouchEnd={handleTouchEnd}
+            onTouchCancel={() => setIsPaused(false)}
           >
+            {/* Static radial background fade (never moves when cards slide) */}
+            <div aria-hidden="true" className="why-gcc__fade" />
+
             <div
               ref={trackRef}
               className="why-gcc__track"
@@ -242,31 +280,15 @@ export function WhyGccSection() {
               }}
               onTransitionEnd={handleTransitionEnd}
             >
-              {/*
-                Figma: BG / Edge fade. Sits above the side cards, below the active card.
-                It lives inside the track (so it can sit between those layers) and is
-                counter-translated by the same amount, so it stays centered on the screen.
-              */}
-              <div
-                aria-hidden="true"
-                className="why-gcc__fade"
-                style={{
-                  transform: `translateX(calc(${trackIndex} * (var(--w) + var(--gap))))`,
-                  transition: instant ? "none" : `transform 0.65s ${EASE}`,
-                }}
-              />
 
               {TRACK_ITEMS.map((item) => {
                 const isActive = item.idx === trackIndex
-                const distFromActive = Math.abs(item.idx - trackIndex)
-                const isSide = distFromActive === 1
-                const isFar = distFromActive > 1
+                const isFar = Math.abs(item.idx - trackIndex) > 1
 
                 return (
                   <div
                     key={item.idx}
                     data-active={isActive}
-                    data-side={isSide}
                     data-far={isFar}
                     tabIndex={isActive ? 0 : -1}
                     aria-hidden={!isActive}
@@ -274,6 +296,7 @@ export function WhyGccSection() {
                       if (!isActive) {
                         setInstant(false)
                         setTrackIndex(item.idx)
+                        resetTimer()
                       }
                     }}
                     className="why-gcc__card"
@@ -329,6 +352,10 @@ export function WhyGccSection() {
                 )
               })}
             </div>
+
+            {/* Static side-edge fades over outer peeking cards only (center active card stays untouched) */}
+            <div aria-hidden="true" className="why-gcc__edge-fade why-gcc__edge-fade--left" />
+            <div aria-hidden="true" className="why-gcc__edge-fade why-gcc__edge-fade--right" />
           </div>
 
           {/* Bottom row: dots (mobile only) + navigation arrows */}
@@ -353,6 +380,7 @@ export function WhyGccSection() {
                 type="button"
                 onClick={goPrev}
                 aria-label="Previous card"
+                data-active={activeCardIndex > 0}
                 className="why-gcc__arrow why-gcc__arrow--prev"
               >
                 <svg
@@ -373,6 +401,7 @@ export function WhyGccSection() {
                 type="button"
                 onClick={goNext}
                 aria-label="Next card"
+                data-active={activeCardIndex < N - 1}
                 className="why-gcc__arrow why-gcc__arrow--next"
               >
                 <svg
@@ -391,6 +420,7 @@ export function WhyGccSection() {
               </button>
             </div>
           </div>
+        </div>
         </div>
       </div>
 
@@ -460,24 +490,51 @@ export function WhyGccSection() {
           background-position: 6px 0;
         }
 
-        /* BG / Edge fade — transparent centre to solid #6F1D1B at the edges (ellipse 720 x 590) */
+        /* BG / Edge fade — static centered radial fade behind track (transparent centre to solid #6F1D1B at edges) */
         .why-gcc__fade {
-  position: absolute;
-  left: calc(var(--w) / 2 - 2000px);   /* was: calc(var(--w) / 2 - 720px) */
-  top: 50%;
-  width: 4000px;                        /* was: 1440px */
-  height: 1180px;
-  margin-top: -590px;
-  pointer-events: none;
-  z-index: 1;
-  background: radial-gradient(
-    ellipse 720px 590px at 50% 50%,
-    rgba(111, 29, 27, 0) 0%,
-    rgba(111, 29, 27, 0.35) 60%,
-    rgba(111, 29, 27, 1) 100%
-  );
-  will-change: transform;
-}
+          position: absolute;
+          left: 50%;
+          top: 50%;
+          width: 4000px;
+          height: 1180px;
+          transform: translate(-50%, -50%);
+          pointer-events: none;
+          z-index: 0;
+          background: radial-gradient(
+            ellipse 720px 590px at 50% 50%,
+            rgba(111, 29, 27, 0) 0%,
+            rgba(111, 29, 27, 0.35) 60%,
+            rgba(111, 29, 27, 1) 100%
+          );
+        }
+
+        /* Static left/right edge vignettes over peeking side cards */
+        .why-gcc__edge-fade {
+          position: absolute;
+          top: -24px;
+          bottom: -24px;
+          width: 50vw;
+          pointer-events: none;
+          z-index: 3;
+        }
+        .why-gcc__edge-fade--left {
+          right: calc(50% + var(--w) / 2 + var(--gap) / 2);
+          background: linear-gradient(
+            90deg,
+            #6f1d1b 0%,
+            rgba(111, 29, 27, 0.65) 55%,
+            rgba(111, 29, 27, 0) 100%
+          );
+        }
+        .why-gcc__edge-fade--right {
+          left: calc(50% + var(--w) / 2 + var(--gap) / 2);
+          background: linear-gradient(
+            270deg,
+            #6f1d1b 0%,
+            rgba(111, 29, 27, 0.65) 55%,
+            rgba(111, 29, 27, 0) 100%
+          );
+        }
 
         /* Headings */
         .why-gcc-head {
@@ -570,6 +627,7 @@ export function WhyGccSection() {
         /* Sliding track */
         .why-gcc__track {
           position: relative;
+          z-index: 1;
           display: flex;
           align-items: center;
           gap: var(--gap);
@@ -745,32 +803,28 @@ export function WhyGccSection() {
           height: 52px;
           border-radius: 8px;
           cursor: pointer;
-          transition: transform 0.2s ease, background-color 0.2s ease, opacity 0.2s ease;
+          transition: transform 0.2s ease, background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease;
         }
-        .why-gcc__arrow:not(:disabled):hover {
+        .why-gcc__arrow:hover {
           transform: scale(1.06);
         }
-        .why-gcc__arrow:not(:disabled):active {
+        .why-gcc__arrow:active {
           transform: scale(0.94);
         }
-        .why-gcc__arrow:disabled {
-          opacity: 0.35;
-          cursor: not-allowed;
-        }
-        .why-gcc__arrow--prev {
+        .why-gcc__arrow[data-active="false"] {
           background: #6f1d1b;
           color: #fffcf2;
           border: 1px solid rgba(255, 252, 242, 0.2);
         }
-        .why-gcc__arrow--prev:not(:disabled):hover {
+        .why-gcc__arrow[data-active="false"]:hover {
           background: #7d2220;
         }
-        .why-gcc__arrow--next {
+        .why-gcc__arrow[data-active="true"] {
           background: #fffcf2;
           color: #252422;
           border: 1px solid #fffcf2;
         }
-        .why-gcc__arrow--next:not(:disabled):hover {
+        .why-gcc__arrow[data-active="true"]:hover {
           background: #ffffff;
         }
 
@@ -828,7 +882,8 @@ export function WhyGccSection() {
           }
 
           /* Desktop-only edge fade (peek card has its own mobile treatment) */
-          .why-gcc__fade {
+          .why-gcc__fade,
+          .why-gcc__edge-fade {
             display: none;
           }
 
@@ -923,6 +978,7 @@ export function WhyGccSection() {
           }
           .why-gcc__card[data-active="true"] .why-gcc__ctitle {
             font-size: 22px;
+            min-height: calc(22px * 1.22 * 2);
           }
 
           .why-gcc__body {
@@ -999,21 +1055,10 @@ export function WhyGccSection() {
             width: 48px;
             height: 48px;
           }
-
-          /* Prev button: outlined, transparent (as in the mobile design) */
-          .why-gcc__arrow--prev {
-            background: transparent;
-            border: 1px solid rgba(255, 252, 242, 0.5);
-            color: #fffcf2;
-          }
-          .why-gcc__arrow--prev:not(:disabled):hover {
-            background: rgba(255, 252, 242, 0.08);
-          }
         }
 
         @media (prefers-reduced-motion: reduce) {
           .why-gcc__track,
-          .why-gcc__fade,
           .why-gcc__card,
           .why-gcc__num,
           .why-gcc__ctitle,

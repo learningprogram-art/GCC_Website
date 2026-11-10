@@ -155,15 +155,18 @@ export function TestimonialsSection({
     [items.length]
   )
 
+  const canPrev = activeIndex > 0
+  const canNext = activeIndex < items.length - 1
+
   const handlePrev = useCallback(() => {
-    const nextIdx = activeIndex > 0 ? activeIndex - 1 : items.length - 1
-    scrollToCard(nextIdx)
-  }, [activeIndex, items.length, scrollToCard])
+    if (!canPrev) return
+    scrollToCard(activeIndex - 1)
+  }, [canPrev, activeIndex, scrollToCard])
 
   const handleNext = useCallback(() => {
-    const nextIdx = activeIndex < items.length - 1 ? activeIndex + 1 : 0
-    scrollToCard(nextIdx)
-  }, [activeIndex, items.length, scrollToCard])
+    if (!canNext) return
+    scrollToCard(activeIndex + 1)
+  }, [canNext, activeIndex, scrollToCard])
 
   // Keyboard navigation (ArrowLeft & ArrowRight)
   const handleKeyDown = useCallback(
@@ -327,8 +330,15 @@ export function TestimonialsSection({
                 <button
                   type="button"
                   onClick={handlePrev}
+                  disabled={!canPrev}
                   aria-label="Previous testimonial"
-                  className="flex size-[3.25rem] items-center justify-center rounded-[0.5rem] border border-[#CCC5B9] bg-transparent text-[#252422] transition-colors hover:border-[#252422] active:bg-[#252422]/5 cursor-default select-none"
+                  data-active={canPrev}
+                  className={cn(
+                    'flex size-[3.25rem] items-center justify-center rounded-[0.5rem] border transition-colors duration-200 select-none',
+                    canPrev
+                      ? 'border-[#6F1D1B] bg-[#6F1D1B] text-white hover:bg-[#5A1716] active:bg-[#481211] shadow-sm cursor-pointer'
+                      : 'border-[#CCC5B9] bg-[#FFFCF2] text-[#252422] cursor-not-allowed'
+                  )}
                 >
                   <svg
                     width="24"
@@ -350,8 +360,15 @@ export function TestimonialsSection({
                 <button
                   type="button"
                   onClick={handleNext}
+                  disabled={!canNext}
                   aria-label="Next testimonial"
-                  className="flex size-[3.25rem] items-center justify-center rounded-[0.5rem] bg-[#6F1D1B] text-white transition-colors hover:bg-[#5A1716] active:bg-[#481211] cursor-default select-none shadow-sm"
+                  data-active={canNext}
+                  className={cn(
+                    'flex size-[3.25rem] items-center justify-center rounded-[0.5rem] border transition-colors duration-200 select-none',
+                    canNext
+                      ? 'border-[#6F1D1B] bg-[#6F1D1B] text-white hover:bg-[#5A1716] active:bg-[#481211] shadow-sm cursor-pointer'
+                      : 'border-[#CCC5B9] bg-[#FFFCF2] text-[#252422] cursor-not-allowed'
+                  )}
                 >
                   <svg
                     width="24"
@@ -404,7 +421,7 @@ export function TestimonialsSection({
                   onClick={() => scrollToCard(idx)}
                   className={cn(
                     'relative flex flex-col justify-between shrink-0 overflow-clip transition-all duration-300 cursor-default select-none',
-                    'w-[318px] sm:w-[720px] h-[490px] sm:h-[620px]',
+                    'w-[318px] sm:w-[720px] min-h-[490px] sm:h-[620px]',
                     isActive
                       ? 'bg-[#252422] text-[#FFFCF2]'
                       : 'bg-white border border-[#CCC5B9] text-[#252422]'
@@ -430,72 +447,39 @@ export function TestimonialsSection({
                     </blockquote>
 
                     {/* Metrics Row (Figma Node 211:5432 - gap 56px) */}
-                    <div className="flex flex-wrap gap-[28px] sm:gap-[56px] pt-[1rem] sm:pt-0 cursor-text select-text">
-                      {/* Metric 1 */}
-                      <div className="flex flex-col gap-[2px] sm:gap-[4px] cursor-text select-text">
-                        {/* GCC/Stat/M: Bai Jamjuree, SemiBold, 28px, 36px line-height, -0.14px letter-spacing */}
-                        <span
-                          style={{
-                            fontFamily: '"Bai Jamjuree", sans-serif',
-                            fontSize: '28px',
-                            lineHeight: '36px',
-                            letterSpacing: '-0.14px',
-                            fontWeight: 600,
-                            fontStyle: 'normal',
-                            color: isActive ? '#FB8B24' : '#99582A',
-                          }}
-                          className="cursor-text select-text"
+                    <div className="grid grid-cols-2 gap-x-[16px] gap-y-[12px] sm:flex sm:flex-wrap sm:gap-[56px] pt-[1rem] sm:pt-0 cursor-text select-text">
+                      {[item.metric1, item.metric2].map((metric, metricIdx) => (
+                        <div
+                          key={metricIdx}
+                          className="flex flex-col gap-[2px] sm:gap-[4px] cursor-text select-text"
                         >
-                          {item.metric1.value}
-                        </span>
-                        {/* GCC/Body/S: Hanken Grotesk, 14px, 500, 20px line-height */}
-                        <span
-                          style={{
-                            fontFamily: '"Hanken Grotesk", sans-serif',
-                            fontSize: '14px',
-                            lineHeight: '20px',
-                            fontWeight: 500,
-                            fontStyle: 'normal',
-                            color: isActive ? '#CCC5B9' : '#403D39',
-                          }}
-                          className="cursor-text select-text"
-                        >
-                          {item.metric1.label}
-                        </span>
-                      </div>
-
-                      {/* Metric 2 */}
-                      <div className="flex flex-col gap-[2px] sm:gap-[4px] cursor-text select-text">
-                        {/* GCC/Stat/M: Bai Jamjuree, SemiBold, 28px, 36px line-height, -0.14px letter-spacing */}
-                        <span
-                          style={{
-                            fontFamily: '"Bai Jamjuree", sans-serif',
-                            fontSize: '28px',
-                            lineHeight: '36px',
-                            letterSpacing: '-0.14px',
-                            fontWeight: 600,
-                            fontStyle: 'normal',
-                            color: isActive ? '#FB8B24' : '#99582A',
-                          }}
-                          className="cursor-text select-text"
-                        >
-                          {item.metric2.value}
-                        </span>
-                        {/* GCC/Body/S: Hanken Grotesk, 14px, 500, 20px line-height */}
-                        <span
-                          style={{
-                            fontFamily: '"Hanken Grotesk", sans-serif',
-                            fontSize: '14px',
-                            lineHeight: '20px',
-                            fontWeight: 500,
-                            fontStyle: 'normal',
-                            color: isActive ? '#CCC5B9' : '#403D39',
-                          }}
-                          className="cursor-text select-text"
-                        >
-                          {item.metric2.label}
-                        </span>
-                      </div>
+                          {/* GCC/Stat/M: Bai Jamjuree, SemiBold, 28px, 36px line-height, -0.14px letter-spacing */}
+                          <span
+                            style={{
+                              fontFamily: '"Bai Jamjuree", sans-serif',
+                              letterSpacing: '-0.14px',
+                              fontWeight: 600,
+                              fontStyle: 'normal',
+                              color: isActive ? '#FB8B24' : '#99582A',
+                            }}
+                            className="cursor-text select-text text-[24px] leading-[32px] sm:text-[28px] sm:leading-[36px]"
+                          >
+                            {metric.value}
+                          </span>
+                          {/* GCC/Body/S: Hanken Grotesk, 14px, 500, 20px line-height */}
+                          <span
+                            style={{
+                              fontFamily: '"Hanken Grotesk", sans-serif',
+                              fontWeight: 500,
+                              fontStyle: 'normal',
+                              color: isActive ? '#CCC5B9' : '#403D39',
+                            }}
+                            className="cursor-text select-text text-[12px] leading-[17px] sm:text-[14px] sm:leading-[20px]"
+                          >
+                            {metric.label}
+                          </span>
+                        </div>
+                      ))}
                     </div>
                   </div>
 

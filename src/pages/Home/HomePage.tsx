@@ -35,7 +35,7 @@ export function HomePage() {
       <WhyGccSection />
 
       {/* Cream wrapper for How We Build & Cost Calculator eliminates any subpixel seam */}
-      <div className="w-full bg-[#FFFCF2]">
+      <div className="w-full bg-[#FFFCF2] relative z-10">
         {/* 6. How We Build */}
         <HowWeBuildSection />
 

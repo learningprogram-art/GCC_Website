@@ -1140,7 +1140,7 @@ export function CostCalculatorSection() {
         id="cost-calculator"
         data-node-id="211:6073"
         aria-label="Home Construction Cost Estimator"
-        className="relative z-10 -mt-px w-full bg-[#FFFCF2] pt-8 pb-[72px] sm:pt-12 sm:pb-[80px] lg:py-14 px-4 sm:px-6 md:px-[96px] lg:px-[6rem]"
+        className="relative w-full bg-[#FFFCF2] pt-8 pb-[72px] sm:pt-12 sm:pb-[80px] lg:py-14 px-4 sm:px-6 md:px-[96px] lg:px-[6rem]"
       >
         <div ref={bannerRef} className="mx-auto max-w-[1248px] w-full">
           {/* MOBILE CARD LAYOUT (Figma Node 214:6149) */}

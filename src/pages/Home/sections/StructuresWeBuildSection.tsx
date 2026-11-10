@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { useAutoSlide } from '@/hooks/useAutoSlide'
 import villaImg from '/assets/images/structures/villa.webp'
 import farmhouseImg from '/assets/images/structures/farmhouse.webp'
 import hospitalityImg from '/assets/images/structures/hospitality.webp'
@@ -61,11 +62,17 @@ function useInViewOnce<T extends HTMLElement>(threshold = 0.2) {
 }
 
 const GAP = 12 // matches gap-3
+const AUTO_SLIDE_MS = 3000
 
 export function StructuresWeBuildSection() {
   const [headerRef, headerIn] = useInViewOnce<HTMLDivElement>(0.4)
   const [cardsRef, cardsIn] = useInViewOnce<HTMLDivElement>(0.15)
+  const activeRef = useRef(0)
   const [active, setActive] = useState(0)
+
+  useEffect(() => {
+    activeRef.current = active
+  }, [active])
 
   // Mobile carousel: work out which card is current from the scroll position
   const handleScroll = () => {
@@ -79,12 +86,26 @@ export function StructuresWeBuildSection() {
     setActive(Math.min(Math.max(index, 0), structures.length - 1))
   }
 
-  const scrollToCard = (i: number) => {
-    const el = cardsRef.current
-    if (!el || !el.firstElementChild) return
-    const cardWidth = (el.firstElementChild as HTMLElement).offsetWidth + GAP
-    el.scrollTo({ left: i * cardWidth, behavior: 'smooth' })
-  }
+  const scrollToCard = useCallback(
+    (i: number) => {
+      const el = cardsRef.current
+      if (!el || !el.firstElementChild) return
+      const cardWidth = (el.firstElementChild as HTMLElement).offsetWidth + GAP
+      el.scrollTo({ left: i * cardWidth, behavior: 'smooth' })
+    },
+    [cardsRef],
+  )
+
+  const advanceMobileSlide = useCallback(() => {
+    scrollToCard((activeRef.current + 1) % structures.length)
+  }, [scrollToCard])
+
+  const { setIsPaused, pause, resume, resetTimer } = useAutoSlide({
+    targetRef: cardsRef,
+    intervalMs: AUTO_SLIDE_MS,
+    mediaQuery: '(max-width: 767px)',
+    onSlide: advanceMobileSlide,
+  })
 
   return (
     <>
@@ -114,6 +135,9 @@ export function StructuresWeBuildSection() {
           <div
             ref={cardsRef}
             onScroll={handleScroll}
+            onTouchStart={pause}
+            onTouchEnd={resume}
+            onTouchCancel={() => setIsPaused(false)}
             style={{ touchAction: 'pan-y' }}
             className="-ml-4 -mr-4 flex snap-x snap-mandatory scroll-pl-4 gap-3 overflow-x-auto pl-4 pr-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:ml-0 md:mr-0 md:grid md:grid-cols-3 md:snap-none md:overflow-visible md:pl-0 md:pr-0"
           >
@@ -169,7 +193,10 @@ export function StructuresWeBuildSection() {
                 role="tab"
                 aria-selected={active === i}
                 aria-label={`Go to ${item.title}`}
-                onClick={() => scrollToCard(i)}
+                onClick={() => {
+                  scrollToCard(i)
+                  resetTimer()
+                }}
                 className={`h-2 rounded-full transition-all duration-300 ${
                   active === i ? 'w-6 bg-[#6B1D1D]' : 'w-2 bg-[#C9C5BF]'
                 }`}

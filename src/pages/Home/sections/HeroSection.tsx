@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react'
-import type { CSSProperties } from 'react'
 import { createPortal } from 'react-dom'
 import { Button } from '@/components/ui/Button'
 import { submitLead } from '@/lib/supabase'
@@ -31,35 +30,32 @@ const delayStyle = (shown: boolean, ms: number) => ({
   transitionDelay: shown ? `${ms}ms` : '0ms',
 })
 
-// Width of the white fields panel when the floating bar is expanded
-const PANEL_W = 'min(62vw,780px)'
+// Width of the white fields panel when the floating bar is expanded in the corner
+const CORNER_PANEL_MAX_W = 780
+const CORNER_PANEL_VW = 0.62
 
-// Floating bar sizing. The left block width is measured from the real text.
-// Collapsed width = left + 160  (9 pad + 12 gap + ~4 panel + 6 pad + 12 gap + 117 WhatsApp card)
-// Expanded width  = left + 156 + PANEL_W
+// Floating bar sizing minimums
 const LEFT_MIN = 210
-const COLLAPSED_EXTRA = 160
 const EXPANDED_EXTRA = 156
 
-// Floating bar: how far from the corner, and when it should leave the hero.
+// Floating bar: corner offset and scroll range over which it smoothly collapses
 const FLOAT_OFFSET = 16
-// Bar starts moving to the corner once the hero's bottom edge rises above this fraction of the screen height.
-const FLOAT_TRIGGER = 0.6
-// Extra distance (px) it must scroll back before the bar returns to the hero (prevents flip-flopping at the line)
-const FLOAT_HYSTERESIS = 48
-const MOVE_MS = 550
-const MOVE_EASE = 'cubic-bezier(0.22, 1, 0.36, 1)'
+const SCROLL_DIST_MIN = 200
+const SCROLL_DIST_MAX = 300
+const SCROLL_DIST_VH = 0.28
 
-// Collapse smoothing
-const LEAVE_DELAY_MS = 250 // wait before collapsing after the mouse leaves (prevents hover flicker)
-const FADE_OUT_MS = 150 // fields fade out fast, before the bar narrows much
-const FADE_IN_MS = 400 // fields fade in after the bar has mostly grown
-const FADE_IN_DELAY_MS = 200
+// Frame-rate independent damping speeds (higher = snappier, lower = softer)
+const SCROLL_DAMPING = 16
+const EXPAND_DAMPING = 10
 
 // Sits above everything on the page
 const FLOAT_Z = 2147483000
 
+const clamp01 = (n: number) => (n < 0 ? 0 : n > 1 ? 1 : n)
+const lerp = (a: number, b: number, t: number) => a + (b - a) * t
 const round2 = (n: number) => Math.round(n * 100) / 100
+// Blends linear + smoothstep: immediate visual response on scroll start, soft settle at ends
+const easeScroll = (t: number) => 0.45 * t + 0.55 * (t * t * (3 - 2 * t))
 
 /** Each group gets its own trigger: flips to true once, the first time it scrolls into view. */
 function useReveal<T extends HTMLElement>(threshold = 0.2) {
@@ -324,20 +320,28 @@ const EMPTY_FORM = { type: 'Villa House', name: '', phone: '', pincode: '' }
  * right / bottom           : where the hero slot is in the VIEWPORT (used only for the moment the bar
  *                            switches to fixed, and for the glide back).
  */
-type Geo = { left: number; docBottom: number; right: number; bottom: number; width: number }
-
 export function HeroSection() {
   const [headRef, headIn] = useReveal<HTMLDivElement>(0.2)
   const [slotRef, barIn] = useReveal<HTMLDivElement>(0.2) // empty slot in the hero that holds the bar's space
   const innerRef = useRef<HTMLDivElement>(null)
-  const leftRef = useRef<HTMLDivElement>(null)
+  const leftRef = useRef<HTMLButtonElement>(null)
+  const panelRef = useRef<HTMLDivElement>(null)
+  const waRef = useRef<HTMLAnchorElement>(null)
   const heroRef = useRef<HTMLElement>(null)
-  const leaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const holdTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const launchRaf = useRef(0)
-  const floatingRef = useRef(false)
-  const holdRef = useRef(false)
-  const firstUpdate = useRef(true)
+
+  const animRef = useRef({
+    scrollP: 0,
+    targetScrollP: 0,
+    cornerExpand: 0,
+    cornerOpen: false,
+    focused: false,
+    floating: false,
+    panelInteractive: true,
+    initialized: false,
+    rafId: 0,
+    lastTime: 0,
+  })
+  const wakeAnimRef = useRef<() => void>(() => {})
 
   const [submitted, setSubmitted] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -348,173 +352,219 @@ export function HeroSection() {
   const setField = (key: keyof typeof EMPTY_FORM, value: string) =>
     setValues((v) => ({ ...v, [key]: value }))
 
-  // Floating / collapse state
+  // Discrete states synced only when crossing thresholds (never on scroll frames)
   const [mounted, setMounted] = useState(false)
-  const [floating, setFloating] = useState(false) // past the trigger: bar belongs in the corner
-  const [launched, setLaunched] = useState(false) // 2 frames after floating: bar is allowed to glide to the corner
-  const [holdPin, setHoldPin] = useState(false) // keeps the bar fixed while it glides back to the hero
-  const [geo, setGeo] = useState<Geo | null>(null)
+  const [floating, setFloating] = useState(false)
+  const [panelInteractive, setPanelInteractive] = useState(true)
   const [barHeight, setBarHeight] = useState(0)
-  const [hovered, setHovered] = useState(false)
-  const [focused, setFocused] = useState(false)
-  const [leftW, setLeftW] = useState(LEFT_MIN) // measured width of the icon + text block
-
-  // pinned   = bar is position:fixed (in the corner, or gliding to / from it)
-  // atCorner = bar is actually heading for / sitting in the corner
-  const pinned = floating || holdPin
-  const atCorner = floating && launched
-
-  // In the hero: always expanded. In the corner: expanded only on hover / focus / tap.
-  const expanded = !atCorner || hovered || focused
 
   useEffect(() => setMounted(true), [])
 
-  const clearLeaveTimer = () => {
-    if (leaveTimer.current) {
-      clearTimeout(leaveTimer.current)
-      leaveTimer.current = null
-    }
-  }
-
-  const clearFloatTimers = () => {
-    if (holdTimer.current) {
-      clearTimeout(holdTimer.current)
-      holdTimer.current = null
-    }
-    if (launchRaf.current) {
-      cancelAnimationFrame(launchRaf.current)
-      launchRaf.current = 0
-    }
-  }
-
-  // Clean up timers on unmount
-  useEffect(
-    () => () => {
-      clearLeaveTimer()
-      clearFloatTimers()
-    },
-    [],
-  )
-
-  // Measure the left block (icon + text) so the collapsed bar fits the text exactly
+  // Continuous scroll-linked + click-expand animation loop (direct DOM updates, zero scroll-frame React re-renders)
   useEffect(() => {
-    const el = leftRef.current
-    if (!el) return
-    const measure = () => setLeftW(Math.max(LEFT_MIN, Math.ceil(el.offsetWidth)))
-    measure()
-    const ro = new ResizeObserver(measure)
-    ro.observe(el)
-    return () => ro.disconnect()
-  }, [mounted])
+    if (!mounted) return
 
-  // Track the hero slot + decide when to float. The bar itself is never remounted.
-  useEffect(() => {
-    let raf = 0
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const anim = animRef.current
+    const cachedSizes = {
+      leftW: LEFT_MIN,
+      waW: 117,
+      rootFs: parseFloat(getComputedStyle(document.documentElement).fontSize) || 16,
+    }
 
-    const update = () => {
-      raf = 0
+    const measureParts = () => {
+      if (leftRef.current) {
+        cachedSizes.leftW = Math.max(LEFT_MIN, Math.ceil(leftRef.current.offsetWidth))
+      }
+      if (waRef.current) {
+        cachedSizes.waW = Math.ceil(waRef.current.offsetWidth) || 117
+      }
+      cachedSizes.rootFs = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16
+    }
+
+    const step = (now: number, snap = false) => {
+      anim.rafId = 0
       const slot = slotRef.current
-      const hero = heroRef.current
-      if (!slot || !hero) return
-      const r = slot.getBoundingClientRect()
+      const inner = innerRef.current
+      const panel = panelRef.current
+      if (!slot || !inner || !panel) return
 
+      // --- READ PHASE ---
+      const r = slot.getBoundingClientRect()
       if (r.width === 0) {
-        // Desktop hero is hidden (mobile layout): hide the bar
-        setGeo((g) => (g === null ? g : null))
+        inner.style.display = 'none'
+        inner.style.position = 'fixed'
+        inner.style.visibility = 'hidden'
+        inner.style.pointerEvents = 'none'
         return
+      }
+      if (inner.style.display === 'none') {
+        inner.style.display = 'block'
+        measureParts()
       }
 
       const vw = document.documentElement.clientWidth
       const vh = document.documentElement.clientHeight
-      const heroBottom = hero.getBoundingClientRect().bottom
-      const trigger = vh * FLOAT_TRIGGER
+      const scrollX = window.scrollX
+      const scrollY = window.scrollY
 
-      // Hysteresis: needs to scroll a bit further back before it leaves the corner again
-      const was = floatingRef.current
-      const nextFloating = was ? heroBottom < trigger + FLOAT_HYSTERESIS : heroBottom < trigger
+      const slotDocLeft = r.left + scrollX
+      const slotDocBottom = r.bottom + scrollY
+      const slotWidth = r.width
+      const slotRight = vw - r.right
 
-      // Viewport coordinates are only needed while the bar is fixed (or about to be)
-      const needViewport = nextFloating || was || holdRef.current
+      // Begin shrinking as soon as the bar reaches the bottom margin (or immediately at scrollY=0 on tall viewports)
+      const scrollStart = Math.max(0, slotDocBottom - (vh - FLOAT_OFFSET))
+      const scrollDist = Math.min(SCROLL_DIST_MAX, Math.max(SCROLL_DIST_MIN, Math.round(vh * SCROLL_DIST_VH)))
+      const targetScrollP = clamp01((scrollY - scrollStart) / scrollDist)
+      anim.targetScrollP = targetScrollP
 
-      setGeo((g) => {
-        const next: Geo = {
-          left: round2(r.left + window.scrollX),
-          docBottom: round2(r.bottom + window.scrollY),
-          width: round2(r.width),
-          right: needViewport || !g ? round2(vw - r.right) : g.right,
-          bottom: needViewport || !g ? round2(vh - r.bottom) : g.bottom,
-        }
-        return g &&
-          g.left === next.left &&
-          g.docBottom === next.docBottom &&
-          g.width === next.width &&
-          g.right === next.right &&
-          g.bottom === next.bottom
-          ? g
-          : next
-      })
+      const liveSlotBottom = vh - r.bottom
+      const slotBottomAtStart = vh - (slotDocBottom - scrollStart)
 
-      if (nextFloating !== was) {
-        floatingRef.current = nextFloating
-        setFloating(nextFloating)
-        clearFloatTimers()
+      const { leftW, waW, rootFs } = cachedSizes
+      // Exact collapsed width: 9px form left pad + left block + 0.75rem form gap + 0.375rem form right pad + 0.75rem outer gap + WhatsApp card + 2px buffer
+      const collapsedWidth = Math.ceil(leftW + waW + 9 + 1.875 * rootFs + 2)
+      const cornerExpandedWidth = Math.min(
+        vw - FLOAT_OFFSET * 2,
+        leftW + EXPANDED_EXTRA + Math.min(vw * CORNER_PANEL_VW, CORNER_PANEL_MAX_W),
+      )
 
-        if (nextFloating) {
-          holdRef.current = false
-          setHoldPin(false)
-          if (firstUpdate.current) {
-            // Page loaded already scrolled past the hero: go straight to the corner, no fly-in
-            setLaunched(true)
-          } else {
-            // Frame 1: bar switches to fixed at exactly the same screen spot.
-            // Frame 3: it is allowed to glide to the corner.
-            setLaunched(false)
-            launchRaf.current = requestAnimationFrame(() => {
-              launchRaf.current = requestAnimationFrame(() => {
-                launchRaf.current = 0
-                setLaunched(true)
-              })
-            })
-          }
-        } else {
-          // Glide back to the hero slot, then hand the bar back to the page flow
-          setLaunched(false)
-          holdRef.current = true
-          setHoldPin(true)
-          holdTimer.current = setTimeout(() => {
-            holdTimer.current = null
-            holdRef.current = false
-            setHoldPin(false)
-          }, MOVE_MS + 60)
+      // --- ANIMATE PHASE ---
+      const instant = snap || !anim.initialized || reducedMotion.matches
+      const dt = anim.lastTime ? Math.min(0.05, Math.max(0.001, (now - anim.lastTime) / 1000)) : 1 / 60
+      anim.lastTime = now
+
+      if (instant) {
+        anim.scrollP = targetScrollP
+        anim.initialized = true
+      } else {
+        const scrollAlpha = 1 - Math.exp(-SCROLL_DAMPING * dt)
+        anim.scrollP += (targetScrollP - anim.scrollP) * scrollAlpha
+        if (Math.abs(targetScrollP - anim.scrollP) < 0.0005) {
+          anim.scrollP = targetScrollP
         }
       }
 
-      firstUpdate.current = false
+      // Reset toggle/focus once docked back inside the hero
+      if (anim.scrollP === 0 && targetScrollP === 0 && (anim.cornerOpen || anim.focused)) {
+        anim.cornerOpen = false
+        anim.focused = false
+      }
+
+      const targetExpand = (anim.cornerOpen || anim.focused) && anim.scrollP > 0.02 ? 1 : 0
+      if (instant) {
+        anim.cornerExpand = targetExpand
+      } else {
+        const expandAlpha = 1 - Math.exp(-EXPAND_DAMPING * dt)
+        anim.cornerExpand += (targetExpand - anim.cornerExpand) * expandAlpha
+        if (Math.abs(targetExpand - anim.cornerExpand) < 0.0005) {
+          anim.cornerExpand = targetExpand
+        }
+      }
+
+      // --- WRITE PHASE ---
+      const easedP = easeScroll(anim.scrollP)
+      const openness = clamp01(1 - easedP * (1 - anim.cornerExpand))
+      const panelOpacity = clamp01((openness - 0.18) / 0.82)
+
+      if (anim.scrollP === 0) {
+        inner.style.position = 'absolute'
+        inner.style.left = `${round2(slotDocLeft)}px`
+        inner.style.top = `${round2(slotDocBottom)}px`
+        inner.style.right = 'auto'
+        inner.style.bottom = 'auto'
+        inner.style.transform = 'translateY(-100%)'
+        inner.style.width = `${round2(slotWidth)}px`
+        inner.style.maxWidth = 'none'
+      } else {
+        const expandedW = lerp(slotWidth, cornerExpandedWidth, easedP)
+        const currentWidth = lerp(collapsedWidth, expandedW, openness)
+        const currentRight = lerp(slotRight, FLOAT_OFFSET, easedP)
+        const anchorBottom = Math.min(liveSlotBottom, slotBottomAtStart)
+        const currentBottom = lerp(anchorBottom, FLOAT_OFFSET, easedP)
+
+        inner.style.position = 'fixed'
+        inner.style.left = 'auto'
+        inner.style.top = 'auto'
+        inner.style.right = `${round2(currentRight)}px`
+        inner.style.bottom = `${round2(currentBottom)}px`
+        inner.style.transform = 'none'
+        inner.style.width = `${round2(currentWidth)}px`
+        inner.style.maxWidth = `calc(100vw - ${FLOAT_OFFSET * 2}px)`
+      }
+
+      inner.style.visibility = 'visible'
+      inner.style.pointerEvents = 'auto'
+
+      panel.style.opacity = `${round2(panelOpacity)}`
+      const isInteractive = openness > 0.35
+      panel.style.pointerEvents = isInteractive ? 'auto' : 'none'
+
+      // Sync discrete React booleans only when they actually flip
+      const nextFloating = anim.scrollP > 0.02
+      if (nextFloating !== anim.floating) {
+        anim.floating = nextFloating
+        setFloating(nextFloating)
+      }
+      if (isInteractive !== anim.panelInteractive) {
+        anim.panelInteractive = isInteractive
+        setPanelInteractive(isInteractive)
+      }
+
+      const needsMoreFrames =
+        !instant &&
+        (Math.abs(targetScrollP - anim.scrollP) > 0.0005 ||
+          Math.abs(targetExpand - anim.cornerExpand) > 0.0005)
+
+      if (needsMoreFrames) {
+        anim.rafId = requestAnimationFrame((t) => step(t, false))
+      } else {
+        anim.lastTime = 0
+      }
     }
 
     const schedule = () => {
-      if (!raf) raf = requestAnimationFrame(update)
+      if (!anim.rafId) {
+        anim.rafId = requestAnimationFrame((t) => step(t, false))
+      }
     }
 
-    update()
+    const handleResize = () => {
+      measureParts()
+      step(performance.now(), true)
+    }
+
+    wakeAnimRef.current = schedule
+    measureParts()
+    step(performance.now(), true)
+
     window.addEventListener('scroll', schedule, { passive: true })
-    window.addEventListener('resize', schedule)
-    // Re-measure if the layout shifts (fonts, images, content above the hero)
-    const ro = new ResizeObserver(schedule)
+    window.addEventListener('resize', handleResize)
+
+    const ro = new ResizeObserver(() => {
+      measureParts()
+      schedule()
+    })
     if (slotRef.current) ro.observe(slotRef.current)
     if (heroRef.current) ro.observe(heroRef.current)
-    ro.observe(document.body)
-    return () => {
-      window.removeEventListener('scroll', schedule)
-      window.removeEventListener('resize', schedule)
-      ro.disconnect()
-      if (raf) cancelAnimationFrame(raf)
-    }
-  }, [slotRef])
+    if (leftRef.current) ro.observe(leftRef.current)
+    if (waRef.current) ro.observe(waRef.current)
 
-  // Remember the bar's height while it is in the hero, so the hero keeps its space when it floats
+    return () => {
+      wakeAnimRef.current = () => {}
+      window.removeEventListener('scroll', schedule)
+      window.removeEventListener('resize', handleResize)
+      ro.disconnect()
+      if (anim.rafId) {
+        cancelAnimationFrame(anim.rafId)
+        anim.rafId = 0
+      }
+    }
+  }, [mounted, slotRef])
+
+  // Remember the bar's height so the hero slot keeps its exact space
   useEffect(() => {
-    if (floating) return
     const el = innerRef.current
     if (!el) return
     const measure = () => setBarHeight(el.offsetHeight)
@@ -522,30 +572,21 @@ export function HeroSection() {
     const ro = new ResizeObserver(measure)
     ro.observe(el)
     return () => ro.disconnect()
-  }, [floating, mounted])
+  }, [mounted])
 
-  // Back in the hero -> reset hover/focus
+  // Collapse when clicking/tapping outside the floating bar
   useEffect(() => {
-    if (!floating) {
-      clearLeaveTimer()
-      setHovered(false)
-      setFocused(false)
-    }
-  }, [floating])
-
-  // Touch devices: tap outside the floating bar collapses it again
-  useEffect(() => {
-    if (!floating || !hovered) return
+    if (!floating) return
     const onPointerDown = (e: PointerEvent) => {
       if (innerRef.current && !innerRef.current.contains(e.target as Node)) {
-        clearLeaveTimer()
-        setHovered(false)
-        setFocused(false)
+        animRef.current.cornerOpen = false
+        animRef.current.focused = false
+        wakeAnimRef.current()
       }
     }
     document.addEventListener('pointerdown', onPointerDown)
     return () => document.removeEventListener('pointerdown', onPointerDown)
-  }, [floating, hovered])
+  }, [floating])
 
   const handleDesktopSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -565,89 +606,38 @@ export function HeroSection() {
       setSubmitted(true)
       setValues(EMPTY_FORM)
       // The focused input is removed from the DOM, so its blur never fires: reset manually
-      setFocused(false)
+      animRef.current.focused = false
+      wakeAnimRef.current()
       setTimeout(() => setSubmitted(false), 5000)
     } else {
       setSubmitError(result.error || 'Failed to submit enquiry. Please try again.')
     }
   }
 
-  // Hover with a small delay on leave, so brief exits / re-entries while the bar is
-  // resizing don't make it flip back and forth
-  const handleEnter = () => {
-    if (!floating) return
-    clearLeaveTimer()
-    setHovered(true)
-  }
-  const handleLeave = () => {
-    if (!floating) return
-    clearLeaveTimer()
-    leaveTimer.current = setTimeout(() => {
-      setHovered(false)
-      leaveTimer.current = null
-    }, LEAVE_DELAY_MS)
+  // Click "Talk to an engineer" in the corner to smoothly expand or collapse
+  const handleToggleCorner = () => {
+    if (!animRef.current.floating) return
+    const nextOpen = !(animRef.current.cornerOpen || animRef.current.focused)
+    animRef.current.cornerOpen = nextOpen
+    if (!nextOpen) {
+      animRef.current.focused = false
+      const activeEl = document.activeElement
+      if (activeEl instanceof HTMLElement && panelRef.current?.contains(activeEl)) {
+        activeEl.blur()
+      }
+    }
+    wakeAnimRef.current()
   }
 
-  const tab = expanded ? 0 : -1
+  const tab = panelInteractive ? 0 : -1
 
   // Reveal on first view (if the page loads already scrolled past the hero, show it straight away)
   const barShown = barIn || floating
 
-  const move = `${MOVE_MS}ms ${MOVE_EASE}`
-
-  const cornerWidth = expanded
-    ? `calc(${leftW + EXPANDED_EXTRA}px + ${PANEL_W})`
-    : leftW + COLLAPSED_EXTRA
-
-  const wrapperStyle: CSSProperties = pinned
-    ? {
-        // Fixed: in the corner, or gliding to / from it
-        position: 'fixed',
-        zIndex: FLOAT_Z,
-        right: atCorner ? FLOAT_OFFSET : geo?.right ?? 0,
-        bottom: atCorner ? FLOAT_OFFSET : geo?.bottom ?? 0,
-        width: atCorner ? cornerWidth : geo?.width ?? 0,
-        maxWidth: `calc(100vw - ${FLOAT_OFFSET * 2}px)`,
-        visibility: geo ? 'visible' : 'hidden',
-        transition: `right ${move}, bottom ${move}, width ${move}`,
-        willChange: 'right, bottom, width',
-      }
-    : {
-        // In the hero: absolute at the slot's document position, so it scrolls natively with the page.
-        // Anchored by its bottom edge (translateY(-100%)), so measuring its height never moves it.
-        position: 'absolute',
-        zIndex: FLOAT_Z,
-        left: geo?.left ?? 0,
-        top: geo?.docBottom ?? 0,
-        transform: 'translateY(-100%)',
-        width: geo?.width ?? 0,
-        visibility: geo ? 'visible' : 'hidden',
-        transition: 'none',
-      }
-
-  // Fields panel fade: fast out, delayed in
-  const panelStyle: CSSProperties = {
-    transitionProperty: 'opacity',
-    transitionTimingFunction: 'ease-out',
-    transitionDuration: `${expanded ? FADE_IN_MS : FADE_OUT_MS}ms`,
-    transitionDelay: `${expanded && floating ? FADE_IN_DELAY_MS : 0}ms`,
-  }
-
   const bar = (
     <div
       ref={innerRef}
-      style={wrapperStyle}
-      onMouseEnter={handleEnter}
-      onMouseLeave={handleLeave}
-      onClick={() => {
-        if (!floating) return
-        clearLeaveTimer()
-        setHovered(true)
-      }}
-      onFocusCapture={() => floating && setFocused(true)}
-      onBlurCapture={(e) => {
-        if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setFocused(false)
-      }}
+      style={{ position: 'fixed', zIndex: FLOAT_Z, visibility: 'hidden', pointerEvents: 'none' }}
     >
       <div
         style={delayStyle(barShown, 500)}
@@ -658,10 +648,16 @@ export function HeroSection() {
           onSubmit={handleDesktopSubmit}
           className="flex min-w-0 flex-1 flex-row items-center gap-3 overflow-hidden rounded-lg bg-[#FFE4A0] p-1.5 pl-[9px] shadow-lg"
         >
-          {/* Left: image placeholder + heading (sizes to its text, never wraps or clips) */}
-          <div
+          {/* Left: image placeholder + heading (sizes to its text, never wraps or clips; click toggles expand/collapse when floating) */}
+          <button
             ref={leftRef}
-            className="flex w-max min-w-[210px] shrink-0 items-center gap-[18px] whitespace-nowrap pr-2"
+            type="button"
+            onClick={handleToggleCorner}
+            tabIndex={floating ? 0 : -1}
+            aria-expanded={floating ? panelInteractive : undefined}
+            className={`flex w-max min-w-[210px] shrink-0 items-center gap-[18px] whitespace-nowrap pr-2 text-left focus:outline-none ${
+              floating ? 'cursor-pointer' : 'cursor-default'
+            }`}
           >
             <div className="flex h-[60px] w-[60px] shrink-0 items-center justify-center rounded-md bg-[#252422] text-[#FFE4A0] shadow-sm">
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -677,16 +673,26 @@ export function HeroSection() {
               <p className="text-sm font-semibold text-slate-900">Talk to an engineer</p>
               <p className="text-[11px] text-slate-700">Free 30-min consultation</p>
             </div>
-          </div>
+          </button>
 
           {/* Right: fields panel. Its width simply follows the bar's width, which is what animates.
               The content is a fixed, non-shrinking width and just gets clipped, so nothing reflows mid-animation. */}
           <div
-            aria-hidden={!expanded}
-            style={panelStyle}
-            className={`flex min-w-0 flex-1 overflow-hidden rounded-md [&>*]:min-w-[500px] [&>*]:shrink-0 [&>*]:grow ${
-              expanded ? 'opacity-100' : 'pointer-events-none opacity-0'
-            }`}
+            ref={panelRef}
+            aria-hidden={!panelInteractive}
+            onFocusCapture={() => {
+              if (!animRef.current.floating) return
+              animRef.current.focused = true
+              animRef.current.cornerOpen = true
+              wakeAnimRef.current()
+            }}
+            onBlurCapture={(e) => {
+              if (!e.currentTarget.contains(e.relatedTarget as Node | null)) {
+                animRef.current.focused = false
+                wakeAnimRef.current()
+              }
+            }}
+            className="flex min-w-0 flex-1 overflow-hidden rounded-md [&>*]:min-w-[500px] [&>*]:shrink-0 [&>*]:grow"
           >
             {submitted ? (
               <div className="flex flex-1 items-center justify-center gap-2 rounded-md bg-white p-4 text-xs font-semibold text-[#252422]">
@@ -810,6 +816,7 @@ export function HeroSection() {
 
         {/* WhatsApp contact card */}
         <a
+          ref={waRef}
           href={whatsappUrl}
           target="_blank"
           rel="noreferrer"
