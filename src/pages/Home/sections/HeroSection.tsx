@@ -44,6 +44,10 @@ const SCROLL_DIST_MIN = 200
 const SCROLL_DIST_MAX = 300
 const SCROLL_DIST_VH = 0.28
 
+// How far the hero must scroll away before the bar starts collapsing (fraction of viewport height).
+// 0 = when the next section first appears, 0.5 = hero's bottom edge at mid-screen, 1 = hero fully scrolled past.
+const COLLAPSE_START_VH = 0.5
+
 // Frame-rate independent damping speeds (higher = snappier, lower = softer)
 const SCROLL_DAMPING = 16
 const EXPAND_DAMPING = 10
@@ -334,6 +338,7 @@ export function HeroSection() {
     targetScrollP: 0,
     cornerExpand: 0,
     cornerOpen: false,
+    hovered: false,
     focused: false,
     floating: false,
     panelInteractive: true,
@@ -360,7 +365,7 @@ export function HeroSection() {
 
   useEffect(() => setMounted(true), [])
 
-  // Continuous scroll-linked + click-expand animation loop (direct DOM updates, zero scroll-frame React re-renders)
+  // Continuous scroll-linked + hover/click-expand animation loop (direct DOM updates, zero scroll-frame React re-renders)
   useEffect(() => {
     if (!mounted) return
 
@@ -371,6 +376,9 @@ export function HeroSection() {
       waW: 117,
       rootFs: parseFloat(getComputedStyle(document.documentElement).fontSize) || 16,
     }
+
+    // Last known mouse position (viewport coords). Hover is evaluated inside step().
+    const mouse = { x: -1, y: -1 }
 
     const measureParts = () => {
       if (leftRef.current) {
@@ -413,8 +421,12 @@ export function HeroSection() {
       const slotWidth = r.width
       const slotRight = vw - r.right
 
-      // Begin shrinking as soon as the bar reaches the bottom margin (or immediately at scrollY=0 on tall viewports)
-      const scrollStart = Math.max(0, slotDocBottom - (vh - FLOAT_OFFSET))
+      // Begin collapsing only after the hero has mostly scrolled away
+      const heroEl = heroRef.current
+      const heroDocBottom = heroEl
+        ? heroEl.getBoundingClientRect().bottom + scrollY
+        : slotDocBottom
+      const scrollStart = Math.max(0, heroDocBottom - vh + vh * COLLAPSE_START_VH)
       const scrollDist = Math.min(SCROLL_DIST_MAX, Math.max(SCROLL_DIST_MIN, Math.round(vh * SCROLL_DIST_VH)))
       const targetScrollP = clamp01((scrollY - scrollStart) / scrollDist)
       anim.targetScrollP = targetScrollP
@@ -452,7 +464,17 @@ export function HeroSection() {
         anim.focused = false
       }
 
-      const targetExpand = (anim.cornerOpen || anim.focused) && anim.scrollP > 0.02 ? 1 : 0
+      // Hover: is the mouse currently over the bar (only matters while it floats in the corner)?
+      if (anim.scrollP > 0.02 && mouse.x >= 0) {
+        const b = inner.getBoundingClientRect()
+        anim.hovered =
+          mouse.x >= b.left && mouse.x <= b.right && mouse.y >= b.top && mouse.y <= b.bottom
+      } else {
+        anim.hovered = false
+      }
+
+      const targetExpand =
+        (anim.cornerOpen || anim.focused || anim.hovered) && anim.scrollP > 0.02 ? 1 : 0
       if (instant) {
         anim.cornerExpand = targetExpand
       } else {
@@ -535,12 +557,26 @@ export function HeroSection() {
       step(performance.now(), true)
     }
 
+    // Track the mouse; step() decides whether it is over the bar
+    const onMouseMove = (e: MouseEvent) => {
+      mouse.x = e.clientX
+      mouse.y = e.clientY
+      schedule()
+    }
+    const onMouseLeaveDoc = () => {
+      mouse.x = -1
+      mouse.y = -1
+      schedule()
+    }
+
     wakeAnimRef.current = schedule
     measureParts()
     step(performance.now(), true)
 
     window.addEventListener('scroll', schedule, { passive: true })
     window.addEventListener('resize', handleResize)
+    window.addEventListener('mousemove', onMouseMove, { passive: true })
+    document.documentElement.addEventListener('mouseleave', onMouseLeaveDoc)
 
     const ro = new ResizeObserver(() => {
       measureParts()
@@ -555,6 +591,8 @@ export function HeroSection() {
       wakeAnimRef.current = () => {}
       window.removeEventListener('scroll', schedule)
       window.removeEventListener('resize', handleResize)
+      window.removeEventListener('mousemove', onMouseMove)
+      document.documentElement.removeEventListener('mouseleave', onMouseLeaveDoc)
       ro.disconnect()
       if (anim.rafId) {
         cancelAnimationFrame(anim.rafId)
@@ -614,9 +652,11 @@ export function HeroSection() {
     }
   }
 
-  // Click "Talk to an engineer" in the corner to smoothly expand or collapse
+  // Click "Talk to an engineer" in the corner to expand or collapse (hover already expands it,
+  // so a click while hovering does nothing and the bar never gets "stuck" open)
   const handleToggleCorner = () => {
     if (!animRef.current.floating) return
+    if (animRef.current.hovered && !animRef.current.cornerOpen && !animRef.current.focused) return
     const nextOpen = !(animRef.current.cornerOpen || animRef.current.focused)
     animRef.current.cornerOpen = nextOpen
     if (!nextOpen) {
@@ -648,7 +688,7 @@ export function HeroSection() {
           onSubmit={handleDesktopSubmit}
           className="flex min-w-0 flex-1 flex-row items-center gap-3 overflow-hidden rounded-lg bg-[#FFE4A0] p-1.5 pl-[9px] shadow-lg"
         >
-          {/* Left: image placeholder + heading (sizes to its text, never wraps or clips; click toggles expand/collapse when floating) */}
+          {/* Left: image placeholder + heading (sizes to its text, never wraps or clips) */}
           <button
             ref={leftRef}
             type="button"
