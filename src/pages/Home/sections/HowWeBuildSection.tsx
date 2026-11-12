@@ -14,6 +14,7 @@ export interface StepItem {
   title: string
   description: string
   deliverables: string[]
+  image: string
 }
 
 const STEPS: StepItem[] = [
@@ -24,6 +25,7 @@ const STEPS: StepItem[] = [
     description:
       'We understand your plot, your needs and your budget, and turn them into a clear design and plan.',
     deliverables: ['Site visit', 'Floor plans', '3D elevation'],
+    image: '/assets/images/how-we-build/plan_and_design.webp',
   },
   {
     number: '02',
@@ -32,6 +34,7 @@ const STEPS: StepItem[] = [
     description:
       'Structural engineering and detailed drawings that give your home a stronger foundation.',
     deliverables: ['Structural design', 'Working drawings', 'Soil report'],
+    image: '/assets/images/how-we-build/engineer.webp',
   },
   {
     number: '03',
@@ -40,6 +43,7 @@ const STEPS: StepItem[] = [
     description:
       'Execution managed by one team, with quality checks at every stage.',
     deliverables: ['Weekly updates', 'Stage QA checks', 'Milestone billing'],
+    image: '/assets/images/how-we-build/build.webp',
   },
   {
     number: '04',
@@ -48,6 +52,7 @@ const STEPS: StepItem[] = [
     description:
       'Keys handed over with deep cleaning, full documentation, and ongoing structural warranty.',
     deliverables: ['Keys & documentation', 'Warranty certificate', 'AMC portal access'],
+    image: '/assets/images/how-we-build/hand_over.webp',
   },
 ]
 
@@ -188,7 +193,7 @@ export function HowWeBuildSection() {
         id="how-we-build"
         data-node-id="211:5236"
         aria-label="How We Build"
-        className="relative w-full bg-[#FFFCF2] pt-[3rem] pb-[2rem] sm:pb-[5rem] lg:pt-[5rem] lg:pb-[6rem] overflow-visible"
+        className="relative w-full bg-[#FFFCF2] pt-[3rem] pb-[1.75rem] sm:pb-[2.5rem] lg:pt-[5rem] lg:pb-[2.5rem] overflow-visible"
       >
         <div className="mx-auto max-w-[78rem] flex flex-col gap-[2.5rem] lg:gap-[3.5rem]">
           {/* Header (Figma Node 211:5237) */}
@@ -316,10 +321,15 @@ export function HowWeBuildSection() {
                     </div>
 
                     {/* Right Column: Visual Frame (Figma Node 211:5268) */}
-                    <div
-                      aria-hidden="true"
-                      className="w-full lg:w-1/2 min-h-[12.5rem] sm:min-h-[15rem] lg:min-h-0 flex-1 bg-[#99582A]"
-                    />
+                    <div className="relative w-full lg:w-1/2 min-h-[12.5rem] sm:min-h-[15rem] lg:min-h-0 flex-1 overflow-hidden bg-[#99582A]">
+                      <img
+                        src={step.image}
+                        alt={step.title}
+                        loading="lazy"
+                        draggable={false}
+                        className="absolute inset-0 size-full object-cover pointer-events-none select-none"
+                      />
+                    </div>
                   </div>
                 </div>
               )
