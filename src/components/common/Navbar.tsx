@@ -180,7 +180,7 @@ export function Navbar({
       ref={headerRef}
       id="navbar"
       className={cn(
-        'fixed left-1/2 top-4 z-50 w-[calc(100%-32px)] -translate-x-1/2 transition-transform duration-300 ease-out lg:w-[min(87%,1252px)]',
+        'fixed left-1/2 top-4 z-50 w-[calc(100%-32px)] -translate-x-1/2 transition-transform duration-300 ease-out lg:w-[min(87%,78.25rem)]',
         hidden ? '-translate-y-[calc(100%+24px)]' : 'translate-y-0',
         className
       )}

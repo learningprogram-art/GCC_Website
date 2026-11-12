@@ -268,12 +268,12 @@ export function TestimonialsSection({
         className
       )}
     >
-      <div className="w-full flex flex-col gap-[2.5rem] sm:gap-[3.5rem] lg:gap-[5rem]">
+      <div className="w-full flex flex-col gap-[1.75rem] sm:gap-[2.5rem] lg:gap-[3rem]">
         {/* Header: 96px (6rem) left & right padding */}
         <div
           ref={setHeaderRef}
           className={cn(
-            'w-full px-6 sm:px-12 md:px-[96px] lg:px-[6rem] lg:!pl-[82px] transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none',
+            'w-full px-[1.5rem] sm:px-[3rem] md:px-[6rem] lg:px-[6rem] lg:!pl-[5.125rem] transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none',
             headIn ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
           )}
         >
@@ -406,7 +406,7 @@ export function TestimonialsSection({
           <div
             ref={containerRef}
             onScroll={handleScroll}
-            className="relative w-full flex items-stretch gap-[12px] sm:gap-[24px] overflow-x-auto overflow-y-hidden scroll-smooth px-5 sm:px-12 md:px-[96px] lg:px-[102px] lg:!pl-[82px] scroll-px-5 sm:scroll-px-12 md:scroll-px-[96px] lg:scroll-px-[88px] [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+            className="relative w-full flex items-stretch gap-[0.75rem] sm:gap-[1.5rem] overflow-x-auto overflow-y-hidden scroll-smooth px-[1.25rem] sm:px-[3rem] md:px-[6rem] lg:px-[6.375rem] lg:!pl-[5.125rem] scroll-px-[1.25rem] sm:scroll-px-[3rem] md:scroll-px-[6rem] lg:scroll-px-[5.5rem] [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
             style={{
               WebkitOverflowScrolling: 'touch',
               touchAction: 'pan-x pan-y',
@@ -414,7 +414,7 @@ export function TestimonialsSection({
               overscrollBehaviorY: 'auto',
             }}
           >
-            {/* Cards (Figma Node 211:5427: exact width 720px, height 620px on desktop; width 318px, height 490px on mobile) */}
+            {/* Cards: scaled in rem + svh so the full card stays visible in mobile and desktop viewports */}
             {items.map((item, idx) => {
               const isActive = idx === activeIndex
               return (
@@ -426,17 +426,15 @@ export function TestimonialsSection({
                   onClick={() => scrollToCard(idx)}
                   className={cn(
                     'relative flex flex-col justify-between shrink-0 overflow-clip transition-all duration-300 cursor-default select-none',
-                    'w-[318px] sm:w-[720px] min-h-[490px] sm:h-[620px]',
+                    'w-[min(80vw,22rem)] sm:w-[min(82vw,37.5rem)] min-h-[25rem] sm:min-h-[29rem] md:h-[min(31rem,68svh)]',
                     isActive
                       ? 'bg-[#252422] text-[#FFFCF2]'
                       : 'bg-white border border-[#CCC5B9] text-[#252422]'
                   )}
                 >
                   {/* Card Content Top Body (Figma Node 211:5428) */}
-                  <div className="flex flex-1 flex-col justify-between p-[22px] sm:p-[48px]">
-                    {/* Quote Block (Figma Node 211:5429 / 211:5431)
-                      GCC/Quote/L: Bai Jamjuree, Medium, 30px, 42px line-height, -0.15px letter-spacing
-                  */}
+                  <div className="flex flex-1 flex-col justify-between p-[1.125rem] sm:p-[2.25rem]">
+                    {/* Quote Block (Figma Node 211:5429 / 211:5431) */}
                     <blockquote className="m-0 cursor-text select-text">
                       <p
                         style={{
@@ -445,33 +443,30 @@ export function TestimonialsSection({
                           fontStyle: 'normal',
                           color: isActive ? '#FFFCF2' : '#403D39',
                         }}
-                        className="m-0 cursor-text select-text text-[20px] leading-[29px] tracking-[-0.1px] sm:text-[30px] sm:leading-[42px] sm:tracking-[-0.15px]"
+                        className="m-0 cursor-text select-text text-[1.0625rem] leading-[1.55rem] tracking-[-0.00625rem] sm:text-[1.5rem] sm:leading-[2.125rem] sm:tracking-[-0.009375rem]"
                       >
                         {item.quote}
                       </p>
                     </blockquote>
 
-                    {/* Metrics Row (Figma Node 211:5432 - gap 56px) */}
-                    <div className="grid grid-cols-2 gap-x-[16px] gap-y-[12px] sm:flex sm:flex-wrap sm:gap-[56px] pt-[1rem] sm:pt-0 cursor-text select-text">
+                    {/* Metrics Row (Figma Node 211:5432) */}
+                    <div className="grid grid-cols-2 gap-x-[0.875rem] gap-y-[0.5rem] sm:flex sm:flex-wrap sm:gap-[2.75rem] pt-[0.75rem] sm:pt-0 cursor-text select-text">
                       {[item.metric1, item.metric2].map((metric, metricIdx) => (
                         <div
                           key={metricIdx}
-                          className="flex flex-col gap-[2px] sm:gap-[4px] cursor-text select-text"
+                          className="flex flex-col gap-[0.125rem] sm:gap-[0.25rem] cursor-text select-text"
                         >
-                          {/* GCC/Stat/M: Bai Jamjuree, SemiBold, 28px, 36px line-height, -0.14px letter-spacing */}
                           <span
                             style={{
                               fontFamily: '"Bai Jamjuree", sans-serif',
-                              letterSpacing: '-0.14px',
                               fontWeight: 600,
                               fontStyle: 'normal',
                               color: isActive ? '#FB8B24' : '#99582A',
                             }}
-                            className="cursor-text select-text text-[24px] leading-[32px] sm:text-[28px] sm:leading-[36px]"
+                            className="cursor-text select-text text-[1.25rem] leading-[1.75rem] tracking-[-0.00875rem] sm:text-[1.5rem] sm:leading-[2rem]"
                           >
                             {metric.value}
                           </span>
-                          {/* GCC/Body/S: Hanken Grotesk, 14px, 500, 20px line-height */}
                           <span
                             style={{
                               fontFamily: '"Hanken Grotesk", sans-serif',
@@ -479,7 +474,7 @@ export function TestimonialsSection({
                               fontStyle: 'normal',
                               color: isActive ? '#CCC5B9' : '#403D39',
                             }}
-                            className="cursor-text select-text text-[12px] leading-[17px] sm:text-[14px] sm:leading-[20px]"
+                            className="cursor-text select-text text-[0.75rem] leading-[1rem] sm:text-[0.8125rem] sm:leading-[1.125rem]"
                           >
                             {metric.label}
                           </span>
@@ -488,31 +483,26 @@ export function TestimonialsSection({
                     </div>
                   </div>
 
-                  {/* Author Bar (Figma Node 211:5439: height 137px) */}
+                  {/* Author Bar (Figma Node 211:5439) */}
                   <div
                     className={cn(
-                      'flex items-stretch justify-between border-t border-solid overflow-clip h-[120px] sm:h-[137px] shrink-0',
+                      'flex items-stretch justify-between border-t border-solid overflow-clip h-[5.75rem] sm:h-[6.75rem] shrink-0',
                       isActive ? 'border-[#403D39]' : 'border-[#CCC5B9]'
                     )}
                   >
-                    {/* Author Details (Figma: pl-48px, pr-24px) */}
-                    <div className="flex flex-1 flex-col justify-center gap-[2px] sm:gap-[4px] pl-[22px] sm:pl-[48px] pr-[16px] sm:pr-[24px] py-[16px] sm:py-[1.5rem] cursor-text select-text">
-                      {/* GCC/Name: Hanken Grotesk, SemiBold, 20px, 28px line-height, -0.2px letter-spacing */}
+                    {/* Author Details */}
+                    <div className="flex flex-1 flex-col justify-center gap-[0.125rem] sm:gap-[0.25rem] pl-[1.125rem] sm:pl-[2.25rem] pr-[0.75rem] sm:pr-[1.25rem] py-[0.75rem] sm:py-[1rem] cursor-text select-text">
                       <h4
                         style={{
                           fontFamily: '"Hanken Grotesk", sans-serif',
-                          fontSize: '20px',
-                          lineHeight: '28px',
-                          letterSpacing: '-0.2px',
                           fontWeight: 600,
                           fontStyle: 'normal',
                           color: isActive ? '#FFFCF2' : '#252422',
                         }}
-                        className="m-0 cursor-text select-text text-[16px] leading-[24px] sm:text-[20px] sm:leading-[28px]"
+                        className="m-0 cursor-text select-text text-[0.9375rem] leading-[1.35rem] tracking-[-0.0125rem] sm:text-[1.125rem] sm:leading-[1.5rem]"
                       >
                         {item.author}
                       </h4>
-                      {/* GCC/Body/M: Hanken Grotesk, Regular, 16px, 24px line-height */}
                       <p
                         style={{
                           fontFamily: '"Hanken Grotesk", sans-serif',
@@ -520,16 +510,16 @@ export function TestimonialsSection({
                           fontStyle: 'normal',
                           color: isActive ? '#CCC5B9' : '#403D39',
                         }}
-                        className="m-0 cursor-text select-text text-[12px] leading-[1.3] sm:text-[16px] sm:leading-[24px]"
+                        className="m-0 cursor-text select-text text-[0.75rem] leading-[1.25] sm:text-[0.875rem] sm:leading-[1.25rem]"
                       >
                         {item.role}
                       </p>
                     </div>
 
-                    {/* Portrait Photo or Silhouette (Figma Node 211:5443: size 136px) */}
+                    {/* Portrait Photo or Silhouette */}
                     <div
                       className={cn(
-                        'relative shrink-0 size-[120px] sm:size-[136px] overflow-clip',
+                        'relative shrink-0 size-[5.75rem] sm:size-[6.75rem] overflow-clip',
                         isActive ? 'bg-[#403D39]' : 'bg-[#CCC5B9]'
                       )}
                     >
@@ -546,9 +536,9 @@ export function TestimonialsSection({
                     </div>
                   </div>
 
-                  {/* Accent Stripe at bottom (Figma Node 211:5448: height 10px, orange when active like card 1, tan when idle) */}
+                  {/* Accent Stripe at bottom */}
                   <div
-                    className="h-[8px] sm:h-[10px] w-full shrink-0 block transition-colors duration-300"
+                    className="h-[0.4375rem] sm:h-[0.5rem] w-full shrink-0 block transition-colors duration-300"
                     style={{
                       backgroundColor: isActive ? '#E06422' : '#BB9457',
                     }}

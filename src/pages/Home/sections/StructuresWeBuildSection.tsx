@@ -9,9 +9,9 @@ const hankenGrotesk = { fontFamily: '"Hanken Grotesk", sans-serif' }
 
 // Side padding lives in plain CSS (ID selector) so nothing else can override it
 const SECTION_CSS = `
-#structures-we-build { padding-left: 16px; padding-right: 16px; }
-@media (min-width: 768px)  { #structures-we-build { padding-left: 48px; padding-right: 48px; } }
-@media (min-width: 1024px) { #structures-we-build { padding-left: 96px; padding-right: 96px; } }
+#structures-we-build { padding-left: 1.25rem; padding-right: 1.25rem; }
+@media (min-width: 768px)  { #structures-we-build { padding-left: 3rem; padding-right: 3rem; } }
+@media (min-width: 1024px) { #structures-we-build { padding-left: 6rem; padding-right: 6rem; } }
 `
 
 const structures = [
@@ -56,25 +56,25 @@ export function StructuresWeBuildSection() {
 
       <section
         id="structures-we-build"
-        className="relative z-10 -mt-px flex flex-col items-center gap-8 bg-[#FFFCF2] py-16 lg:py-[100px]"
+        className="relative z-10 -mt-px flex flex-col items-center gap-[2rem] bg-[#FFFCF2] py-[4rem] lg:py-[6.25rem]"
       >
         {/* Header */}
         <div
           ref={headerRef}
-          className={`w-full max-w-[1245px] transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none ${
+          className={`w-full max-w-[77.8125rem] transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none ${
             headerIn ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
           }`}
         >
           <h2
             style={baiJamjuree}
-            className="text-[28px] font-semibold leading-[1.2] tracking-[-0.01em] text-[#252422] lg:text-[36px] lg:leading-[44px]"
+            className="text-[1.75rem] font-semibold leading-[1.2] tracking-[-0.01em] text-[#252422] lg:text-[2.25rem] lg:leading-[2.75rem]"
           >
             Structures We Build
           </h2>
         </div>
 
         {/* Cards: snap carousel on mobile, 3-col grid from md up */}
-        <div ref={cardsRef} className="w-full max-w-[1245px]">
+        <div ref={cardsRef} className="w-full max-w-[77.8125rem]">
           <div
             ref={trackRef}
             onScroll={handleScroll}
@@ -84,7 +84,7 @@ export function StructuresWeBuildSection() {
               overscrollBehaviorX: 'contain',
               overscrollBehaviorY: 'auto',
             }}
-            className="-ml-4 -mr-4 flex snap-x snap-proximity scroll-pl-4 gap-3 overflow-x-auto overflow-y-hidden pl-4 pr-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:ml-0 md:mr-0 md:grid md:grid-cols-3 md:snap-none md:overflow-visible md:pl-0 md:pr-0"
+            className="-ml-5 -mr-5 flex snap-x snap-proximity scroll-pl-5 gap-3 overflow-x-auto overflow-y-hidden pl-5 pr-5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:ml-0 md:mr-0 md:grid md:grid-cols-3 md:snap-none md:overflow-visible md:pl-0 md:pr-0"
           >
             {structures.map((item, i) => (
               <article

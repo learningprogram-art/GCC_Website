@@ -596,9 +596,9 @@ export function WhyGccSection() {
 
         /* Carousel container */
         .why-gcc {
-          --w: min(86vw, 820px);
-          --h: clamp(320px, 42vw, 430px);
-          --gap: 28px;
+          --w: min(86vw, 51.25rem);
+          --h: clamp(20rem, 42vw, 26.875rem);
+          --gap: 1.75rem;
           --x0: calc(50% - var(--w) / 2); /* active card centered */
           position: relative;
           width: 100%;

@@ -138,7 +138,7 @@ export function ContactSection() {
       </div>
 
       {/* Main Content Container (mobile: no side padding, so the form can run edge to edge) */}
-      <div className="relative z-10 mx-auto flex w-full flex-col lg:flex-row items-center justify-between gap-0 sm:gap-[3rem] lg:gap-[5rem] px-0 sm:px-6 md:px-12 lg:!px-[96px] py-0 sm:py-[4rem] lg:py-[5rem]">
+      <div className="relative z-10 mx-auto flex w-full flex-col lg:flex-row items-center justify-between gap-0 sm:gap-[3rem] lg:gap-[5rem] px-0 sm:px-[1.5rem] md:px-[3rem] lg:!px-[6rem] py-0 sm:py-[4rem] lg:py-[5rem]">
         {/* Left Column: Intro & Contact Options (Figma Node 211:5478) */}
         <div className="flex flex-1 flex-col items-start gap-[24px] sm:gap-[32px] w-full max-w-[40.5rem] px-5 pt-12 pb-8 sm:p-0">
           {/* Headline & Subtitle Block */}

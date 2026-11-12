@@ -62,9 +62,9 @@ const goToContact = (e: MouseEvent) => {
 
 // Layout rules live in plain CSS so Tailwind config or global CSS can't change them
 const SECTION_CSS = `
-#transparency { padding-left: 20px; padding-right: 20px; }
-@media (min-width: 640px)  { #transparency { padding-left: 24px; padding-right: 24px; } }
-@media (min-width: 1024px) { #transparency { padding-left: 96px; padding-right: 96px; } }
+#transparency { padding-left: 1.25rem; padding-right: 1.25rem; }
+@media (min-width: 640px)  { #transparency { padding-left: 1.5rem; padding-right: 1.5rem; } }
+@media (min-width: 1024px) { #transparency { padding-left: 6rem; padding-right: 6rem; } }
 
 #transparency .tr-track {
   display: flex;
@@ -298,8 +298,8 @@ export function TransparencySection() {
     <>
       <style>{SECTION_CSS}</style>
 
-      <section id="transparency" className="relative z-10 -mt-[2px] bg-[#FFE6A7] pt-[74px] pb-[330px] sm:pt-[92px] sm:pb-[90px]">
-        <div className="mx-auto flex max-w-[1252px] flex-col items-center gap-10 sm:gap-[34px]">
+      <section id="transparency" className="relative z-10 -mt-[2px] bg-[#FFE6A7] pt-[4.625rem] pb-[20.625rem] sm:pt-[5.75rem] sm:pb-[5.625rem]">
+        <div className="mx-auto flex max-w-[78.25rem] flex-col items-center gap-[2.5rem] sm:gap-[2.125rem]">
           {/* Header */}
           <div className="flex w-full flex-col items-start gap-6">
             <div

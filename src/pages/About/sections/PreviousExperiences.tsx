@@ -165,35 +165,33 @@ export function PreviousExperiences() {
     }
 
     // Smoothly follow the scroll position (and stop the loop when caught up)
-    let current = 0
-    let rafId = 0
-    let lastTime = 0
+    const anim = { current: 0, rafId: 0, lastTime: 0 }
 
     const tick = (now: number) => {
-      rafId = 0
+      anim.rafId = 0
       const target = getTarget()
-      const dt = lastTime ? Math.min(0.05, Math.max(0.001, (now - lastTime) / 1000)) : 1 / 60
-      lastTime = now
+      const dt = anim.lastTime ? Math.min(0.05, Math.max(0.001, (now - anim.lastTime) / 1000)) : 1 / 60
+      anim.lastTime = now
 
-      current += (target - current) * (1 - Math.exp(-SMOOTHING * dt))
-      if (Math.abs(target - current) < 0.0005) current = target
-      apply(current)
+      anim.current += (target - anim.current) * (1 - Math.exp(-SMOOTHING * dt))
+      if (Math.abs(target - anim.current) < 0.0005) anim.current = target
+      apply(anim.current)
 
-      if (current !== target) {
-        rafId = requestAnimationFrame(tick)
+      if (anim.current !== target) {
+        anim.rafId = requestAnimationFrame(tick)
       } else {
-        lastTime = 0
+        anim.lastTime = 0
       }
     }
 
     const schedule = () => {
-      if (!rafId) rafId = requestAnimationFrame(tick)
+      if (!anim.rafId) anim.rafId = requestAnimationFrame(tick)
     }
 
     const onResize = () => {
       measure()
-      current = getTarget()
-      apply(current)
+      anim.current = getTarget()
+      apply(anim.current)
     }
 
     // First paint: jump straight to the right pose (works if the page loads already scrolled)
@@ -202,8 +200,8 @@ export function PreviousExperiences() {
       el.style.transition = 'none'
     })
     measure()
-    current = getTarget()
-    apply(current)
+    anim.current = getTarget()
+    apply(anim.current)
 
     window.addEventListener('scroll', schedule, { passive: true })
     window.addEventListener('resize', onResize)
@@ -211,7 +209,7 @@ export function PreviousExperiences() {
     return () => {
       window.removeEventListener('scroll', schedule)
       window.removeEventListener('resize', onResize)
-      if (rafId) cancelAnimationFrame(rafId)
+      if (anim.rafId) cancelAnimationFrame(anim.rafId)
     }
   }, [animated, gridRef])
 
@@ -220,7 +218,7 @@ export function PreviousExperiences() {
       ref={sectionRef}
       id="previous-experiences"
       data-node-id="214:7165"
-      className="relative z-10 -mt-px flex w-full flex-col items-center justify-center overflow-x-clip bg-[#FFFCF2] px-6 py-16 sm:px-12 md:px-[96px] lg:px-[6rem] sm:min-h-[100svh] sm:py-8"
+      className="relative z-10 -mt-px flex w-full flex-col items-center justify-center overflow-x-clip bg-[#FFFCF2] px-[1.25rem] py-[4rem] sm:px-[3rem] md:px-[6rem] lg:px-[6rem] sm:min-h-[100svh] sm:py-[2rem]"
     >
       <h2
         ref={titleRef}

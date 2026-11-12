@@ -10,9 +10,9 @@ const CLOSE_ANIM_MS = 280
 
 // Side padding lives in plain CSS (ID selector) so nothing else can override it
 const SECTION_CSS = `
-#portal-access { padding-left: 20px; padding-right: 20px; padding-top: 40px; padding-bottom: 40px; }
-@media (min-width: 640px)  { #portal-access { padding-left: 32px; padding-right: 32px; padding-top: 56px; padding-bottom: 56px; } }
-@media (min-width: 1024px) { #portal-access { padding-left: 96px; padding-right: 96px; padding-top: 80px; padding-bottom: 80px; } }
+#portal-access { padding-left: 1.25rem; padding-right: 1.25rem; padding-top: 2.5rem; padding-bottom: 2.5rem; }
+@media (min-width: 640px)  { #portal-access { padding-left: 2rem; padding-right: 2rem; padding-top: 3.5rem; padding-bottom: 3.5rem; } }
+@media (min-width: 1024px) { #portal-access { padding-left: 6rem; padding-right: 6rem; padding-top: 5rem; padding-bottom: 5rem; } }
 
 /* AMC Portal Auth Modal (Desktop centered popup) & Bottom Sheet (Mobile < 640px) — all rem-scaled */
 .amc-modal-backdrop {
@@ -196,7 +196,7 @@ export function PortalAccessSection({
           className
         )}
       >
-        <div ref={cardRef} className="mx-auto max-w-[1248px] w-full">
+        <div ref={cardRef} className="mx-auto max-w-[78rem] w-full">
           {/* ==============================================================
               MOBILE VIEW (Figma Node 211:4814 / 211:4785)
               Card: 351px x 764px, rounded-[12px], bg image gcc-amc-card-mob.webp

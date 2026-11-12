@@ -6,9 +6,9 @@ import { useInViewOnce } from '@/hooks/useInViewOnce'
 
 // Side padding lives in plain CSS (ID selector) so nothing else can override it
 const SECTION_CSS = `
-#cost-calculator { padding-left: 16px; padding-right: 16px; }
-@media (min-width: 640px)  { #cost-calculator { padding-left: 24px; padding-right: 24px; } }
-@media (min-width: 1024px) { #cost-calculator { padding-left: 96px; padding-right: 96px; } }
+#cost-calculator { padding-left: 1.25rem; padding-right: 1.25rem; }
+@media (min-width: 640px)  { #cost-calculator { padding-left: 1.5rem; padding-right: 1.5rem; } }
+@media (min-width: 1024px) { #cost-calculator { padding-left: 6rem; padding-right: 6rem; } }
 
 /* Area slider (Figma node 230:7425): 6px track, 26px knob */
 .gcc-range { -webkit-appearance: none; appearance: none; width: 100%; height: 28px; background: transparent; cursor: pointer; margin: 0; }
@@ -1140,9 +1140,9 @@ export function CostCalculatorSection() {
         id="cost-calculator"
         data-node-id="211:6073"
         aria-label="Home Construction Cost Estimator"
-        className="relative w-full bg-[#FFFCF2] pt-8 pb-[72px] sm:pt-12 sm:pb-[80px] lg:py-14 px-4 sm:px-6 md:px-[96px] lg:px-[6rem]"
+        className="relative w-full bg-[#FFFCF2] pt-[0.5rem] pb-[4.5rem] sm:pt-[3rem] sm:pb-[5rem] lg:py-[3.5rem]"
       >
-        <div ref={bannerRef} className="mx-auto max-w-[1248px] w-full">
+        <div ref={bannerRef} className="mx-auto max-w-[78rem] w-full">
           {/* MOBILE CARD LAYOUT (Figma Node 214:6149) */}
           <div
             data-node-id="214:6149"

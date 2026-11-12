@@ -85,7 +85,7 @@ export function Footer() {
     <footer
       id="footer"
       style={{ fontFamily: '"Hanken Grotesk", sans-serif' }}
-      className="relative w-full overflow-x-hidden bg-[#252422] text-[#FFFCF2] flex flex-col px-6 md:px-12 lg:!px-[96px] pt-[3.625rem] pb-0"
+      className="relative w-full overflow-x-hidden bg-[#252422] text-[#FFFCF2] flex flex-col px-[1.25rem] sm:px-[1.5rem] md:px-[3rem] lg:!px-[6rem] pt-[3.625rem] pb-0"
     >
       {/* Content Container (Full width between the 96px / 6rem left & right paddings) */}
       <div className="w-full pb-[2rem] flex flex-col gap-[2rem]">

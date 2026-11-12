@@ -36,7 +36,7 @@ export const VisitOfficeSection: React.FC = () => {
           alignItems: 'flex-start',
           gap: '40px',
         }}
-        className="relative z-10 w-full max-w-[calc(430.58px+96px)] lg:max-w-[calc(430.58px+6rem)] pl-[96px] lg:pl-[6rem] lg:absolute lg:left-0 lg:top-1/2 lg:-translate-y-1/2"
+        className="relative z-10 w-full max-w-[calc(26.91125rem+6rem)] px-[1.25rem] sm:px-[3rem] lg:pl-[6rem] lg:pr-0 lg:absolute lg:left-0 lg:top-1/2 lg:-translate-y-1/2"
       >
         {/* Heading (Figma Node 214:7215) — Bai Jamjuree Bold 48px in one line */}
         <h2

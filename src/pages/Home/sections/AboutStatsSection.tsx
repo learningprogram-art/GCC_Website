@@ -7,9 +7,9 @@ const hankenGrotesk = { fontFamily: '"Hanken Grotesk", sans-serif' }
 
 // Side padding lives in plain CSS (ID selector) so nothing else can override it
 const SECTION_CSS = `
-#about-stats { padding-left: 24px; padding-right: 24px; }
-@media (min-width: 640px)  { #about-stats { padding-left: 48px; padding-right: 48px; } }
-@media (min-width: 1024px) { #about-stats { padding-left: 96px; padding-right: 96px; } }
+#about-stats { padding-left: 1.25rem; padding-right: 1.25rem; }
+@media (min-width: 640px)  { #about-stats { padding-left: 3rem; padding-right: 3rem; } }
+@media (min-width: 1024px) { #about-stats { padding-left: 6rem; padding-right: 6rem; } }
 `
 
 type Stat = {
@@ -131,9 +131,9 @@ export function AboutStatsSection() {
       <section
         id="about-stats"
         ref={sectionRef}
-        className="bg-[#252422] py-16 sm:py-20 lg:py-[87px]"
+        className="bg-[#252422] py-[4rem] sm:py-[5rem] lg:py-[5.4375rem]"
       >
-        <div className="mx-auto flex w-full max-w-[1252px] flex-col gap-10 sm:gap-[62px]">
+        <div className="mx-auto flex w-full max-w-[78.25rem] flex-col gap-[2.5rem] sm:gap-[3.875rem]">
           {/* Statement: eyebrow (left) + link (right) on the first row, headline below, on every screen size */}
           <div className="grid grid-cols-[1fr_auto] items-center gap-x-4 gap-y-6 sm:gap-x-8 sm:gap-y-[32px]">
             {/* Eyebrow */}
@@ -156,7 +156,7 @@ export function AboutStatsSection() {
                 ((100vw - 48px padding) / 12.8 ≈ widest line "TRUSTED BY FAMILIES."). */}
             <h2
               style={baiJamjuree}
-              className="col-span-2 text-[clamp(20px,calc((100vw-48px)/12.8),32px)] sm:text-[48px] lg:text-[66px] font-medium uppercase leading-[1.05] tracking-[-0.02em] lg:tracking-[-0.66px]"
+              className="col-span-2 text-[clamp(20px,calc((100vw-40px)/12.8),32px)] sm:text-[3rem] lg:text-[4.125rem] font-medium uppercase leading-[1.05] tracking-[-0.02em] lg:tracking-[-0.04125rem]"
             >
               <span
                 className={`block whitespace-nowrap text-[#FFFCF2] transition-all duration-700 delay-100 ease-out ${

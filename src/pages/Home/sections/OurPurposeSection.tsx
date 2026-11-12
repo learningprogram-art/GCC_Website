@@ -126,7 +126,7 @@ export const OurPurposeSection: React.FC = () => {
       */}
       <div
         id="where-we-build"
-        className="our-purpose-card-slot relative z-30 w-full px-5 sm:px-12 lg:px-[96px]"
+        className="our-purpose-card-slot relative z-30 w-full px-[1.25rem] sm:px-[3rem] lg:px-[6rem]"
       >
         <WhereWeBuildCard />
       </div>

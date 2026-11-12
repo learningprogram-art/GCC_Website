@@ -3,9 +3,9 @@ import { cn } from '@/utils/cn'
 
 // Side padding lives in plain CSS (ID selector) so nothing else can override it
 const SECTION_CSS = `
-#how-we-build { padding-left: 16px; padding-right: 16px; }
-@media (min-width: 768px)  { #how-we-build { padding-left: 48px; padding-right: 48px; } }
-@media (min-width: 1024px) { #how-we-build { padding-left: 96px; padding-right: 96px; } }
+#how-we-build { padding-left: 1.25rem; padding-right: 1.25rem; }
+@media (min-width: 768px)  { #how-we-build { padding-left: 3rem; padding-right: 3rem; } }
+@media (min-width: 1024px) { #how-we-build { padding-left: 6rem; padding-right: 6rem; } }
 `
 
 export interface StepItem {
@@ -14,8 +14,6 @@ export interface StepItem {
   title: string
   description: string
   deliverables: string[]
-  tone: 'White' | 'Sand' | 'Tan' | 'Maroon'
-  imageCaption: string
 }
 
 const STEPS: StepItem[] = [
@@ -26,8 +24,6 @@ const STEPS: StepItem[] = [
     description:
       'We understand your plot, your needs and your budget, and turn them into a clear design and plan.',
     deliverables: ['Site visit', 'Floor plans', '3D elevation'],
-    tone: 'White',
-    imageCaption: 'Architect walking the plot with the family',
   },
   {
     number: '02',
@@ -36,8 +32,6 @@ const STEPS: StepItem[] = [
     description:
       'Structural engineering and detailed drawings that give your home a stronger foundation.',
     deliverables: ['Structural design', 'Working drawings', 'Soil report'],
-    tone: 'Sand',
-    imageCaption: 'Engineer marking up structural drawings',
   },
   {
     number: '03',
@@ -46,8 +40,6 @@ const STEPS: StepItem[] = [
     description:
       'Execution managed by one team, with quality checks at every stage.',
     deliverables: ['Weekly updates', 'Stage QA checks', 'Milestone billing'],
-    tone: 'Tan',
-    imageCaption: 'Construction site quality control & progress',
   },
   {
     number: '04',
@@ -56,8 +48,6 @@ const STEPS: StepItem[] = [
     description:
       'Keys handed over with deep cleaning, full documentation, and ongoing structural warranty.',
     deliverables: ['Keys & documentation', 'Warranty certificate', 'AMC portal access'],
-    tone: 'Maroon',
-    imageCaption: 'Family receiving keys with structural warranty',
   },
 ]
 
@@ -132,147 +122,6 @@ function RevealText({
 }
 
 /* ------------------------------------------------------------------ */
-/* Illustrations                                                       */
-/* ------------------------------------------------------------------ */
-
-function StepIllustration({ tone }: { tone: string }) {
-  if (tone === 'White') {
-    return (
-      <div className="relative size-full flex flex-col justify-between p-[1.5rem] sm:p-[2rem] overflow-hidden">
-        {/* Architectural drafting grid background */}
-        <div
-          className="absolute inset-0 opacity-20 pointer-events-none"
-          style={{
-            backgroundImage:
-              'linear-gradient(#403D39 1px, transparent 1px), linear-gradient(90deg, #403D39 1px, transparent 1px)',
-            backgroundSize: '24px 24px',
-          }}
-        />
-        <div className="relative z-10 flex items-center justify-between">
-          <span className="font-['Hanken_Grotesk',sans-serif] text-[0.75rem] font-semibold uppercase tracking-[0.06rem] text-[#403D39]">
-            Architectural Schematic
-          </span>
-          <span className="font-['Bai_Jamjuree',sans-serif] text-[0.875rem] font-bold text-[#6F1D1B]">
-            PLOT V-104
-          </span>
-        </div>
-        {/* Floorplan visual schematic */}
-        <div className="relative z-10 my-auto flex flex-col items-center justify-center gap-3">
-          <svg
-            viewBox="0 0 160 100"
-            className="w-[12rem] sm:w-[14rem] h-auto stroke-[#252422]"
-            fill="none"
-            strokeWidth="1.5"
-          >
-            <rect x="10" y="10" width="140" height="80" rx="2" strokeDasharray="4 2" />
-            <rect x="20" y="20" width="60" height="60" fill="#252422" fillOpacity="0.06" />
-            <rect x="85" y="20" width="55" height="35" fill="#252422" fillOpacity="0.04" />
-            <rect x="85" y="60" width="55" height="20" fill="#252422" fillOpacity="0.04" />
-            <path d="M40 80v-15a15 15 0 0 1 15-15" stroke="#E06422" strokeWidth="2" />
-          </svg>
-        </div>
-        <div className="relative z-10 flex items-center justify-between font-['Hanken_Grotesk',sans-serif] text-[0.8125rem] text-[#403D39]">
-          <span>Floorplan & Elevations</span>
-          <span className="font-semibold text-[#6F1D1B]">01 / Concept Approved</span>
-        </div>
-      </div>
-    )
-  }
-
-  if (tone === 'Sand') {
-    return (
-      <div className="relative size-full flex flex-col justify-between p-[1.5rem] sm:p-[2rem] overflow-hidden">
-        <div className="relative z-10 flex items-center justify-between">
-          <span className="font-['Hanken_Grotesk',sans-serif] text-[0.75rem] font-semibold uppercase tracking-[0.06rem] text-[#252422]">
-            Structural Load Modeling
-          </span>
-          <span className="font-['Bai_Jamjuree',sans-serif] text-[0.875rem] font-bold text-[#6F1D1B]">
-            IS 456 COMPLIANT
-          </span>
-        </div>
-        <div className="relative z-10 my-auto flex flex-col items-center justify-center">
-          <svg
-            viewBox="0 0 160 100"
-            className="w-[12rem] sm:w-[14rem] h-auto stroke-[#252422]"
-            fill="none"
-            strokeWidth="1.5"
-          >
-            <path d="M20 90h120M30 90V30l50-15 50 15v60M55 90V38M80 90V25M105 90V38" />
-            <circle cx="80" cy="25" r="4" fill="#E06422" stroke="none" />
-            <circle cx="55" cy="38" r="3" fill="#E06422" stroke="none" />
-            <circle cx="105" cy="38" r="3" fill="#E06422" stroke="none" />
-          </svg>
-        </div>
-        <div className="relative z-10 flex items-center justify-between font-['Hanken_Grotesk',sans-serif] text-[0.8125rem] text-[#252422]">
-          <span>RCC & Foundation Blueprint</span>
-          <span className="font-semibold text-[#6F1D1B]">02 / Safety Verified</span>
-        </div>
-      </div>
-    )
-  }
-
-  if (tone === 'Tan') {
-    return (
-      <div className="relative size-full flex flex-col justify-between p-[1.5rem] sm:p-[2rem] overflow-hidden">
-        <div className="relative z-10 flex items-center justify-between">
-          <span className="font-['Hanken_Grotesk',sans-serif] text-[0.75rem] font-semibold uppercase tracking-[0.06rem] text-[#252422]">
-            Site Execution & Quality
-          </span>
-          <span className="font-['Bai_Jamjuree',sans-serif] text-[0.875rem] font-bold text-[#6F1D1B]">
-            STAGE 3 ON SCHEDULE
-          </span>
-        </div>
-        <div className="relative z-10 my-auto flex flex-col items-center justify-center">
-          <svg
-            viewBox="0 0 160 100"
-            className="w-[12rem] sm:w-[14rem] h-auto stroke-[#252422]"
-            fill="none"
-            strokeWidth="1.6"
-          >
-            <path d="M20 85h120M35 85V45h35v40M75 85V25h50v60M85 40h15M85 55h15M110 40h15M110 55h15" />
-            <path d="M50 20l25-10v15" stroke="#FFFFFF" strokeWidth="2" />
-          </svg>
-        </div>
-        <div className="relative z-10 flex items-center justify-between font-['Hanken_Grotesk',sans-serif] text-[0.8125rem] text-[#252422]">
-          <span>Daily QA Audits & Live Camera</span>
-          <span className="font-semibold text-[#252422]">03 / Precision Build</span>
-        </div>
-      </div>
-    )
-  }
-
-  return (
-    <div className="relative size-full flex flex-col justify-between p-[1.5rem] sm:p-[2rem] overflow-hidden">
-      <div className="relative z-10 flex items-center justify-between">
-        <span className="font-['Hanken_Grotesk',sans-serif] text-[0.75rem] font-semibold uppercase tracking-[0.06rem] text-[#FFFCF2]/80">
-          Handover & Living
-        </span>
-        <span className="font-['Bai_Jamjuree',sans-serif] text-[0.875rem] font-bold text-[#FB8B24]">
-          10-YEAR WARRANTY
-        </span>
-      </div>
-      <div className="relative z-10 my-auto flex flex-col items-center justify-center">
-        <svg
-          viewBox="0 0 160 100"
-          className="w-[12rem] sm:w-[14rem] h-auto stroke-[#FFFCF2]"
-          fill="none"
-          strokeWidth="1.6"
-        >
-          <path d="M80 15L35 45v45h90V45L80 15z" />
-          <path d="M68 90V60h24v30" />
-          <circle cx="80" cy="40" r="8" stroke="#FB8B24" strokeWidth="2" />
-          <path d="M80 44v8M76 48h8" stroke="#FB8B24" strokeWidth="2" />
-        </svg>
-      </div>
-      <div className="relative z-10 flex items-center justify-between font-['Hanken_Grotesk',sans-serif] text-[0.8125rem] text-[#FFFCF2]">
-        <span>Deep Cleaning & Key Handover</span>
-        <span className="font-semibold text-[#FB8B24]">04 / Lifetime Trust</span>
-      </div>
-    </div>
-  )
-}
-
-/* ------------------------------------------------------------------ */
 /* Section                                                             */
 /* ------------------------------------------------------------------ */
 
@@ -339,7 +188,7 @@ export function HowWeBuildSection() {
         id="how-we-build"
         data-node-id="211:5236"
         aria-label="How We Build"
-        className="relative w-full bg-[#FFFCF2] pt-[3rem] pb-[5rem] lg:pt-[5rem] lg:pb-[6rem] overflow-visible"
+        className="relative w-full bg-[#FFFCF2] pt-[3rem] pb-[2rem] sm:pb-[5rem] lg:pt-[5rem] lg:pb-[6rem] overflow-visible"
       >
         <div className="mx-auto max-w-[78rem] flex flex-col gap-[2.5rem] lg:gap-[3.5rem]">
           {/* Header (Figma Node 211:5237) */}
@@ -379,10 +228,6 @@ export function HowWeBuildSection() {
           {/* Sticky Stacking Step Cards Container */}
           <div className="relative flex flex-col gap-[1.5rem] lg:gap-[2.5rem] w-full pt-[1rem] sm:pt-[1.5rem] lg:pt-[1.5rem]">
             {STEPS.map((step, index) => {
-              const isMaroon = step.tone === 'Maroon'
-              const isTan = step.tone === 'Tan'
-              const isSand = step.tone === 'Sand'
-              const isWhite = step.tone === 'White'
               const isActive = activeStepIndex === index
 
               // CSS Sticky offset per card: pins top below floating navbar (~4.75rem / 76px) + tab offset
@@ -472,16 +317,9 @@ export function HowWeBuildSection() {
 
                     {/* Right Column: Visual Frame (Figma Node 211:5268) */}
                     <div
-                      className={cn(
-                        'w-full lg:w-1/2 min-h-[200px] sm:min-h-[240px] lg:min-h-0 flex-1 relative flex flex-col justify-between overflow-hidden',
-                        isMaroon && 'bg-[#403D39]',
-                        isTan && 'bg-[#99582A]',
-                        isSand && 'bg-[#BB9457]',
-                        isWhite && 'bg-[#CCC5B9]'
-                      )}
-                    >
-                      <StepIllustration tone={step.tone} />
-                    </div>
+                      aria-hidden="true"
+                      className="w-full lg:w-1/2 min-h-[12.5rem] sm:min-h-[15rem] lg:min-h-0 flex-1 bg-[#99582A]"
+                    />
                   </div>
                 </div>
               )

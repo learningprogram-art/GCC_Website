@@ -672,13 +672,10 @@ export function HeroSection() {
               floating ? 'cursor-pointer' : 'cursor-default'
             }`}
           >
-            <div className="flex h-[60px] w-[60px] shrink-0 items-center justify-center rounded-md bg-[#252422] text-[#FFE4A0] shadow-sm">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <path d="M2 20a10 10 0 0 1 20 0" />
-                <circle cx="12" cy="10" r="4" />
-                <path d="M12 2v2" />
-              </svg>
-            </div>
+            <div
+              className="h-[60px] w-[60px] shrink-0 rounded-md bg-[#CCC5B9]"
+              aria-hidden="true"
+            />
             <div className="leading-tight">
               <p className="text-[10px] font-medium uppercase tracking-wide text-slate-700">
                 Let&apos;s talk
