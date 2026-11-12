@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef, useState } from "react"
-import { useAutoSlide } from "@/hooks/useAutoSlide"
 import { useInViewOnce } from "@/hooks/useInViewOnce"
 
 // Figma node: 211:5177 — Section / Why GCC (bg layers: 211:5178 glow, 211:5179 glow core, 211:5180 dot grid, 211:5198 edge fade)
@@ -70,11 +69,20 @@ export function WhyGccSection() {
     setTrackIndex((prev) => (prev >= REPEATS * N - 1 ? BASE_INDEX : prev + 1))
   }, [])
 
-  const { setIsPaused, pause, resume, resetTimer } = useAutoSlide({
-    targetRef: carouselRef,
-    intervalMs: AUTO_SLIDE_MS,
-    onSlide: advanceSlide,
-  })
+  const [isPaused, setIsPaused] = useState(false)
+  const [timerKey, setTimerKey] = useState(0)
+
+  const pause = useCallback(() => setIsPaused(true), [])
+  const resume = useCallback(() => setIsPaused(false), [])
+  // Changing timerKey restarts the interval, so a manual click gets a full 3s before the next auto-slide
+  const resetTimer = useCallback(() => setTimerKey((k) => k + 1), [])
+
+  // Auto-slide: runs once the carousel has scrolled into view, stops while paused
+  useEffect(() => {
+    if (!carouselIn || isPaused) return
+    const id = window.setInterval(advanceSlide, AUTO_SLIDE_MS)
+    return () => window.clearInterval(id)
+  }, [carouselIn, isPaused, timerKey, advanceSlide])
 
   // Navigate to next card (infinite loop)
   const goNext = useCallback(() => {
@@ -185,7 +193,7 @@ export function WhyGccSection() {
           <h2 className="why-gcc-title">The GCC Difference</h2>
         </div>
 
-        {/* Tabs + Carousel wrapper (pauses auto-slide while hovered with mouse or focused) */}
+        {/* Tabs + Carousel wrapper (pauses auto-slide while hovered with mouse or keyboard-focused) */}
         <div
           onPointerEnter={(e) => {
             if (e.pointerType === "mouse") setIsPaused(true)
@@ -193,210 +201,213 @@ export function WhyGccSection() {
           onPointerLeave={(e) => {
             if (e.pointerType === "mouse") setIsPaused(false)
           }}
-          onFocusCapture={() => setIsPaused(true)}
+          onFocusCapture={(e) => {
+            // Pause only for keyboard focus, not after a mouse click or tap
+            if ((e.target as HTMLElement).matches(":focus-visible")) setIsPaused(true)
+          }}
           onBlurCapture={(e) => {
             if (!e.currentTarget.contains(e.relatedTarget as Node | null)) {
               setIsPaused(false)
             }
           }}
         >
-        {/* Tabs (hidden on mobile) */}
-        <div
-          style={{ transitionDelay: headIn ? "120ms" : "0ms" }}
-          className={`why-gcc-tabs relative z-20 transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none ${headIn ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
-            }`}
-          role="tablist"
-          aria-label="Why GCC tabs"
-        >
-          {CARDS.map((c, i) => {
-            const isActive = i === activeCardIndex
-            return (
-              <button
-                key={c.id}
-                type="button"
-                role="tab"
-                aria-selected={isActive}
-                data-active={isActive}
-                onClick={() => goToCard(i)}
-                className="why-gcc-tab"
-              >
-                <span className="why-gcc-tab__n">{c.id}</span>
-                <span>{c.tab}</span>
-              </button>
-            )
-          })}
-        </div>
-
-        {/* Carousel Slider */}
-        <div
-          ref={carouselRef}
-          style={{ transitionDelay: carouselIn ? "150ms" : "0ms" }}
-          className={`why-gcc transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none ${carouselIn ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
-            }`}
-        >
+          {/* Tabs (hidden on mobile) */}
           <div
-            className="why-gcc__viewport focus:outline-none"
-            tabIndex={0}
-            role="region"
-            aria-label="Why GCC carousel"
-            onKeyDown={handleKeyDown}
-            onTouchStart={handleTouchStart}
-            onTouchEnd={handleTouchEnd}
-            onTouchCancel={() => setIsPaused(false)}
+            style={{ transitionDelay: headIn ? "120ms" : "0ms" }}
+            className={`why-gcc-tabs relative z-20 transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none ${headIn ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
+              }`}
+            role="tablist"
+            aria-label="Why GCC tabs"
           >
-            {/* Static radial background fade (never moves when cards slide) */}
-            <div aria-hidden="true" className="why-gcc__fade" />
-
-            <div
-              ref={trackRef}
-              className="why-gcc__track"
-              style={{
-                transform: `translateX(calc(var(--x0) - ${trackIndex} * (var(--w) + var(--gap))))`,
-                transition: instant ? "none" : `transform 0.65s ${EASE}`,
-              }}
-              onTransitionEnd={handleTransitionEnd}
-            >
-
-              {TRACK_ITEMS.map((item) => {
-                const isActive = item.idx === trackIndex
-                const isFar = Math.abs(item.idx - trackIndex) > 1
-
-                return (
-                  <div
-                    key={item.idx}
-                    data-active={isActive}
-                    data-far={isFar}
-                    tabIndex={isActive ? 0 : -1}
-                    aria-hidden={!isActive}
-                    onClick={() => {
-                      if (!isActive) {
-                        setInstant(false)
-                        setTrackIndex(item.idx)
-                        resetTimer()
-                      }
-                    }}
-                    className="why-gcc__card"
-                  >
-                    {/* Left text column */}
-                    <div className="why-gcc__text">
-                      <span className="why-gcc__num">{item.card.id}</span>
-                      <div className="why-gcc__text-content">
-                        <h3 className="why-gcc__ctitle">
-                          {item.card.title[0]}{" "}
-                          <br />
-                          {item.card.title[1]}
-                        </h3>
-                        <p className="why-gcc__body">{item.card.body}</p>
-
-                        {/* Footer (mobile only) */}
-                        <div className="why-gcc__foot">
-                          <a href="#projects" className="why-gcc__more">
-                            See our work
-                            <svg
-                              width="20"
-                              height="20"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              aria-hidden="true"
-                            >
-                              <path d="M10 6l6 6-6 6" />
-                            </svg>
-                          </a>
-                          <span className="why-gcc__count">
-                            {item.card.id} / {TOTAL}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Right image column */}
-                    <div className="why-gcc__img">
-                      <img
-                        src={item.card.image}
-                        alt={item.card.alt}
-                        draggable={false}
-                        className="pointer-events-none select-none"
-                      />
-                      {/* Red overlay tint on inactive side cards */}
-                      <div className="why-gcc__img-tint" />
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-
-            {/* Static side-edge fades over outer peeking cards only (center active card stays untouched) */}
-            <div aria-hidden="true" className="why-gcc__edge-fade why-gcc__edge-fade--left" />
-            <div aria-hidden="true" className="why-gcc__edge-fade why-gcc__edge-fade--right" />
-          </div>
-
-          {/* Bottom row: dots (mobile only) + navigation arrows */}
-          <div className="why-gcc__arrows">
-            <div className="why-gcc__dots" role="tablist" aria-label="Choose card">
-              {CARDS.map((c, i) => (
+            {CARDS.map((c, i) => {
+              const isActive = i === activeCardIndex
+              return (
                 <button
                   key={c.id}
                   type="button"
                   role="tab"
-                  aria-selected={i === activeCardIndex}
-                  aria-label={`Go to ${c.tab}`}
-                  data-active={i === activeCardIndex}
+                  aria-selected={isActive}
+                  data-active={isActive}
                   onClick={() => goToCard(i)}
-                  className="why-gcc__pip"
-                />
-              ))}
+                  className="why-gcc-tab"
+                >
+                  <span className="why-gcc-tab__n">{c.id}</span>
+                  <span>{c.tab}</span>
+                </button>
+              )
+            })}
+          </div>
+
+          {/* Carousel Slider */}
+          <div
+            ref={carouselRef}
+            style={{ transitionDelay: carouselIn ? "150ms" : "0ms" }}
+            className={`why-gcc transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none ${carouselIn ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
+              }`}
+          >
+            <div
+              className="why-gcc__viewport focus:outline-none"
+              tabIndex={0}
+              role="region"
+              aria-label="Why GCC carousel"
+              onKeyDown={handleKeyDown}
+              onTouchStart={handleTouchStart}
+              onTouchEnd={handleTouchEnd}
+              onTouchCancel={() => setIsPaused(false)}
+            >
+              {/* Static radial background fade (never moves when cards slide) */}
+              <div aria-hidden="true" className="why-gcc__fade" />
+
+              <div
+                ref={trackRef}
+                className="why-gcc__track"
+                style={{
+                  transform: `translateX(calc(var(--x0) - ${trackIndex} * (var(--w) + var(--gap))))`,
+                  transition: instant ? "none" : `transform 0.65s ${EASE}`,
+                }}
+                onTransitionEnd={handleTransitionEnd}
+              >
+
+                {TRACK_ITEMS.map((item) => {
+                  const isActive = item.idx === trackIndex
+                  const isFar = Math.abs(item.idx - trackIndex) > 1
+
+                  return (
+                    <div
+                      key={item.idx}
+                      data-active={isActive}
+                      data-far={isFar}
+                      tabIndex={isActive ? 0 : -1}
+                      aria-hidden={!isActive}
+                      onClick={() => {
+                        if (!isActive) {
+                          setInstant(false)
+                          setTrackIndex(item.idx)
+                          resetTimer()
+                        }
+                      }}
+                      className="why-gcc__card"
+                    >
+                      {/* Left text column */}
+                      <div className="why-gcc__text">
+                        <span className="why-gcc__num">{item.card.id}</span>
+                        <div className="why-gcc__text-content">
+                          <h3 className="why-gcc__ctitle">
+                            {item.card.title[0]}{" "}
+                            <br />
+                            {item.card.title[1]}
+                          </h3>
+                          <p className="why-gcc__body">{item.card.body}</p>
+
+                          {/* Footer (mobile only) */}
+                          <div className="why-gcc__foot">
+                            <a href="#projects" className="why-gcc__more">
+                              See our work
+                              <svg
+                                width="20"
+                                height="20"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                aria-hidden="true"
+                              >
+                                <path d="M10 6l6 6-6 6" />
+                              </svg>
+                            </a>
+                            <span className="why-gcc__count">
+                              {item.card.id} / {TOTAL}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Right image column */}
+                      <div className="why-gcc__img">
+                        <img
+                          src={item.card.image}
+                          alt={item.card.alt}
+                          draggable={false}
+                          className="pointer-events-none select-none"
+                        />
+                        {/* Red overlay tint on inactive side cards */}
+                        <div className="why-gcc__img-tint" />
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+
+              {/* Static side-edge fades over outer peeking cards only (center active card stays untouched) */}
+              <div aria-hidden="true" className="why-gcc__edge-fade why-gcc__edge-fade--left" />
+              <div aria-hidden="true" className="why-gcc__edge-fade why-gcc__edge-fade--right" />
             </div>
 
-            <div className="why-gcc__arrow-group">
-              <button
-                type="button"
-                onClick={goPrev}
-                aria-label="Previous card"
-                data-active={activeCardIndex > 0}
-                className="why-gcc__arrow why-gcc__arrow--prev"
-              >
-                <svg
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  aria-hidden="true"
+            {/* Bottom row: dots (mobile only) + navigation arrows */}
+            <div className="why-gcc__arrows">
+              <div className="why-gcc__dots" role="tablist" aria-label="Choose card">
+                {CARDS.map((c, i) => (
+                  <button
+                    key={c.id}
+                    type="button"
+                    role="tab"
+                    aria-selected={i === activeCardIndex}
+                    aria-label={`Go to ${c.tab}`}
+                    data-active={i === activeCardIndex}
+                    onClick={() => goToCard(i)}
+                    className="why-gcc__pip"
+                  />
+                ))}
+              </div>
+
+              <div className="why-gcc__arrow-group">
+                <button
+                  type="button"
+                  onClick={goPrev}
+                  aria-label="Previous card"
+                  data-active={activeCardIndex > 0}
+                  className="why-gcc__arrow why-gcc__arrow--prev"
                 >
-                  <path d="M15 18l-6-6 6-6" />
-                </svg>
-              </button>
-              <button
-                type="button"
-                onClick={goNext}
-                aria-label="Next card"
-                data-active={activeCardIndex < N - 1}
-                className="why-gcc__arrow why-gcc__arrow--next"
-              >
-                <svg
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  aria-hidden="true"
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M15 18l-6-6 6-6" />
+                  </svg>
+                </button>
+                <button
+                  type="button"
+                  onClick={goNext}
+                  aria-label="Next card"
+                  data-active={activeCardIndex < N - 1}
+                  className="why-gcc__arrow why-gcc__arrow--next"
                 >
-                  <path d="M9 18l6-6-6-6" />
-                </svg>
-              </button>
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M9 18l6-6-6-6" />
+                  </svg>
+                </button>
+              </div>
             </div>
           </div>
-        </div>
         </div>
       </div>
 

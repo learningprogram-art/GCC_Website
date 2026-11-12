@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { useCarousel } from '@/hooks/useAutoSlide'
 
 interface CardConfig {
   id: string
@@ -22,36 +23,77 @@ const CARDS: CardConfig[] = [
   { id: '214:7162', name: 'Experience 6', from: { sx: 1, sy: 1, far: 0.4, z: -120, rx: -14, ry: -20, rz: -7, s: 0.6 } },
 ]
 
-/* Timing. Long glide + heavy overlap = the smooth, continuous feel of the reference */
-const DURATION = 2000 // ms, each card's flight
-const STAGGER = 450 // ms between one card starting and the next (cards overlap, as DURATION > STAGGER)
-const FADE = 900 // ms, soft fade-in while travelling
-const START_DELAY = 150
-// Gentle slow-down at the end (a soft ease-out, not a hard snap)
-const EASE = 'cubic-bezier(0.25, 0.6, 0.3, 1)'
+/* ───────── Scroll-driven timing (desktop) ─────────
+   No extra section height. Progress runs 0 → 1 as the section scrolls up into view:
+   0 when its top edge is at START_VH of the screen height (just entering),
+   1 when its top edge reaches END_VH (section fully on screen).
+   Every card owns a slice of that progress. */
+const START_VH = 0.05 // was 0.25: starts when the section top is almost at the top of the screen
+const END_VH = -0.4 // was -0.2: ends further down, so the reveal keeps the same speed
+const TITLE_END = 0.12 // title finishes by this progress
+const CARD_FIRST = 0.1 // progress where card 1 starts moving
+const CARD_STEP = 0.09 // progress gap between one card starting and the next
+const CARD_SPAN = 0.4 // progress length of each card's flight (overlaps the next cards)
+const SMOOTHING = 14 // higher = follows scroll more tightly, lower = softer glide
+
+/* ───────── Mobile auto-slide ───────── */
+const MOBILE_GAP = 16 // px, same as the `gap-4` on the phone row
+const MOBILE_SLIDE_MS = 3000 // a new box every 3 seconds
+const MOBILE_QUERY = '(max-width: 639px)' // auto-slide runs on phones only
 
 // Animated grid from this width up (same as Tailwind `sm`). Below it = simple scrollable boxes (phones only).
 const GRID_QUERY = '(min-width: 640px)'
+const REDUCED_QUERY = '(prefers-reduced-motion: reduce)'
+
+const clamp01 = (n: number) => (n < 0 ? 0 : n > 1 ? 1 : n)
+const easeOut = (t: number) => 1 - Math.pow(1 - t, 3)
 
 function getIsGrid() {
   if (typeof window === 'undefined') return true
   return window.matchMedia(GRID_QUERY).matches
 }
 
+function getReducedMotion() {
+  if (typeof window === 'undefined') return false
+  return window.matchMedia(REDUCED_QUERY).matches
+}
+
 export function PreviousExperiences() {
   const sectionRef = useRef<HTMLElement>(null)
-  const gridRef = useRef<HTMLDivElement>(null)
   const titleRef = useRef<HTMLHeadingElement>(null)
   const cardRefs = useRef<(HTMLDivElement | null)[]>([])
   const [isGrid, setIsGrid] = useState(getIsGrid)
+  const [reduceMotion, setReduceMotion] = useState(getReducedMotion)
 
-  // Track the breakpoint
+  // Phone row auto-slide (3s). gridRef is the carousel track, and it is also the grid used by the desktop animation.
+  const {
+    trackRef: gridRef,
+    handleScroll,
+    trackTouchProps,
+  } = useCarousel({
+    count: CARDS.length,
+    gap: MOBILE_GAP,
+    autoSlideMs: MOBILE_SLIDE_MS,
+    autoSlideMediaQuery: MOBILE_QUERY,
+  })
+
+  // Scroll-driven only on desktop-size screens and when motion is allowed
+  const animated = isGrid && !reduceMotion
+
+  // Track the breakpoint and the motion preference
   useEffect(() => {
-    const mq = window.matchMedia(GRID_QUERY)
-    const onChange = () => setIsGrid(mq.matches)
-    onChange()
-    mq.addEventListener('change', onChange)
-    return () => mq.removeEventListener('change', onChange)
+    const mqGrid = window.matchMedia(GRID_QUERY)
+    const mqMotion = window.matchMedia(REDUCED_QUERY)
+    const onGrid = () => setIsGrid(mqGrid.matches)
+    const onMotion = () => setReduceMotion(mqMotion.matches)
+    onGrid()
+    onMotion()
+    mqGrid.addEventListener('change', onGrid)
+    mqMotion.addEventListener('change', onMotion)
+    return () => {
+      mqGrid.removeEventListener('change', onGrid)
+      mqMotion.removeEventListener('change', onMotion)
+    }
   }, [])
 
   useEffect(() => {
@@ -61,9 +103,9 @@ export function PreviousExperiences() {
     if (!section || !grid || !title) return
 
     const cards = cardRefs.current.filter(Boolean) as HTMLDivElement[]
-    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
-    const showStatic = () => {
+    // Phones (or reduced motion): plain boxes, no animation
+    if (!animated) {
       cards.forEach((el) => {
         el.style.transition = 'none'
         el.style.opacity = '1'
@@ -72,91 +114,106 @@ export function PreviousExperiences() {
       title.style.transition = 'none'
       title.style.opacity = '1'
       title.style.transform = 'none'
-    }
-
-    // Phones (or reduced motion): plain boxes, no animation
-    if (!isGrid || reduceMotion) {
-      showStatic()
       return
     }
 
-    const state = { played: false }
+    // Start offsets for every card (how far off-screen it begins), measured from its real slot
+    let starts: { dx: number; dy: number }[] = []
 
-    // Put every card at its start position (just off-screen at its corner), hidden
-    const setInitial = () => {
+    const measure = () => {
       const vw = window.innerWidth
       const vh = window.innerHeight
       const g = grid.getBoundingClientRect()
 
-      cards.forEach((el, i) => {
+      starts = cards.map((el, i) => {
         const f = CARDS[i].from
         const slotCx = g.left + el.offsetLeft + el.offsetWidth / 2
         let dx = 0
         if (f.sx === -1) dx = -(slotCx + el.offsetWidth * 0.5)
         if (f.sx === 1) dx = vw - slotCx + el.offsetWidth * 0.5
-        const dy = f.sy * vh * f.far
-
-        el.style.transition = 'none'
-        el.style.opacity = '0'
-        el.style.transform = `translate3d(${dx}px, ${dy}px, ${f.z}px) rotateX(${f.rx}deg) rotateY(${f.ry}deg) rotateZ(${f.rz}deg) scale(${f.s})`
+        return { dx, dy: f.sy * vh * f.far }
       })
-
-      title.style.transition = 'none'
-      title.style.opacity = '0'
-      title.style.transform = 'translate3d(0, 28px, 0)'
     }
 
-    // Title first, then the cards glide in one after another (overlapping)
-    const play = () => {
-      if (state.played) return
-      state.played = true
-
-      // force a reflow so the start position is applied before the transition begins
-      void grid.offsetHeight
-
-      title.style.transition = `opacity 800ms ${EASE}, transform 800ms ${EASE}`
-      title.style.opacity = '1'
-      title.style.transform = 'translate3d(0, 0, 0)'
+    // Draw the whole section for a given scroll progress (0 → 1)
+    const apply = (p: number) => {
+      const tt = easeOut(clamp01(p / TITLE_END))
+      title.style.opacity = `${tt}`
+      title.style.transform = `translate3d(0, ${(1 - tt) * 28}px, 0)`
 
       cards.forEach((el, i) => {
-        const delay = START_DELAY + i * STAGGER
-        el.style.transition = `transform ${DURATION}ms ${EASE} ${delay}ms, opacity ${FADE}ms ease-out ${delay}ms`
-        el.style.opacity = '1'
-        el.style.transform = 'translate3d(0, 0, 0) rotateX(0deg) rotateY(0deg) rotateZ(0deg) scale(1)'
+        const f = CARDS[i].from
+        const start = CARD_FIRST + i * CARD_STEP
+        const t = clamp01((p - start) / CARD_SPAN)
+        const e = easeOut(t)
+        const k = 1 - e
+        const { dx, dy } = starts[i] || { dx: 0, dy: 0 }
+
+        el.style.opacity = `${clamp01(t * 2.2)}`
+        el.style.transform =
+          `translate3d(${dx * k}px, ${dy * k}px, ${f.z * k}px) ` +
+          `rotateX(${f.rx * k}deg) rotateY(${f.ry * k}deg) rotateZ(${f.rz * k}deg) ` +
+          `scale(${f.s + (1 - f.s) * e})`
       })
     }
 
-    // Back to the start pose, so it can play again the next time the section comes into view
-    const reset = () => {
-      if (!state.played) return
-      state.played = false
-      setInitial()
+    // Scroll progress from the section's position on screen (section height is untouched)
+    const getTarget = () => {
+      const vh = window.innerHeight
+      const top = section.getBoundingClientRect().top
+      return clamp01((vh * START_VH - top) / (vh * (START_VH - END_VH)))
     }
 
-    setInitial()
+    // Smoothly follow the scroll position (and stop the loop when caught up)
+    let current = 0
+    let rafId = 0
+    let lastTime = 0
 
-    // Play when 60% of the section is visible (the whole grid is on screen).
-    // Reset only when the section is completely out of view, so the reset is never seen.
-    const io = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.intersectionRatio >= 0.6) play()
-        else if (!entry.isIntersecting) reset()
-      },
-      { threshold: [0, 0.6] }
-    )
-    io.observe(section)
+    const tick = (now: number) => {
+      rafId = 0
+      const target = getTarget()
+      const dt = lastTime ? Math.min(0.05, Math.max(0.001, (now - lastTime) / 1000)) : 1 / 60
+      lastTime = now
 
-    // Keep the start positions right if the window is resized while the cards are hidden
+      current += (target - current) * (1 - Math.exp(-SMOOTHING * dt))
+      if (Math.abs(target - current) < 0.0005) current = target
+      apply(current)
+
+      if (current !== target) {
+        rafId = requestAnimationFrame(tick)
+      } else {
+        lastTime = 0
+      }
+    }
+
+    const schedule = () => {
+      if (!rafId) rafId = requestAnimationFrame(tick)
+    }
+
     const onResize = () => {
-      if (!state.played) setInitial()
+      measure()
+      current = getTarget()
+      apply(current)
     }
+
+    // First paint: jump straight to the right pose (works if the page loads already scrolled)
+    title.style.transition = 'none'
+    cards.forEach((el) => {
+      el.style.transition = 'none'
+    })
+    measure()
+    current = getTarget()
+    apply(current)
+
+    window.addEventListener('scroll', schedule, { passive: true })
     window.addEventListener('resize', onResize)
 
     return () => {
-      io.disconnect()
+      window.removeEventListener('scroll', schedule)
       window.removeEventListener('resize', onResize)
+      if (rafId) cancelAnimationFrame(rafId)
     }
-  }, [isGrid])
+  }, [animated, gridRef])
 
   return (
     <section
@@ -169,7 +226,7 @@ export function PreviousExperiences() {
         ref={titleRef}
         data-node-id="214:7164"
         className="text-center font-['Bai_Jamjuree',sans-serif] text-[28px] font-bold uppercase leading-[1.2] text-[#252422] sm:text-[36px] lg:text-[48px]"
-        style={{ opacity: isGrid ? 0 : 1 }}
+        style={{ opacity: animated ? 0 : 1 }}
       >
         PREVIOUS EXPERIENCES
       </h2>
@@ -177,13 +234,16 @@ export function PreviousExperiences() {
       <div className="h-7 shrink-0" />
 
       {/*
-        Phones (< 640px): one horizontal row of boxes you scroll sideways, with snap.
+        Phones (< 640px): one horizontal row of boxes with snap. It auto-slides every 3 seconds
+        (pauses while you touch it, and loops back to the first box after the last).
         640px and up: 3 x 2 grid, 20px gap, 12px corners (matches Figma node 214:7163).
         Full Figma size (1249px wide, 403px cards) with 96px (6rem) left and right padding.
       */}
       <div
         ref={gridRef}
         data-node-id="214:7163"
+        onScroll={handleScroll}
+        {...trackTouchProps}
         className="relative -mx-6 flex w-[calc(100%+3rem)] snap-x snap-mandatory gap-4 overflow-x-auto scroll-px-6 px-6 pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:grid sm:w-full sm:grid-cols-3 sm:gap-[20px] sm:snap-none sm:overflow-visible sm:px-0 sm:pb-0"
         style={
           isGrid
@@ -203,7 +263,7 @@ export function PreviousExperiences() {
             data-node-id={card.id}
             className="aspect-square w-[72%] shrink-0 snap-center sm:w-full sm:shrink sm:snap-align-none"
             style={
-              isGrid
+              animated
                 ? { opacity: 0, willChange: 'transform, opacity', transformStyle: 'preserve-3d' }
                 : { opacity: 1 }
             }

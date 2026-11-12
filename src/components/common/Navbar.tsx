@@ -33,12 +33,13 @@ export interface NavbarProps {
 const DEFAULT_NAV_LINKS: NavLinkItem[] = [
   { label: 'Services', href: '/services' },
   { label: 'Process', href: '/process' },
-  { label: 'Why GCC', href: '/why-gcc' },
-  { label: 'How We Build', href: '/how-we-build' },
+  { label: 'Projects', href: '/projects' },
   { label: 'About', href: '/about' },
 ]
 
 const DEFAULT_CONSULTATION_HREF = '/contact'
+
+const NAVBAR_BG = 'lg:bg-[#265D7D]'
 
 /** Changes only the address bar (no router navigation, no new history entry, no #hash). */
 function showPathInUrl(href: string) {
@@ -186,11 +187,11 @@ export function Navbar({
     >
       <div
         className={cn(
-          'relative rounded-[12px] border px-3.5 py-2 transition-all duration-300 sm:px-4 sm:py-2 lg:px-4 lg:py-1.5',
-          open ? 'backdrop-blur-xl' : 'backdrop-blur-md',
+          'relative rounded-[13px] lg:border px-3.5 py-2 transition-all duration-300 sm:px-4 sm:py-2 lg:px-4 lg:py-1.5',
+          open ? 'backdrop-blur-xl' : 'lg:backdrop-blur-md',
           isScrolledPastHero
             ? 'border-[rgba(133,133,133,0.2)] bg-white shadow-sm'
-            : 'border-white/20 bg-transparent'
+            : cn('border-transparent lg:border-white/20', isHome ? NAVBAR_BG : 'lg:bg-black/40')
         )}
       >
         <div className="flex items-center justify-between">
@@ -225,7 +226,7 @@ export function Navbar({
           {/* Links (Desktop) */}
           <nav
             aria-label="Main Navigation"
-            className="hidden items-center gap-7 font-['Hanken_Grotesk',sans-serif] text-[13.5px] font-medium uppercase leading-5 lg:flex xl:gap-8"
+            className="hidden items-center gap-10 font-['Hanken_Grotesk',sans-serif] text-[14px] font-medium uppercase leading-6 lg:flex"
           >
             {links.map((link) => (
               <Link
@@ -246,7 +247,7 @@ export function Navbar({
               variant="primary"
               size="sm"
               onClick={(e) => handleNavClick(e, consultationHref)}
-              className="py-2 pl-5 pr-4 text-[13px] tracking-[1.12px] uppercase [&_svg]:size-5"
+              className="rounded-[8px] py-3 pl-6 pr-5 text-[14px] tracking-[1.12px] uppercase [&_svg]:size-6"
             >
               Book a Consultation
             </Button>

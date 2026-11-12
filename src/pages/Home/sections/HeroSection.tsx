@@ -45,8 +45,8 @@ const COLLAPSE_START_VH = 0.5
 const SCROLL_DAMPING = 16
 const EXPAND_DAMPING = 10
 
-// Sits above everything on the page
-const FLOAT_Z = 2147483000
+// Above page sections, but below the navbar (z-50) and modals
+const FLOAT_Z = 40
 
 const clamp01 = (n: number) => (n < 0 ? 0 : n > 1 ? 1 : n)
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t
