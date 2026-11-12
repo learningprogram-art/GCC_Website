@@ -76,9 +76,13 @@ export function Navbar({
   const headerRef = useRef<HTMLElement>(null)
   const lastY = useRef(0)
   const openRef = useRef(open)
-  openRef.current = open
+  const tickingRef = useRef(false)
   const { pathname } = useLocation()
   const navigate = useNavigate()
+
+  useEffect(() => {
+    openRef.current = open
+  }, [open])
 
   const isHome = pathname === '/' || pathname in SECTION_IDS
 
@@ -107,7 +111,6 @@ export function Navbar({
   }, [pathname])
 
   useEffect(() => {
-    let ticking = false
     const hiddenRef = { current: false }
     const pastHeroRef = { current: false }
 
@@ -120,8 +123,8 @@ export function Navbar({
         nextHidden = false // always visible at the very top or while the mobile menu is open
       } else if (delta > 2) {
         nextHidden = true // scrolling down: slides up smoothly whether scrolling slowly or fast
-      } else if (delta < -3) {
-        nextHidden = false // scrolling up: slides back down smoothly
+      } else if (delta < -8) {
+        nextHidden = false // scrolling up: slides back down smoothly (ignore tiny subpixel/anchor jitter)
       }
 
       if (hiddenRef.current !== nextHidden) {
@@ -146,12 +149,12 @@ export function Navbar({
         setIsScrolledPastHero(pastHero)
       }
 
-      ticking = false
+      tickingRef.current = false
     }
 
     const onScroll = () => {
-      if (ticking) return
-      ticking = true
+      if (tickingRef.current) return
+      tickingRef.current = true
       requestAnimationFrame(update)
     }
 

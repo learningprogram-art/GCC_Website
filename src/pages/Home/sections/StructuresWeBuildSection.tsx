@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
-import { useAutoSlide } from '@/hooks/useAutoSlide'
+import { useCarousel } from '@/hooks/useAutoSlide'
+import { useInViewOnce } from '@/hooks/useInViewOnce'
 import villaImg from '/assets/images/structures/villa.webp'
 import farmhouseImg from '/assets/images/structures/farmhouse.webp'
 import hospitalityImg from '/assets/images/structures/hospitality.webp'
@@ -37,74 +37,17 @@ const structures = [
   },
 ]
 
-/** Returns [ref, inView]. Flips to true once, the first time the element scrolls into view. */
-function useInViewOnce<T extends HTMLElement>(threshold = 0.2) {
-  const ref = useRef<T>(null)
-  const [inView, setInView] = useState(false)
-
-  useEffect(() => {
-    const el = ref.current
-    if (!el) return
-    const io = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setInView(true)
-          io.disconnect()
-        }
-      },
-      { threshold, rootMargin: '0px 0px -8% 0px' },
-    )
-    io.observe(el)
-    return () => io.disconnect()
-  }, [threshold])
-
-  return [ref, inView] as const
-}
-
 const GAP = 12 // matches gap-3
-const AUTO_SLIDE_MS = 3000
+const AUTO_SLIDE_MS = 2800
 
 export function StructuresWeBuildSection() {
   const [headerRef, headerIn] = useInViewOnce<HTMLDivElement>(0.4)
   const [cardsRef, cardsIn] = useInViewOnce<HTMLDivElement>(0.15)
-  const activeRef = useRef(0)
-  const [active, setActive] = useState(0)
-
-  useEffect(() => {
-    activeRef.current = active
-  }, [active])
-
-  // Mobile carousel: work out which card is current from the scroll position
-  const handleScroll = () => {
-    const el = cardsRef.current
-    if (!el || !el.firstElementChild) return
-    const cardWidth = (el.firstElementChild as HTMLElement).offsetWidth + GAP
-    const atEnd = el.scrollLeft + el.clientWidth >= el.scrollWidth - 4
-    const index = atEnd
-      ? structures.length - 1
-      : Math.round(el.scrollLeft / cardWidth)
-    setActive(Math.min(Math.max(index, 0), structures.length - 1))
-  }
-
-  const scrollToCard = useCallback(
-    (i: number) => {
-      const el = cardsRef.current
-      if (!el || !el.firstElementChild) return
-      const cardWidth = (el.firstElementChild as HTMLElement).offsetWidth + GAP
-      el.scrollTo({ left: i * cardWidth, behavior: 'smooth' })
-    },
-    [cardsRef],
-  )
-
-  const advanceMobileSlide = useCallback(() => {
-    scrollToCard((activeRef.current + 1) % structures.length)
-  }, [scrollToCard])
-
-  const { setIsPaused, pause, resume, resetTimer } = useAutoSlide({
-    targetRef: cardsRef,
-    intervalMs: AUTO_SLIDE_MS,
-    mediaQuery: '(max-width: 767px)',
-    onSlide: advanceMobileSlide,
+  const { trackRef, active, handleScroll, goToCard, trackTouchProps } = useCarousel({
+    count: structures.length,
+    gap: GAP,
+    autoSlideMs: AUTO_SLIDE_MS,
+    autoSlideMediaQuery: '(max-width: 767px)',
   })
 
   return (
@@ -131,21 +74,23 @@ export function StructuresWeBuildSection() {
         </div>
 
         {/* Cards: snap carousel on mobile, 3-col grid from md up */}
-        <div className="w-full max-w-[1245px]">
+        <div ref={cardsRef} className="w-full max-w-[1245px]">
           <div
-            ref={cardsRef}
+            ref={trackRef}
             onScroll={handleScroll}
-            onTouchStart={pause}
-            onTouchEnd={resume}
-            onTouchCancel={() => setIsPaused(false)}
-            style={{ touchAction: 'pan-y' }}
-            className="-ml-4 -mr-4 flex snap-x snap-mandatory scroll-pl-4 gap-3 overflow-x-auto pl-4 pr-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:ml-0 md:mr-0 md:grid md:grid-cols-3 md:snap-none md:overflow-visible md:pl-0 md:pr-0"
+            {...trackTouchProps}
+            style={{
+              touchAction: 'pan-x pan-y',
+              overscrollBehaviorX: 'contain',
+              overscrollBehaviorY: 'auto',
+            }}
+            className="-ml-4 -mr-4 flex snap-x snap-proximity scroll-pl-4 gap-3 overflow-x-auto overflow-y-hidden pl-4 pr-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:ml-0 md:mr-0 md:grid md:grid-cols-3 md:snap-none md:overflow-visible md:pl-0 md:pr-0"
           >
             {structures.map((item, i) => (
               <article
                 key={item.title}
                 style={{ transitionDelay: cardsIn ? `${i * 150}ms` : '0ms' }}
-                className={`group flex w-[75%] min-w-0 shrink-0 snap-start flex-col overflow-hidden rounded-lg transition-all duration-[800ms] ease-out md:w-auto md:shrink motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none ${
+                className={`group flex w-[75%] min-w-0 shrink-0 snap-start flex-col overflow-hidden rounded-lg transition-[opacity,transform] duration-[800ms] ease-out md:w-auto md:shrink motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none ${
                   cardsIn ? 'translate-y-0 opacity-100' : 'translate-y-14 opacity-0'
                 }`}
               >
@@ -156,7 +101,7 @@ export function StructuresWeBuildSection() {
                     loading="lazy"
                     draggable={false}
                     style={{ transitionDelay: cardsIn ? `${i * 150}ms` : '0ms' }}
-                    className={`h-full w-full object-cover pointer-events-none select-none transition-transform duration-[1400ms] ease-out group-hover:scale-105 motion-reduce:scale-100 motion-reduce:transition-none ${
+                    className={`h-full w-full object-cover pointer-events-none select-none transition-transform duration-[1400ms] ease-out [@media(hover:hover)]:group-hover:scale-105 motion-reduce:scale-100 motion-reduce:transition-none ${
                       cardsIn ? 'scale-100' : 'scale-110'
                     }`}
                   />
@@ -193,10 +138,7 @@ export function StructuresWeBuildSection() {
                 role="tab"
                 aria-selected={active === i}
                 aria-label={`Go to ${item.title}`}
-                onClick={() => {
-                  scrollToCard(i)
-                  resetTimer()
-                }}
+                onClick={() => goToCard(i)}
                 className={`h-2 rounded-full transition-all duration-300 ${
                   active === i ? 'w-6 bg-[#6B1D1D]' : 'w-2 bg-[#C9C5BF]'
                 }`}

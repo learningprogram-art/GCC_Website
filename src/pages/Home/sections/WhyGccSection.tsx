@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import { useAutoSlide } from "@/hooks/useAutoSlide"
+import { useInViewOnce } from "@/hooks/useInViewOnce"
 
 // Figma node: 211:5177 — Section / Why GCC (bg layers: 211:5178 glow, 211:5179 glow core, 211:5180 dot grid, 211:5198 edge fade)
 const CARDS = [
@@ -50,34 +51,9 @@ const TRACK_ITEMS = Array.from({ length: REPEATS * N }, (_, idx) => ({
 const EASE = "cubic-bezier(0.22, 1, 0.36, 1)"
 const AUTO_SLIDE_MS = 3000
 
-/** Returns [ref, inView]. Flips to true once, the first time the element scrolls into view. */
-function useInViewOnce<T extends HTMLElement>(threshold = 0.2) {
-  const ref = useRef<T>(null)
-  const [inView, setInView] = useState(false)
-
-  useEffect(() => {
-    const el = ref.current
-    if (!el || inView) return
-
-    const io = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setInView(true)
-          io.disconnect()
-        }
-      },
-      { threshold }
-    )
-    io.observe(el)
-    return () => io.disconnect()
-  }, [inView, threshold])
-
-  return [ref, inView] as const
-}
-
 export function WhyGccSection() {
-  const [headRef, headIn] = useInViewOnce<HTMLDivElement>(0.3)
-  const [carouselRef, carouselIn] = useInViewOnce<HTMLDivElement>(0.15)
+  const [headRef, headIn] = useInViewOnce<HTMLDivElement>(0.3, { failSafe: false })
+  const [carouselRef, carouselIn] = useInViewOnce<HTMLDivElement>(0.15, { failSafe: false })
 
   // Track position in infinite buffer
   const [trackIndex, setTrackIndex] = useState(BASE_INDEX)
@@ -923,9 +899,11 @@ export function WhyGccSection() {
             overflow: hidden; /* hides the previous card on the left */
             width: calc(100% + 20px); /* bleed to the screen edge on the right */
             touch-action: pan-y;
+            overflow-anchor: none;
           }
           .why-gcc__track {
             align-items: flex-start;
+            min-height: calc(var(--w) * 0.64 + 318px);
           }
 
           /* Card: image on top, text below */
@@ -964,6 +942,7 @@ export function WhyGccSection() {
           .why-gcc__num {
             color: #ffd9c2;
             margin-bottom: 12px;
+            transition: color 0.5s ease;
           }
           .why-gcc__card[data-active="true"] .why-gcc__num {
             font-size: 60px;
@@ -972,6 +951,7 @@ export function WhyGccSection() {
           .why-gcc__ctitle {
             color: #ffe9da;
             margin-bottom: 8px;
+            transition: color 0.5s ease;
           }
           .why-gcc__ctitle br {
             display: none; /* one line on mobile */
@@ -985,6 +965,7 @@ export function WhyGccSection() {
             font-family: "Hanken Grotesk", sans-serif;
             color: #ffcfb4;
             max-width: none;
+            transition: color 0.5s ease;
           }
           .why-gcc__card[data-active="true"] .why-gcc__body {
             font-size: 15px;

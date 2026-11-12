@@ -1,42 +1,10 @@
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 import { Button } from '@/components/ui/Button'
+import { REVEAL_OPTIONS, revealClass, revealDelay, useInViewOnce } from '@/hooks/useInViewOnce'
 import { submitLead } from '@/lib/supabase'
-
-// Bottom-up reveal: fade + slide up
-const REVEAL =
-  'transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none'
-const revealState = (shown: boolean) =>
-  shown ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
-const delayStyle = (shown: boolean, ms: number) => ({
-  transitionDelay: shown ? `${ms}ms` : '0ms',
-})
 
 const LABEL =
   'text-[0.75rem] sm:text-[0.875rem] font-medium leading-[1.25rem] text-[#D4CFC2] whitespace-nowrap'
-
-/** Each group gets its own trigger: flips to true once, the first time it scrolls into view. */
-function useReveal<T extends HTMLElement>(threshold = 0.2) {
-  const ref = useRef<T>(null)
-  const [shown, setShown] = useState(false)
-
-  useEffect(() => {
-    const el = ref.current
-    if (!el) return
-    const io = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setShown(true)
-          io.disconnect()
-        }
-      },
-      { threshold, rootMargin: '0px 0px -8% 0px' },
-    )
-    io.observe(el)
-    return () => io.disconnect()
-  }, [threshold])
-
-  return [ref, shown] as const
-}
 
 function ChevronDown({ className = '' }: { className?: string }) {
   return (
@@ -106,9 +74,9 @@ export function ContactSection() {
   const [submitError, setSubmitError] = useState<string | null>(null)
 
   // Scroll reveals
-  const [introRef, introIn] = useReveal<HTMLDivElement>(0.3)
-  const [cardsRef, cardsIn] = useReveal<HTMLDivElement>(0.3)
-  const [formRef, formIn] = useReveal<HTMLDivElement>(0.15)
+  const [introRef, introIn] = useInViewOnce<HTMLDivElement>(0.3, REVEAL_OPTIONS)
+  const [cardsRef, cardsIn] = useInViewOnce<HTMLDivElement>(0.3, REVEAL_OPTIONS)
+  const [formRef, formIn] = useInViewOnce<HTMLDivElement>(0.15, REVEAL_OPTIONS)
 
   const handleCopy = (text: string, type: string, e: React.MouseEvent) => {
     // The copy button lives inside a link, so stop the link from firing
@@ -176,24 +144,24 @@ export function ContactSection() {
           {/* Headline & Subtitle Block */}
           <div ref={introRef} className="flex flex-col items-start gap-[12px] sm:gap-[16px] w-full">
             <p
-              style={delayStyle(introIn, 0)}
-              className={`text-[14px] leading-[20px] sm:text-[20px] sm:leading-[28px] font-normal text-white m-0 ${REVEAL} ${revealState(introIn)}`}
+              style={revealDelay(introIn, 0)}
+              className={`text-[14px] leading-[20px] sm:text-[20px] sm:leading-[28px] font-normal text-white m-0 ${revealClass(introIn)}`}
             >
               Every strong structure starts with
               <br className="hidden sm:inline" /> the right conversation.
             </p>
 
             <h2
-              style={{ fontFamily: '"Bai Jamjuree", sans-serif', ...delayStyle(introIn, 150) }}
-              className={`text-[2rem] sm:text-[2.75rem] lg:text-[48px] xl:text-[clamp(2rem,2.7vw,3rem)] xl:whitespace-nowrap font-bold uppercase leading-[1.2] text-[#FFFCF2] tracking-normal m-0 ${REVEAL} ${revealState(introIn)}`}
+              style={{ fontFamily: '"Bai Jamjuree", sans-serif', ...revealDelay(introIn, 150) }}
+              className={`text-[2rem] sm:text-[2.75rem] lg:text-[48px] xl:text-[clamp(2rem,2.7vw,3rem)] xl:whitespace-nowrap font-bold uppercase leading-[1.2] text-[#FFFCF2] tracking-normal m-0 ${revealClass(introIn)}`}
             >
               Begin Your
               <br className="hidden xl:inline" /> Construction Journey
             </h2>
 
             <p
-              style={delayStyle(introIn, 300)}
-              className={`text-[14px] leading-[20px] sm:text-[16px] sm:leading-[24px] font-normal text-white m-0 ${REVEAL} ${revealState(introIn)}`}
+              style={revealDelay(introIn, 300)}
+              className={`text-[14px] leading-[20px] sm:text-[16px] sm:leading-[24px] font-normal text-white m-0 ${revealClass(introIn)}`}
             >
               Tell us what you&apos;re planning. We answer with proof.
             </p>
@@ -203,8 +171,8 @@ export function ContactSection() {
           <div ref={cardsRef} className="flex flex-col gap-[12px] items-start w-full">
             {/* 1. Phone Card — opens the dialer on mobile */}
             <div
-              style={delayStyle(cardsIn, 0)}
-              className={`w-full sm:w-[300px] max-w-full shrink-0 ${REVEAL} ${revealState(cardsIn)}`}
+              style={revealDelay(cardsIn, 0)}
+              className={`w-full sm:w-[300px] max-w-full shrink-0 ${revealClass(cardsIn)}`}
             >
               <a
                 href="tel:+919002339920"
@@ -247,8 +215,8 @@ export function ContactSection() {
 
             {/* 2. WhatsApp Card — opens WhatsApp */}
             <div
-              style={delayStyle(cardsIn, 150)}
-              className={`w-full sm:w-[300px] max-w-full shrink-0 ${REVEAL} ${revealState(cardsIn)}`}
+              style={revealDelay(cardsIn, 150)}
+              className={`w-full sm:w-[300px] max-w-full shrink-0 ${revealClass(cardsIn)}`}
             >
               <a
                 href="https://wa.me/919002339920"
@@ -274,8 +242,8 @@ export function ContactSection() {
 
             {/* 3. Email Card — opens the default email app */}
             <div
-              style={delayStyle(cardsIn, 300)}
-              className={`w-full sm:w-[300px] max-w-full shrink-0 ${REVEAL} ${revealState(cardsIn)}`}
+              style={revealDelay(cardsIn, 300)}
+              className={`w-full sm:w-[300px] max-w-full shrink-0 ${revealClass(cardsIn)}`}
             >
               <a
                 href="mailto:contact@gcc.com"
@@ -321,8 +289,8 @@ export function ContactSection() {
         {/* Right Column: Lead Form (Figma Node 211:5512) — full-width dark section on mobile */}
         <div
           ref={formRef}
-          style={delayStyle(formIn, 0)}
-          className={`w-full lg:w-[32.5rem] shrink-0 rounded-none sm:rounded-[0.75rem] bg-[#252422] px-5 py-8 sm:p-[2rem] shadow-none sm:shadow-2xl flex flex-col gap-[1.5rem] ${REVEAL} ${revealState(formIn)}`}
+          style={revealDelay(formIn, 0)}
+          className={`w-full lg:w-[32.5rem] shrink-0 rounded-none sm:rounded-[0.75rem] bg-[#252422] px-5 py-8 sm:p-[2rem] shadow-none sm:shadow-2xl flex flex-col gap-[1.5rem] ${revealClass(formIn)}`}
         >
           <h3
             style={{ fontFamily: '"Bai Jamjuree", sans-serif' }}

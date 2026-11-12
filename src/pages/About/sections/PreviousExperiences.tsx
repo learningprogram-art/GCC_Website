@@ -80,7 +80,7 @@ export function PreviousExperiences() {
       return
     }
 
-    let played = false
+    const state = { played: false }
 
     // Put every card at its start position (just off-screen at its corner), hidden
     const setInitial = () => {
@@ -108,8 +108,8 @@ export function PreviousExperiences() {
 
     // Title first, then the cards glide in one after another (overlapping)
     const play = () => {
-      if (played) return
-      played = true
+      if (state.played) return
+      state.played = true
 
       // force a reflow so the start position is applied before the transition begins
       void grid.offsetHeight
@@ -128,8 +128,8 @@ export function PreviousExperiences() {
 
     // Back to the start pose, so it can play again the next time the section comes into view
     const reset = () => {
-      if (!played) return
-      played = false
+      if (!state.played) return
+      state.played = false
       setInitial()
     }
 
@@ -148,7 +148,7 @@ export function PreviousExperiences() {
 
     // Keep the start positions right if the window is resized while the cards are hidden
     const onResize = () => {
-      if (!played) setInitial()
+      if (!state.played) setInitial()
     }
     window.addEventListener('resize', onResize)
 

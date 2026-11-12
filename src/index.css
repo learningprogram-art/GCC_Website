@@ -54,6 +54,7 @@ body {
   min-width: 320px;
   min-height: 100vh;
   overflow-x: hidden;
+  overflow-x: clip;
   background-color: #252422;
   color: #fffcf2;
 }

@@ -1,41 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
+import { REVEAL_OPTIONS, revealClass, revealDelay, useInViewOnce } from '@/hooks/useInViewOnce'
 import gccLogo from '/assets/icons/logo/gcc-logo.svg'
 
 const baiJamjuree = { fontFamily: '"Bai Jamjuree", sans-serif' }
 const hankenGrotesk = { fontFamily: '"Hanken Grotesk", sans-serif' }
-
-/** Returns [ref, inView]. Flips to true once, the first time the element scrolls into view. */
-function useInViewOnce<T extends HTMLElement>(threshold = 0.25) {
-  const ref = useRef<T>(null)
-  const [inView, setInView] = useState(false)
-
-  useEffect(() => {
-    const el = ref.current
-    if (!el) return
-    const io = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setInView(true)
-          io.disconnect()
-        }
-      },
-      { threshold, rootMargin: '0px 0px -8% 0px' },
-    )
-    io.observe(el)
-    return () => io.disconnect()
-  }, [threshold])
-
-  return [ref, inView] as const
-}
-
-// Pop-up reveal: fade + slide up
-const REVEAL =
-  'transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none'
-const revealState = (inView: boolean) =>
-  inView ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
-const delay = (inView: boolean, ms: number) => ({
-  transitionDelay: inView ? `${ms}ms` : '0ms',
-})
 
 const VISUAL_W = 1248
 const VISUAL_H = 426
@@ -639,8 +607,8 @@ function TenToOneVisualMobile() {
 }
 
 function OneTeamMobile() {
-  const [headRef, headIn] = useInViewOnce<HTMLDivElement>(0.4)
-  const [capsRef, capsIn] = useInViewOnce<HTMLDivElement>(0.2)
+  const [headRef, headIn] = useInViewOnce<HTMLDivElement>(0.4, REVEAL_OPTIONS)
+  const [capsRef, capsIn] = useInViewOnce<HTMLDivElement>(0.2, REVEAL_OPTIONS)
 
   return (
     <section className="flex flex-col items-center gap-9 bg-[#FFFCF2] px-5 py-[72px] lg:hidden">
@@ -651,14 +619,14 @@ function OneTeamMobile() {
         className="flex flex-col items-center gap-0.5 whitespace-nowrap text-center uppercase"
       >
         <p
-          style={delay(headIn, 0)}
-          className={`text-[26px] font-light leading-[1.1] tracking-[-0.13px] text-[#403D39] ${REVEAL} ${revealState(headIn)}`}
+          style={revealDelay(headIn, 0)}
+          className={`text-[26px] font-light leading-[1.1] tracking-[-0.13px] text-[#403D39] ${revealClass(headIn)}`}
         >
           Your home needs
         </p>
         <p
-          style={delay(headIn, 150)}
-          className={`text-[40px] font-bold leading-none tracking-[-0.4px] text-[#6F1D1B] ${REVEAL} ${revealState(headIn)}`}
+          style={revealDelay(headIn, 150)}
+          className={`text-[40px] font-bold leading-none tracking-[-0.4px] text-[#6F1D1B] ${revealClass(headIn)}`}
         >
           One team.
           <br />
@@ -672,8 +640,8 @@ function OneTeamMobile() {
       {/* Captions */}
       <div ref={capsRef} style={hankenGrotesk} className="flex w-full flex-col gap-6">
         <div
-          style={delay(capsIn, 0)}
-          className={`flex w-full flex-col gap-2.5 border-t border-[#CCC5B9] pt-5 text-[#403D39] ${REVEAL} ${revealState(capsIn)}`}
+          style={revealDelay(capsIn, 0)}
+          className={`flex w-full flex-col gap-2.5 border-t border-[#CCC5B9] pt-5 text-[#403D39] ${revealClass(capsIn)}`}
         >
           <p className="text-[12px] font-semibold uppercase leading-4 tracking-[0.96px]">
             The challenge
@@ -685,8 +653,8 @@ function OneTeamMobile() {
         </div>
 
         <div
-          style={delay(capsIn, 150)}
-          className={`flex w-full flex-col gap-2.5 border-t border-[#CCC5B9] pt-5 ${REVEAL} ${revealState(capsIn)}`}
+          style={revealDelay(capsIn, 150)}
+          className={`flex w-full flex-col gap-2.5 border-t border-[#CCC5B9] pt-5 ${revealClass(capsIn)}`}
         >
           <p className="text-[12px] font-semibold uppercase leading-4 tracking-[0.96px] text-[#E06422]">
             GCC approach
@@ -704,8 +672,8 @@ function OneTeamMobile() {
 /* ------------------------------------------------------------------ */
 
 export function OneTeamSection() {
-  const [headRef, headIn] = useInViewOnce<HTMLDivElement>(0.4)
-  const [capsRef, capsIn] = useInViewOnce<HTMLDivElement>(0.2)
+  const [headRef, headIn] = useInViewOnce<HTMLDivElement>(0.4, REVEAL_OPTIONS)
+  const [capsRef, capsIn] = useInViewOnce<HTMLDivElement>(0.2, REVEAL_OPTIONS)
 
   return (
     <div id="one-team" className="relative z-10 w-full bg-[#FFFCF2]">
@@ -743,14 +711,14 @@ export function OneTeamSection() {
           className="flex flex-col items-center text-center uppercase"
         >
           <p
-            style={{ ...baiJamjuree, ...delay(headIn, 0) }}
-            className={`text-[clamp(32px,4.45vw,64px)] font-light leading-[1.05] tracking-[-0.01em] text-[#403D39] ${REVEAL} ${revealState(headIn)}`}
+            style={{ ...baiJamjuree, ...revealDelay(headIn, 0) }}
+            className={`text-[clamp(32px,4.45vw,64px)] font-light leading-[1.05] tracking-[-0.01em] text-[#403D39] ${revealClass(headIn)}`}
           >
             Your home needs
           </p>
           <p
-            style={{ ...baiJamjuree, ...delay(headIn, 150) }}
-            className={`text-[clamp(48px,6.67vw,96px)] font-bold leading-none tracking-[-0.01em] text-[#6F1D1B] ${REVEAL} ${revealState(headIn)}`}
+            style={{ ...baiJamjuree, ...revealDelay(headIn, 150) }}
+            className={`text-[clamp(48px,6.67vw,96px)] font-bold leading-none tracking-[-0.01em] text-[#6F1D1B] ${revealClass(headIn)}`}
           >
             One team. <span className="text-[#CCC5B9]">Not 10.</span>
           </p>
@@ -766,8 +734,8 @@ export function OneTeamSection() {
           className="flex w-full max-w-[1248px] flex-col justify-between gap-10 md:flex-row"
         >
           <div
-            style={delay(capsIn, 0)}
-            className={`flex w-full flex-col gap-3.5 text-[#403D39] md:w-[520px] ${REVEAL} ${revealState(capsIn)}`}
+            style={revealDelay(capsIn, 0)}
+            className={`flex w-full flex-col gap-3.5 text-[#403D39] md:w-[520px] ${revealClass(capsIn)}`}
           >
             <p className="text-[12px] font-semibold uppercase leading-4 tracking-[0.96px]">
               The challenge
@@ -779,8 +747,8 @@ export function OneTeamSection() {
           </div>
 
           <div
-            style={delay(capsIn, 150)}
-            className={`flex w-full flex-col gap-3.5 md:w-[420px] ${REVEAL} ${revealState(capsIn)}`}
+            style={revealDelay(capsIn, 150)}
+            className={`flex w-full flex-col gap-3.5 md:w-[420px] ${revealClass(capsIn)}`}
           >
             <p className="text-[12px] font-semibold uppercase leading-4 tracking-[0.96px] text-[#E06422]">
               GCC approach

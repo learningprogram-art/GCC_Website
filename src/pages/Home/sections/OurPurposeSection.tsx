@@ -7,13 +7,12 @@ export const OurPurposeSection: React.FC = () => {
   const ghostMarkRef = useRef<HTMLDivElement>(null);
   const [purposeRef, purposeIn] = useInViewOnce<HTMLDivElement>(0.2);
   const animationFrameRef = useRef<number | null>(null);
+  const tickingRef = useRef(false);
 
   useEffect(() => {
-    let ticking = false;
-
     const handleScroll = () => {
       if (!sectionRef.current || !ghostMarkRef.current) {
-        ticking = false;
+        tickingRef.current = false;
         return;
       }
       const rect = sectionRef.current.getBoundingClientRect();
@@ -32,12 +31,12 @@ export const OurPurposeSection: React.FC = () => {
       } else if (rect.top > triggerPoint) {
         ghostMarkRef.current.style.transform = 'translate3d(0, 0px, 0)';
       }
-      ticking = false;
+      tickingRef.current = false;
     };
 
     const onScroll = () => {
-      if (ticking) return;
-      ticking = true;
+      if (tickingRef.current) return;
+      tickingRef.current = true;
       animationFrameRef.current = requestAnimationFrame(handleScroll);
     };
 

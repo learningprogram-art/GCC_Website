@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
 import type { CSSProperties, MouseEvent } from 'react'
-import { useAutoSlide } from '@/hooks/useAutoSlide'
+import { useCarousel } from '@/hooks/useAutoSlide'
+import { revealClass, useInViewOnce } from '@/hooks/useInViewOnce'
 import '@fontsource/hanken-grotesk/400.css'
 import '@fontsource/hanken-grotesk/500.css'
 import '@fontsource/hanken-grotesk/600.css'
@@ -49,7 +49,7 @@ const ICONS = [ICON_LIVE_APP, ICON_QUALITY, ICON_ONE_TEAM, ICON_MAINTENANCE]
 const STACK = ['z-[4]', 'z-[3]', 'z-[2]', 'z-[1]']
 
 const GAP = 12 // matches the carousel / grid gap
-const AUTO_SLIDE_MS = 3000
+const AUTO_SLIDE_MS = 2800
 
 // Scrolls to the contact section and shows /contact in the URL (no #hash)
 const goToContact = (e: MouseEvent) => {
@@ -70,14 +70,17 @@ const SECTION_CSS = `
   display: flex;
   gap: ${GAP}px;
   overflow-x: auto;
-  scroll-snap-type: x mandatory;
+  overflow-y: hidden;
+  scroll-snap-type: x proximity;
   margin-left: -20px;
   margin-right: -20px;
   padding-left: 20px;
   padding-right: 20px;
   scroll-padding-left: 20px;
   scrollbar-width: none;
-  touch-action: pan-y;
+  touch-action: pan-x pan-y;
+  overscroll-behavior-x: contain;
+  overscroll-behavior-y: auto;
 }
 #transparency .tr-track::-webkit-scrollbar { display: none; }
 #transparency .tr-card {
@@ -100,6 +103,7 @@ const SECTION_CSS = `
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: ${GAP}px;
     overflow: visible;
+    overscroll-behavior-x: auto;
     scroll-snap-type: none;
     margin-left: 0;
     margin-right: 0;
@@ -111,36 +115,8 @@ const SECTION_CSS = `
 }
 `
 
-/** Fades + slides an element up the first time it scrolls into view. */
-function useReveal<T extends HTMLElement>(delay = 0) {
-  const ref = useRef<T>(null)
-  const [shown, setShown] = useState(false)
-
-  useEffect(() => {
-    const el = ref.current
-    if (!el) return
-    const io = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setShown(true)
-          io.disconnect()
-        }
-      },
-      { threshold: 0.2 },
-    )
-    io.observe(el)
-    return () => io.disconnect()
-  }, [])
-
-  return {
-    ref,
-    shown,
-    style: { transitionDelay: `${delay}ms` },
-    className: `transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none ${
-      shown ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
-    }`,
-  }
-}
+const CARD_REVEAL =
+  'transition-[opacity,transform] duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none'
 
 function ChevronRight() {
   return (
@@ -305,46 +281,17 @@ const CARDS = [
 ]
 
 export function TransparencySection() {
-  const trackRef = useRef<HTMLDivElement>(null)
-  const activeRef = useRef(0)
-  const [active, setActive] = useState(0)
-
   // Scroll reveals
-  const eyebrow = useReveal<HTMLDivElement>(0)
-  const heading = useReveal<HTMLHeadingElement>(100)
-  const cards = useReveal<HTMLDivElement>(0) // one trigger for the whole card row
-  const strip = useReveal<HTMLDivElement>(0)
+  const [eyebrowRef, eyebrowIn] = useInViewOnce<HTMLDivElement>(0.2)
+  const [headingRef, headingIn] = useInViewOnce<HTMLHeadingElement>(0.2)
+  const [cardsRef, cardsIn] = useInViewOnce<HTMLDivElement>(0.2)
+  const [stripRef, stripIn] = useInViewOnce<HTMLDivElement>(0.2)
 
-  useEffect(() => {
-    activeRef.current = active
-  }, [active])
-
-  // Mobile / tablet carousel: work out the current card from the scroll position
-  const handleScroll = () => {
-    const el = trackRef.current
-    if (!el || !el.firstElementChild) return
-    const step = (el.firstElementChild as HTMLElement).offsetWidth + GAP
-    const atEnd = el.scrollLeft + el.clientWidth >= el.scrollWidth - 4
-    const index = atEnd ? CARDS.length - 1 : Math.round(el.scrollLeft / step)
-    setActive(Math.min(Math.max(index, 0), CARDS.length - 1))
-  }
-
-  const scrollToCard = useCallback((i: number) => {
-    const el = trackRef.current
-    if (!el || !el.firstElementChild) return
-    const step = (el.firstElementChild as HTMLElement).offsetWidth + GAP
-    el.scrollTo({ left: i * step, behavior: 'smooth' })
-  }, [])
-
-  const advanceMobileSlide = useCallback(() => {
-    scrollToCard((activeRef.current + 1) % CARDS.length)
-  }, [scrollToCard])
-
-  const { setIsPaused, pause, resume, resetTimer } = useAutoSlide({
-    targetRef: trackRef,
-    intervalMs: AUTO_SLIDE_MS,
-    mediaQuery: '(max-width: 1023px)',
-    onSlide: advanceMobileSlide,
+  const { trackRef, active, handleScroll, goToCard, trackTouchProps } = useCarousel({
+    count: CARDS.length,
+    gap: GAP,
+    autoSlideMs: AUTO_SLIDE_MS,
+    autoSlideMediaQuery: '(max-width: 1023px)',
   })
 
   return (
@@ -356,9 +303,8 @@ export function TransparencySection() {
           {/* Header */}
           <div className="flex w-full flex-col items-start gap-6">
             <div
-              ref={eyebrow.ref}
-              style={eyebrow.style}
-              className={`flex items-center gap-3 ${eyebrow.className}`}
+              ref={eyebrowRef}
+              className={`flex items-center gap-3 ${revealClass(eyebrowIn, CARD_REVEAL)}`}
             >
               <span className="size-2 bg-[#E06422]" aria-hidden />
               <p
@@ -369,30 +315,26 @@ export function TransparencySection() {
               </p>
             </div>
             <h2
-              ref={heading.ref}
-              style={{ ...bai, ...heading.style }}
-              className={`max-w-[700px] text-[28px] font-bold uppercase leading-[1.2] text-[#252422] sm:text-[clamp(32px,4vw,48px)] ${heading.className}`}
+              ref={headingRef}
+              style={{ ...bai, transitionDelay: '100ms' }}
+              className={`max-w-[700px] text-[28px] font-bold uppercase leading-[1.2] text-[#252422] sm:text-[clamp(32px,4vw,48px)] ${revealClass(headingIn, CARD_REVEAL)}`}
             >
               Confidence built through transparency.
             </h2>
           </div>
 
           {/* Cards: swipe carousel below 1024px, four-column grid from 1024px */}
-          <div ref={cards.ref} className="w-full">
+          <div ref={cardsRef} className="w-full">
             <div
               ref={trackRef}
               onScroll={handleScroll}
-              onTouchStart={pause}
-              onTouchEnd={resume}
-              onTouchCancel={() => setIsPaused(false)}
+              {...trackTouchProps}
               className="tr-track"
             >
               {CARDS.map(({ title, body, icon, Art }, i) => (
                 <article
                   key={title}
-                  className={`tr-card relative overflow-hidden rounded-xl border border-solid border-[#CCC5B9] bg-white transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none ${
-                    cards.shown ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
-                  }`}
+                  className={`tr-card relative overflow-hidden rounded-xl border border-solid border-[#CCC5B9] bg-white ${revealClass(cardsIn, CARD_REVEAL)}`}
                   style={{
                     transitionDelay: `${i * 120}ms`,
                     aspectRatio: '304 / 500',
@@ -438,10 +380,7 @@ export function TransparencySection() {
                   role="tab"
                   aria-selected={active === i}
                   aria-label={`Go to ${title}`}
-                  onClick={() => {
-                    scrollToCard(i)
-                    resetTimer()
-                  }}
+                  onClick={() => goToCard(i)}
                   className={`h-2 rounded-full transition-all duration-300 ${
                     active === i ? 'w-6 bg-[#6F1D1B]' : 'w-2 bg-[#D9C28A]'
                   }`}
@@ -452,9 +391,8 @@ export function TransparencySection() {
 
           {/* Closing strip */}
           <div
-            ref={strip.ref}
-            style={strip.style}
-            className={`w-full rounded-xl sm:w-auto sm:bg-white/30 sm:p-[14px] ${strip.className}`}
+            ref={stripRef}
+            className={`w-full rounded-xl sm:w-auto sm:bg-white/30 sm:p-[14px] ${revealClass(stripIn, CARD_REVEAL)}`}
           >
             <div className="flex flex-col items-stretch gap-6 sm:flex-row sm:flex-wrap sm:items-center sm:justify-center sm:gap-x-10 sm:gap-y-4">
               <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">

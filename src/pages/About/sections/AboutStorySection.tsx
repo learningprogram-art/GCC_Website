@@ -1,42 +1,10 @@
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
+import { REVEAL_OPTIONS, revealClass, revealDelay, useInViewOnce } from '@/hooks/useInViewOnce'
 
 const VIDEO_SRC: string | null = null
 const VIDEO_POSTER: string | undefined = undefined
 
 const GCC_LOGO = '/assets/icons/logo/gcc-logo-white.svg'
-
-// Bottom-up reveal: fade + slide up (same feel as the other sections)
-const REVEAL =
-  'transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none'
-const revealState = (shown: boolean) =>
-  shown ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
-const delayStyle = (shown: boolean, ms: number) => ({
-  transitionDelay: shown ? `${ms}ms` : '0ms',
-})
-
-/** Each element gets its own trigger: flips to true once, the first time it scrolls into view. */
-function useReveal<T extends HTMLElement>(threshold = 0.2) {
-  const ref = useRef<T>(null)
-  const [shown, setShown] = useState(false)
-
-  useEffect(() => {
-    const el = ref.current
-    if (!el) return
-    const io = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setShown(true)
-          io.disconnect()
-        }
-      },
-      { threshold, rootMargin: '0px 0px -8% 0px' },
-    )
-    io.observe(el)
-    return () => io.disconnect()
-  }, [threshold])
-
-  return [ref, shown] as const
-}
 
 function PlayIcon() {
   return (
@@ -51,13 +19,13 @@ function PlayIcon() {
 
 function StoryVideo() {
   const [playing, setPlaying] = useState(false)
-  const [wrapRef, shown] = useReveal<HTMLDivElement>(0.15)
+  const [wrapRef, shown] = useInViewOnce<HTMLDivElement>(0.15, REVEAL_OPTIONS)
 
   return (
     <div
       ref={wrapRef}
-      style={delayStyle(shown, 0)}
-      className={`w-full ${REVEAL} ${revealState(shown)}`}
+      style={revealDelay(shown, 0)}
+      className={`w-full ${revealClass(shown)}`}
     >
       {VIDEO_SRC && playing ? (
         <video
@@ -113,8 +81,8 @@ function StoryVideo() {
 }
 
 export function AboutStorySection() {
-  const [eyebrowRef, eyebrowIn] = useReveal<HTMLDivElement>()
-  const [copyRef, copyIn] = useReveal<HTMLDivElement>(0.15)
+  const [eyebrowRef, eyebrowIn] = useInViewOnce<HTMLDivElement>(0.2, REVEAL_OPTIONS)
+  const [copyRef, copyIn] = useInViewOnce<HTMLDivElement>(0.15, REVEAL_OPTIONS)
 
   return (
     <section
@@ -126,8 +94,8 @@ export function AboutStorySection() {
           {/* Eyebrow */}
           <div
             ref={eyebrowRef}
-            style={delayStyle(eyebrowIn, 0)}
-            className={`flex shrink-0 items-center gap-3 overflow-clip ${REVEAL} ${revealState(eyebrowIn)}`}
+            style={revealDelay(eyebrowIn, 0)}
+            className={`flex shrink-0 items-center gap-3 overflow-clip ${revealClass(eyebrowIn)}`}
           >
             <span aria-hidden="true" className="size-2 shrink-0 bg-[#99582A]" />
             <p className="font-['Hanken_Grotesk',sans-serif] text-xs font-semibold uppercase leading-4 tracking-[0.96px] text-[#99582A] whitespace-nowrap">
@@ -141,14 +109,14 @@ export function AboutStorySection() {
             className="w-full font-['Bai_Jamjuree',sans-serif] text-2xl font-normal not-italic leading-[1.4] tracking-[-0.96px] text-[#403D39] [text-box-edge:cap_alphabetic] [text-box-trim:trim-both] md:text-3xl lg:text-[32px]"
           >
             <p
-              style={delayStyle(copyIn, 0)}
-              className={`m-0 ${REVEAL} ${revealState(copyIn)}`}
+              style={revealDelay(copyIn, 0)}
+              className={`m-0 ${revealClass(copyIn)}`}
             >
               With a foundation in construction and engineering, and experience extending into design and execution, we know a successful project isn’t just about a strong structure.
             </p>
             <p
-              style={delayStyle(copyIn, 150)}
-              className={`m-0 ${REVEAL} ${revealState(copyIn)}`}
+              style={revealDelay(copyIn, 150)}
+              className={`m-0 ${revealClass(copyIn)}`}
             >
               It’s about bringing every part of the process together — from planning and design to execution and handover.
             </p>

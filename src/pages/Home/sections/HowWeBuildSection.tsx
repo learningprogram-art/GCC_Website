@@ -280,18 +280,17 @@ export function HowWeBuildSection() {
   const [activeStepIndex, setActiveStepIndex] = useState<number>(0)
   const cardRefs = useRef<(HTMLDivElement | null)[]>([])
   const activeIdxRef = useRef<number>(0)
+  const tickingRef = useRef(false)
+  const cachedRemRef = useRef(16)
 
   // Base top offset below floating navbar (~4.75rem / 76px) + stacked tab offset (3.25rem / 52px)
   const baseStickyRem = 4.75
   const stepOffsetRem = 3.25
 
   useEffect(() => {
-    let ticking = false
-    let cachedRem = 16
-
     const updateRem = () => {
       if (typeof window !== 'undefined') {
-        cachedRem = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16
+        cachedRemRef.current = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16
       }
     }
 
@@ -304,7 +303,7 @@ export function HowWeBuildSection() {
         const el = cardRefs.current[i]
         if (el) {
           const rect = el.getBoundingClientRect()
-          const stickyPinTop = (baseStickyRem + i * stepOffsetRem) * cachedRem
+          const stickyPinTop = (baseStickyRem + i * stepOffsetRem) * cachedRemRef.current
           if (rect.top <= stickyPinTop + 15) {
             activeIdx = i
           }
@@ -314,12 +313,12 @@ export function HowWeBuildSection() {
         activeIdxRef.current = activeIdx
         setActiveStepIndex(activeIdx)
       }
-      ticking = false
+      tickingRef.current = false
     }
 
     const onScroll = () => {
-      if (ticking) return
-      ticking = true
+      if (tickingRef.current) return
+      tickingRef.current = true
       requestAnimationFrame(updateActive)
     }
 

@@ -1,42 +1,10 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React from 'react'
+import { REVEAL_OPTIONS, revealClass, revealDelay, useInViewOnce } from '@/hooks/useInViewOnce'
 
 const OFFICE_IMG = '/assets/images/about/office.webp'
 
-// Bottom-up reveal: fade + slide up (same feel as the other sections)
-const REVEAL =
-  'transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none'
-const revealState = (shown: boolean) =>
-  shown ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
-const delayStyle = (shown: boolean, ms: number) => ({
-  transitionDelay: shown ? `${ms}ms` : '0ms',
-})
-
-/** Flips to true once, the first time the element scrolls into view. */
-function useReveal<T extends HTMLElement>(threshold = 0.3) {
-  const ref = useRef<T>(null)
-  const [shown, setShown] = useState(false)
-
-  useEffect(() => {
-    const el = ref.current
-    if (!el) return
-    const io = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setShown(true)
-          io.disconnect()
-        }
-      },
-      { threshold, rootMargin: '0px 0px -8% 0px' },
-    )
-    io.observe(el)
-    return () => io.disconnect()
-  }, [threshold])
-
-  return [ref, shown] as const
-}
-
 export const VisitOfficeSection: React.FC = () => {
-  const [contentRef, shown] = useReveal<HTMLDivElement>()
+  const [contentRef, shown] = useInViewOnce<HTMLDivElement>(0.3, REVEAL_OPTIONS)
 
   return (
     <section
@@ -81,9 +49,9 @@ export const VisitOfficeSection: React.FC = () => {
             color: '#FFFCF2',
             margin: 0,
             whiteSpace: 'nowrap',
-            ...delayStyle(shown, 0),
+            ...revealDelay(shown, 0),
           }}
-          className={`font-bold whitespace-nowrap text-[26px] xs:text-[32px] sm:text-[38px] md:text-[44px] lg:text-[48px] tracking-normal ${REVEAL} ${revealState(shown)}`}
+          className={`font-bold whitespace-nowrap text-[26px] xs:text-[32px] sm:text-[38px] md:text-[44px] lg:text-[48px] tracking-normal ${revealClass(shown)}`}
         >
           VISIT THE OFFICE
         </h2>
@@ -100,9 +68,9 @@ export const VisitOfficeSection: React.FC = () => {
             lineHeight: '24px',
             display: 'flex',
             flexDirection: 'column',
-            ...delayStyle(shown, 150),
+            ...revealDelay(shown, 150),
           }}
-          className={`${REVEAL} ${revealState(shown)}`}
+          className={revealClass(shown)}
         >
           <p style={{ margin: 0, lineHeight: '24px' }}>
             Sample address line 1, line 2
@@ -114,8 +82,8 @@ export const VisitOfficeSection: React.FC = () => {
 
         {/* Action Button wrapper: carries the reveal so the button keeps its own hover transitions */}
         <div
-          style={delayStyle(shown, 300)}
-          className={`shrink-0 ${REVEAL} ${revealState(shown)}`}
+          style={revealDelay(shown, 300)}
+          className={`shrink-0 ${revealClass(shown)}`}
         >
           {/* Action Button (Figma Node 214:7221) — w=226px, h=56px, rounded=8px */}
           <a

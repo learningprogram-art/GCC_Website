@@ -406,8 +406,13 @@ export function TestimonialsSection({
           <div
             ref={containerRef}
             onScroll={handleScroll}
-            className="relative w-full flex items-stretch gap-[12px] sm:gap-[24px] overflow-x-auto scroll-smooth px-5 sm:px-12 md:px-[96px] lg:px-[102px] lg:!pl-[82px] scroll-px-5 sm:scroll-px-12 md:scroll-px-[96px] lg:scroll-px-[88px] [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
-            style={{ WebkitOverflowScrolling: 'touch' }}
+            className="relative w-full flex items-stretch gap-[12px] sm:gap-[24px] overflow-x-auto overflow-y-hidden scroll-smooth px-5 sm:px-12 md:px-[96px] lg:px-[102px] lg:!pl-[82px] scroll-px-5 sm:scroll-px-12 md:scroll-px-[96px] lg:scroll-px-[88px] [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+            style={{
+              WebkitOverflowScrolling: 'touch',
+              touchAction: 'pan-x pan-y',
+              overscrollBehaviorX: 'contain',
+              overscrollBehaviorY: 'auto',
+            }}
           >
             {/* Cards (Figma Node 211:5427: exact width 720px, height 620px on desktop; width 318px, height 490px on mobile) */}
             {items.map((item, idx) => {

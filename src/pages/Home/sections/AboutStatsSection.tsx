@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { useInViewOnce } from '@/hooks/useInViewOnce'
 
 const baiJamjuree = { fontFamily: '"Bai Jamjuree", sans-serif' }
 const hankenGrotesk = { fontFamily: '"Hanken Grotesk", sans-serif' }
@@ -81,29 +82,6 @@ function useCountUp<T extends HTMLElement>(
   return { ref, started, display: value.toFixed(decimals) }
 }
 
-function useInViewOnce<T extends HTMLElement>(threshold = 0.15) {
-  const ref = useRef<T>(null)
-  const [inView, setInView] = useState(false)
-
-  useEffect(() => {
-    const el = ref.current
-    if (!el) return
-    const io = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setInView(true)
-          io.disconnect()
-        }
-      },
-      { threshold },
-    )
-    io.observe(el)
-    return () => io.disconnect()
-  }, [threshold])
-
-  return [ref, inView] as const
-}
-
 function StatRow({ stat, order }: { stat: Stat; order: number }) {
   const { ref, started, display } = useCountUp<HTMLDivElement>(stat.value, stat.decimals, {
     duration: 1200,
@@ -144,7 +122,7 @@ function StatRow({ stat, order }: { stat: Stat; order: number }) {
 }
 
 export function AboutStatsSection() {
-  const [sectionRef, inView] = useInViewOnce<HTMLElement>(0.15)
+  const [sectionRef, inView] = useInViewOnce<HTMLElement>(0.15, { failSafe: false })
 
   return (
     <>

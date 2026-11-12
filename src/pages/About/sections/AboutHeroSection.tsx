@@ -1,38 +1,6 @@
-import { useEffect, useRef, useState } from 'react'
+import { revealClass, revealDelay, useInViewOnce } from '@/hooks/useInViewOnce'
 
 const HERO_IMG = '/assets/images/about/hero-img.webp'
-
-// Bottom-up reveal: fade + slide up (same feel as the other sections)
-const REVEAL =
-  'transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none'
-const revealState = (shown: boolean) =>
-  shown ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
-const delayStyle = (shown: boolean, ms: number) => ({
-  transitionDelay: shown ? `${ms}ms` : '0ms',
-})
-
-function useInViewOnce<T extends HTMLElement>(threshold = 0.1) {
-  const ref = useRef<T>(null)
-  const [inView, setInView] = useState(false)
-
-  useEffect(() => {
-    const el = ref.current
-    if (!el) return
-    const io = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setInView(true)
-          io.disconnect()
-        }
-      },
-      { threshold },
-    )
-    io.observe(el)
-    return () => io.disconnect()
-  }, [threshold])
-
-  return [ref, inView] as const
-}
 
 // Figma Dev Mode Glow Filter:
 // border-radius: 2889.514px;
@@ -47,7 +15,7 @@ const BLOBS = [
 ]
 
 export function AboutHeroSection() {
-  const [heroRef, inView] = useInViewOnce<HTMLDivElement>(0)
+  const [heroRef, inView] = useInViewOnce<HTMLDivElement>(0, { failSafe: false })
 
   return (
     <section
@@ -93,14 +61,14 @@ export function AboutHeroSection() {
       <div className="relative h-full w-full px-4 pt-28 md:px-[7.2vw] md:pt-[10vw] lg:px-24">
         <h1 className="font-['Bai_Jamjuree'] text-[clamp(40px,6.25vw,120px)] font-bold uppercase not-italic leading-[0.99] text-[#FFE6A7]">
           <span
-            style={delayStyle(inView, 250)}
-            className={`block ${REVEAL} ${revealState(inView)}`}
+            style={revealDelay(inView, 250)}
+            className={`block ${revealClass(inView)}`}
           >
             Two brothers.
           </span>
           <span
-            style={delayStyle(inView, 450)}
-            className={`block ${REVEAL} ${revealState(inView)}`}
+            style={revealDelay(inView, 450)}
+            className={`block ${revealClass(inView)}`}
           >
             One vision.
           </span>
