@@ -10,27 +10,27 @@ const SECTION_CSS = `
 @media (min-width: 640px)  { #cost-calculator { padding-left: 1.5rem; padding-right: 1.5rem; } }
 @media (min-width: 1024px) { #cost-calculator { padding-left: 6rem; padding-right: 6rem; } }
 
-/* Area slider (Figma node 230:7425): 6px track, 26px knob */
-.gcc-range { -webkit-appearance: none; appearance: none; width: 100%; height: 28px; background: transparent; cursor: pointer; margin: 0; }
+/* Area slider (Figma node 230:7425): rem-scaled track & knob */
+.gcc-range { -webkit-appearance: none; appearance: none; width: 100%; height: 1.75rem; background: transparent; cursor: pointer; margin: 0; }
 .gcc-range:focus { outline: none; }
-.gcc-range::-webkit-slider-runnable-track { height: 6px; border-radius: 3px; background: linear-gradient(to right, #6F1D1B var(--p, 0%), #CCC5B9 var(--p, 0%)); }
-.gcc-range::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 26px; height: 26px; margin-top: -10px; border-radius: 999px; background: #fff; border: 3px solid #6F1D1B; box-shadow: 0 2px 6px rgba(37,36,34,.25); }
-.gcc-range::-moz-range-track { height: 6px; border-radius: 3px; background: #CCC5B9; }
-.gcc-range::-moz-range-progress { height: 6px; border-radius: 3px; background: #6F1D1B; }
-.gcc-range::-moz-range-thumb { width: 20px; height: 20px; border-radius: 999px; background: #fff; border: 3px solid #6F1D1B; box-shadow: 0 2px 6px rgba(37,36,34,.25); }
-.gcc-range:focus-visible::-webkit-slider-thumb { outline: 2px solid #E06422; outline-offset: 2px; }
-.gcc-range:focus-visible::-moz-range-thumb { outline: 2px solid #E06422; outline-offset: 2px; }
+.gcc-range::-webkit-slider-runnable-track { height: 0.375rem; border-radius: 0.1875rem; background: linear-gradient(to right, #6F1D1B var(--p, 0%), #CCC5B9 var(--p, 0%)); }
+.gcc-range::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 1.625rem; height: 1.625rem; margin-top: -0.625rem; border-radius: 999px; background: #fff; border: 0.1875rem solid #6F1D1B; box-shadow: 0 0.125rem 0.375rem rgba(37,36,34,.25); }
+.gcc-range::-moz-range-track { height: 0.375rem; border-radius: 0.1875rem; background: #CCC5B9; }
+.gcc-range::-moz-range-progress { height: 0.375rem; border-radius: 0.1875rem; background: #6F1D1B; }
+.gcc-range::-moz-range-thumb { width: 1.25rem; height: 1.25rem; border-radius: 999px; background: #fff; border: 0.1875rem solid #6F1D1B; box-shadow: 0 0.125rem 0.375rem rgba(37,36,34,.25); }
+.gcc-range:focus-visible::-webkit-slider-thumb { outline: 0.125rem solid #E06422; outline-offset: 0.125rem; }
+.gcc-range:focus-visible::-moz-range-thumb { outline: 0.125rem solid #E06422; outline-offset: 0.125rem; }
 
-/* Mobile bottom sheet (Figma node 203:4156): slider fill fades tan -> maroon */
+/* Mobile: slider fill fades tan -> maroon */
 @media (max-width: 1023px) {
   .gcc-range::-webkit-slider-runnable-track { background: linear-gradient(to right, #BB9457 0%, #6F1D1B var(--p, 0%), #CCC5B9 var(--p, 0%)); }
   .gcc-range::-moz-range-progress { background: linear-gradient(to right, #BB9457, #6F1D1B); }
 }
 
-/* Bottom sheet slide-up */
-@keyframes gccSheetUp { from { transform: translateY(32px); opacity: 0; } to { transform: none; opacity: 1; } }
-.gcc-sheet-in { animation: gccSheetUp .28s ease-out; }
-@media (prefers-reduced-motion: reduce) { .gcc-sheet-in { animation: none; } }
+/* Modal fade/scale in */
+@keyframes gccModalFadeIn { from { opacity: 0; transform: scale(0.99); } to { opacity: 1; transform: none; } }
+.gcc-modal-in { animation: gccModalFadeIn .2s ease-out; }
+@media (prefers-reduced-motion: reduce) { .gcc-modal-in { animation: none; } }
 `
 
 /* -------------------------------------------------------------------------
@@ -246,26 +246,26 @@ function OptionCard({
       aria-checked={selected}
       onClick={onSelect}
       className={cn(
-        'flex h-[96px] min-w-0 flex-1 cursor-pointer flex-col items-start gap-3 rounded-[10px] text-left transition-colors',
+        'flex h-[6rem] min-w-0 flex-1 cursor-pointer flex-col items-start gap-[0.75rem] rounded-[0.625rem] text-left transition-colors',
         'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#E06422]',
         selected
-          ? 'border-2 border-[#6F1D1B] bg-[#FFE6A7] p-[15px] text-[#6F1D1B]'
-          : 'border border-[#CCC5B9] bg-[#FFFCF2] p-4 text-[#252422] hover:border-[#6F1D1B]/50'
+          ? 'border-2 border-[#6F1D1B] bg-[#FFE6A7] p-[0.9375rem] text-[#6F1D1B]'
+          : 'border border-[#CCC5B9] bg-[#FFFCF2] p-[1rem] text-[#252422] hover:border-[#6F1D1B]/50'
       )}
     >
       <span className="flex w-full items-center justify-between">
         {icon}
         {selected ? (
-          <span className="flex rounded-full bg-[#6F1D1B] p-[3px] text-white">
+          <span className="flex rounded-full bg-[#6F1D1B] p-[0.1875rem] text-white">
             <CheckIcon />
           </span>
         ) : (
-          <span className="size-[20px] rounded-full border-[1.5px] border-[#CCC5B9]" />
+          <span className="size-[1.25rem] rounded-full border-[1.5px] border-[#CCC5B9]" />
         )}
       </span>
       <span
         style={BODY}
-        className="truncate text-[16px] font-semibold leading-[28px] tracking-[-0.2px] sm:text-[20px]"
+        className="truncate text-[1rem] font-semibold leading-[1.75rem] tracking-[-0.0125rem] sm:text-[1.25rem]"
       >
         {label}
       </span>
@@ -292,24 +292,24 @@ function SheetOption({
       aria-checked={selected}
       onClick={onSelect}
       className={cn(
-        'flex w-full cursor-pointer items-center gap-3 rounded-[10px] text-left transition-colors',
+        'flex w-full cursor-pointer items-center gap-[0.75rem] rounded-[0.625rem] text-left transition-colors',
         'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#E06422]',
         selected
-          ? 'border-2 border-[#6F1D1B] bg-[#FFE6A7] p-[14px] text-[#6F1D1B]'
-          : 'border border-[#CCC5B9] bg-[#FFFCF2] p-[15px] text-[#252422]'
+          ? 'border-2 border-[#6F1D1B] bg-[#FFE6A7] p-[0.875rem] text-[#6F1D1B]'
+          : 'border border-[#CCC5B9] bg-[#FFFCF2] p-[0.9375rem] text-[#252422]'
       )}
     >
       {icon}
-      <span style={BODY} className="min-w-0 flex-1 text-[16px] font-semibold leading-[28px] tracking-[-0.16px]">
+      <span style={BODY} className="min-w-0 flex-1 text-[1rem] font-semibold leading-[1.75rem] tracking-[-0.01rem]">
         {label}
       </span>
       <span
         className={cn(
-          'flex size-[20px] shrink-0 items-center justify-center rounded-full border-[1.5px]',
+          'flex size-[1.25rem] shrink-0 items-center justify-center rounded-full border-[1.5px]',
           selected ? 'border-[#6F1D1B] bg-white' : 'border-[#CCC5B9]'
         )}
       >
-        {selected && <span className="size-[8px] rounded-full bg-[#6F1D1B]" />}
+        {selected && <span className="size-[0.5rem] rounded-full bg-[#6F1D1B]" />}
       </span>
     </button>
   )
@@ -324,7 +324,7 @@ function ChoicePill({ label, selected, onSelect }: { label: string; selected: bo
       onClick={onSelect}
       style={BODY}
       className={cn(
-        'flex h-[48px] w-[64px] cursor-pointer items-center justify-center rounded-full border px-5 py-3 text-[20px] font-semibold leading-[28px] tracking-[-0.2px] transition-colors',
+        'flex h-[3rem] w-[4rem] cursor-pointer items-center justify-center rounded-full border px-[1.25rem] py-[0.75rem] text-[1.25rem] font-semibold leading-[1.75rem] tracking-[-0.0125rem] transition-colors',
         'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#E06422]',
         selected
           ? 'border-2 border-[#6F1D1B] bg-[#FFE6A7] text-[#6F1D1B]'
@@ -346,7 +346,7 @@ function SheetPill({ label, selected, onSelect }: { label: string; selected: boo
       onClick={onSelect}
       style={BODY}
       className={cn(
-        'flex h-[48px] min-w-0 flex-1 cursor-pointer items-center justify-center rounded-full border text-[16px] font-semibold leading-[28px] tracking-[-0.16px] transition-colors',
+        'flex h-[3rem] min-w-0 flex-1 cursor-pointer items-center justify-center rounded-full border text-[1rem] font-semibold leading-[1.75rem] tracking-[-0.01rem] transition-colors',
         'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#E06422]',
         selected
           ? 'border-[#6F1D1B] bg-[#6F1D1B] text-white'
@@ -379,14 +379,14 @@ function Stepper({
     <div
       role="group"
       aria-label={label}
-      className="flex h-[54px] w-full items-center justify-between rounded-[10px] border border-[#CCC5B9] bg-[#FFFCF2] p-[6px]"
+      className="flex h-[3.375rem] w-full items-center justify-between rounded-[0.625rem] border border-[#CCC5B9] bg-[#FFFCF2] p-[0.375rem]"
     >
       <button
         type="button"
         aria-label={`Decrease ${label}`}
         disabled={atMin}
         onClick={() => onChange(value - 1)}
-        className="flex cursor-pointer rounded-[8px] border border-[#CCC5B9] bg-white p-[9px] text-[#252422] transition-opacity enabled:hover:bg-[#F5F0E6] disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#E06422]"
+        className="flex cursor-pointer rounded-[0.5rem] border border-[#CCC5B9] bg-white p-[0.5625rem] text-[#252422] transition-opacity enabled:hover:bg-[#F5F0E6] disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#E06422]"
       >
         <MinusIcon />
       </button>
@@ -394,8 +394,8 @@ function Stepper({
         aria-live="polite"
         style={DISPLAY}
         className={cn(
-          'font-semibold leading-[28px] text-[#252422]',
-          compact ? 'text-[18px] tracking-[-0.09px]' : 'text-[22px] tracking-[-0.11px]'
+          'font-semibold leading-[1.75rem] text-[#252422]',
+          compact ? 'text-[1.125rem] tracking-[-0.005rem]' : 'text-[1.375rem] tracking-[-0.007rem]'
         )}
       >
         {value}
@@ -405,7 +405,7 @@ function Stepper({
         aria-label={`Increase ${label}`}
         disabled={atMax}
         onClick={() => onChange(value + 1)}
-        className="flex cursor-pointer rounded-[8px] bg-[#6F1D1B] p-[9px] text-white transition-opacity enabled:hover:bg-[#5a1716] disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#E06422]"
+        className="flex cursor-pointer rounded-[0.5rem] bg-[#6F1D1B] p-[0.5625rem] text-white transition-opacity enabled:hover:bg-[#5a1716] disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#E06422]"
       >
         <PlusIcon />
       </button>
@@ -422,14 +422,14 @@ function Toggle({ checked, onChange, labelId }: { checked: boolean; onChange: (v
       aria-labelledby={labelId}
       onClick={() => onChange(!checked)}
       className={cn(
-        'relative h-[28px] w-[48px] shrink-0 cursor-pointer rounded-full transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#E06422]',
+        'relative h-[1.75rem] w-[3rem] shrink-0 cursor-pointer rounded-full transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#E06422]',
         checked ? 'bg-[#6F1D1B]' : 'bg-[#CCC5B9]'
       )}
     >
       <span
         className={cn(
-          'absolute top-[3px] size-[22px] rounded-full bg-white shadow transition-all',
-          checked ? 'left-[23px]' : 'left-[3px]'
+          'absolute top-[0.1875rem] size-[1.375rem] rounded-full bg-white shadow transition-all',
+          checked ? 'left-[1.4375rem]' : 'left-[0.1875rem]'
         )}
       />
     </button>
@@ -437,7 +437,7 @@ function Toggle({ checked, onChange, labelId }: { checked: boolean; onChange: (v
 }
 
 const FieldLabel = ({ children, id }: { children: ReactNode; id?: string }) => (
-  <p id={id} style={BODY} className="text-[14px] font-medium leading-[20px] text-[#403D39]">
+  <p id={id} style={BODY} className="text-[0.875rem] font-medium leading-[1.25rem] text-[#403D39]">
     {children}
   </p>
 )
@@ -546,386 +546,63 @@ function EstimatorModal({ onClose }: { onClose: () => void }) {
 
     return createPortal(
       <div
-        className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm"
-        onMouseDown={(e) => {
-          if (e.target === e.currentTarget) onClose()
-        }}
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        tabIndex={-1}
+        className={cn(
+          'gcc-modal-in fixed inset-0 z-[100] flex w-full h-[100dvh] flex-col overflow-hidden outline-none',
+          page === 1 ? 'bg-white' : 'bg-gradient-to-b from-[#6F1D1B] to-[#3A0F0E]'
+        )}
       >
-        <div
-          ref={dialogRef}
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby={titleId}
-          tabIndex={-1}
-          style={{ maxHeight: '92dvh' }}
-          className={cn(
-            'gcc-sheet-in fixed inset-x-0 bottom-0 flex max-h-[92vh] flex-col overflow-hidden rounded-t-[16px] border border-b-0 border-[#CCC5B9] outline-none',
-            page === 1 ? 'bg-white' : 'bg-gradient-to-b from-[#6F1D1B] to-[#3A0F0E]'
-          )}
-        >
-          {page === 1 ? (
-            <>
-              {/* ---------- Page 1: Project Details (203:4156) ---------- */}
-              <div className="flex flex-1 flex-col gap-6 overflow-y-auto px-5 pb-6 pt-6">
-                <div className="flex items-center justify-between">
-                  <p
-                    id={titleId}
-                    style={DISPLAY}
-                    className="text-[22px] font-semibold leading-[28px] tracking-[-0.11px] text-[#252422]"
-                  >
-                    Project Details
-                  </p>
-                  <button
-                    ref={closeRef}
-                    type="button"
-                    onClick={onClose}
-                    aria-label="Close estimator"
-                    className="flex size-[32px] shrink-0 cursor-pointer items-center justify-center rounded-full bg-[#252422]/10 text-[#252422] transition-colors hover:bg-[#252422]/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#E06422]"
-                  >
-                    <CloseIcon />
-                  </button>
-                </div>
-
-                {/* Project type */}
-                <div className="flex flex-col gap-[10px]" role="radiogroup" aria-label="Project Type">
-                  <FieldLabel>Project Type</FieldLabel>
-                  {PROJECT_OPTIONS.map((o) => (
-                    <SheetOption
-                      key={o.id}
-                      label={o.label}
-                      icon={o.icon}
-                      selected={type === o.id}
-                      onSelect={() => setType(o.id)}
-                    />
-                  ))}
-                </div>
-
-                {/* Total area */}
-                <div ref={areaFieldRef} className="flex flex-col gap-3">
-                  <div className="flex items-center justify-between">
-                    <FieldLabel id={areaLabelId}>Total Area (Sq Ft)</FieldLabel>
-                    <div
-                      className={cn(
-                        'flex items-baseline gap-[6px] rounded-[8px] border bg-[#FFFCF2] px-[14px] py-2 focus-within:border-[#6F1D1B]',
-                        showAreaError ? 'border-[#C0392B]' : 'border-[#CCC5B9]'
-                      )}
-                    >
-                      <input
-                        type="text"
-                        inputMode="numeric"
-                        aria-labelledby={areaLabelId}
-                        value={areaDraft ?? (area ? area.toLocaleString('en-IN') : '0')}
-                        onFocus={(e) => {
-                          setAreaDraft(area ? String(area) : '')
-                          e.currentTarget.select()
-                        }}
-                        onChange={(e) => setAreaDraft(e.target.value.replace(/[^\d]/g, '').slice(0, 5))}
-                        onBlur={commitAreaDraft}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') e.currentTarget.blur()
-                        }}
-                        style={DISPLAY}
-                        className="w-[64px] bg-transparent text-right text-[22px] font-semibold leading-[28px] tracking-[-0.11px] text-[#252422] outline-none"
-                      />
-                      <span style={BODY} className="text-[14px] font-medium leading-[20px] text-[#403D39]">
-                        sq ft
-                      </span>
-                    </div>
-                  </div>
-                  <input
-                    type="range"
-                    className="gcc-range"
-                    aria-labelledby={areaLabelId}
-                    min={AREA_MIN}
-                    max={AREA_MAX}
-                    step={AREA_STEP}
-                    value={Math.max(area, AREA_MIN)}
-                    style={{ ['--p' as string]: `${sliderPct}%` }}
-                    onChange={(e) => {
-                      setAreaDraft(null)
-                      setArea(Number(e.target.value))
-                    }}
-                  />
-                  <div
-                    style={BODY}
-                    className="flex justify-between text-[14px] font-medium leading-[20px] text-[#403D39]"
-                  >
-                    <span>{AREA_MIN.toLocaleString('en-IN')}</span>
-                    <span>{AREA_MAX.toLocaleString('en-IN')}</span>
-                  </div>
-                  {showAreaError && (
-                    <p role="alert" style={BODY} className="text-[13px] font-medium leading-[18px] text-[#C0392B]">
-                      Please choose an area of at least {AREA_MIN} sq ft.
-                    </p>
-                  )}
-                </div>
-
-                {/* Floors */}
-                <div className="flex flex-col gap-[10px]" role="radiogroup" aria-labelledby={floorsLabelId}>
-                  <FieldLabel id={floorsLabelId}>Number of Floors</FieldLabel>
-                  <div className="flex gap-[10px]">
-                    {[1, 2, 3, 4].map((f) => (
-                      <SheetPill key={f} label={String(f)} selected={floors === f} onSelect={() => setFloors(f)} />
-                    ))}
-                  </div>
-                </div>
-
-                {/* Bedrooms */}
-                <div className="flex flex-col gap-[10px]">
-                  <FieldLabel>Number of Bedrooms</FieldLabel>
-                  <Stepper
-                    compact
-                    label="bedrooms"
-                    value={bedrooms}
-                    min={COUNT_MIN}
-                    max={COUNT_MAX}
-                    onChange={setBedrooms}
-                  />
-                </div>
-
-                {/* Bathrooms */}
-                <div className="flex flex-col gap-[10px]">
-                  <FieldLabel>Number of Bathrooms</FieldLabel>
-                  <Stepper
-                    compact
-                    label="bathrooms"
-                    value={bathrooms}
-                    min={COUNT_MIN}
-                    max={COUNT_MAX}
-                    onChange={setBathrooms}
-                  />
-                </div>
-
-                {/* Interior finishing */}
-                <div className="flex items-center gap-3">
-                  <Toggle checked={interior} onChange={setInterior} labelId={interiorLabelId} />
-                  <span id={interiorLabelId} style={BODY} className="text-[14px] leading-[24px] text-[#252422]">
-                    Include Interior Finishing
-                  </span>
-                </div>
-              </div>
-
-              {/* Sticky Calculate button (203:4712) */}
-              <div
-                className="shrink-0 bg-white p-4 shadow-[0_-8px_16px_rgba(37,36,34,0.06)]"
-                style={{ paddingBottom: 'max(16px, env(safe-area-inset-bottom))' }}
-              >
-                <button
-                  type="button"
-                  onClick={handleCalculate}
-                  style={BODY}
-                  className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-[8px] bg-[#6F1D1B] py-[15px] pl-6 pr-5 text-[18px] font-bold leading-[28px] tracking-[-0.36px] text-white transition-colors hover:bg-[#5a1716] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#E06422]"
-                >
-                  Calculate
-                  <ChevronRightIcon />
-                </button>
-              </div>
-            </>
-          ) : (
-            /* ---------- Page 2: Rough Estimate (203:4201) ---------- */
-            <div
-              className="flex flex-1 flex-col gap-[18px] overflow-y-auto px-5 pt-6"
-              style={{ paddingBottom: 'max(24px, env(safe-area-inset-bottom))' }}
-            >
+        {page === 1 ? (
+          <>
+            {/* ---------- Page 1: Project Details (203:4156) ---------- */}
+            <div className="flex flex-1 flex-col gap-[1.5rem] overflow-y-auto px-[1.25rem] pb-[1.5rem] pt-[1.5rem]">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setPage(1)}
-                    aria-label="Back to project details"
-                    className="flex size-[32px] shrink-0 cursor-pointer items-center justify-center rounded-full bg-white/20 text-[#FFFCF2] transition-colors hover:bg-white/30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#FFE6A7]"
-                  >
-                    <ChevronLeftIcon />
-                  </button>
-                  <p
-                    id={titleId}
-                    style={DISPLAY}
-                    className="text-[22px] font-semibold leading-[28px] tracking-[-0.11px] text-[#FFFCF2]"
-                  >
-                    Rough Estimate
-                  </p>
-                </div>
+                <p
+                  id={titleId}
+                  style={DISPLAY}
+                  className="text-[1.375rem] font-semibold leading-[1.75rem] tracking-[-0.007rem] text-[#252422]"
+                >
+                  Project Details
+                </p>
                 <button
                   ref={closeRef}
                   type="button"
                   onClick={onClose}
                   aria-label="Close estimator"
-                  className="flex size-[32px] shrink-0 cursor-pointer items-center justify-center rounded-full bg-white/20 text-[#FFFCF2] transition-colors hover:bg-white/30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#FFE6A7]"
+                  className="flex size-[2rem] shrink-0 cursor-pointer items-center justify-center rounded-full bg-[#252422]/10 text-[#252422] transition-colors hover:bg-[#252422]/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#E06422]"
                 >
                   <CloseIcon />
                 </button>
               </div>
 
-              <div className="flex flex-col gap-[2px]" aria-live="polite">
-                <p style={BODY} className="text-[14px] font-medium leading-[20px] text-[#FFFCF2]/70">
-                  Total Estimated Cost
-                </p>
-                <p
-                  style={DISPLAY}
-                  className="whitespace-nowrap text-[36px] font-semibold leading-[50px] tracking-[-0.88px] text-[#FFFCF2] min-[380px]:text-[44px]"
-                >
-                  ₹ {ready ? estimate.total.toLocaleString('en-IN') : '00'}
-                </p>
-              </div>
-
-              {/* Split bar */}
-              <div className="flex h-[10px] w-full gap-[3px] overflow-hidden rounded-[3px]" aria-hidden="true">
-                {ready ? (
-                  BREAKDOWN.filter((b) => estimate[b.key] > 0).map((b) => (
-                    <div
-                      key={b.key}
-                      className="h-full rounded-[3px]"
-                      style={{ width: `${(estimate[b.key] / estimate.total) * 100}%`, background: b.color }}
-                    />
-                  ))
-                ) : (
-                  <div className="h-full w-full rounded-[3px] bg-[#CCC5B9]" />
-                )}
-              </div>
-
-              {/* Breakdown */}
-              <div className="flex w-full flex-col">
-                {BREAKDOWN.map((b) => (
-                  <div key={b.key} className="flex items-center justify-between border-b border-[#FFFCF2]/[0.14] py-3">
-                    <div className="flex items-center gap-[10px]">
-                      <span className="size-[10px] shrink-0 rounded-[2px]" style={{ background: b.color }} />
-                      <span style={BODY} className="text-[16px] leading-[24px] text-[#FFFCF2]/85">
-                        {b.label}
-                      </span>
-                    </div>
-                    <span style={BODY} className="whitespace-nowrap text-[16px] leading-[24px] text-[#FFFCF2]">
-                      {inrSpaced(estimate[b.key])}
-                    </span>
-                  </div>
+              {/* Project type */}
+              <div className="flex flex-col gap-[0.625rem]" role="radiogroup" aria-label="Project Type">
+                <FieldLabel>Project Type</FieldLabel>
+                {PROJECT_OPTIONS.map((o) => (
+                  <SheetOption
+                    key={o.id}
+                    label={o.label}
+                    icon={o.icon}
+                    selected={type === o.id}
+                    onSelect={() => setType(o.id)}
+                  />
                 ))}
               </div>
 
-              {/* Locked detail */}
-              <div className="flex w-full items-center gap-[10px] rounded-[8px] border border-dashed border-[#FFFCF2]/25 bg-white/5 px-[14px] py-3">
-                <span className="text-[#FB8B24]">
-                  <LockIcon size={20} />
-                </span>
-                <span
-                  style={BODY}
-                  className="whitespace-nowrap text-[14px] font-medium leading-[20px] text-[#FFFCF2]/85"
-                >
-                  Detailed breakdown
-                </span>
-              </div>
-
-              {/* Disclaimer */}
-              <div className="flex flex-col gap-[6px] rounded-[8px] bg-white/[0.08] p-[14px]">
-                <div className="flex items-center gap-[6px]">
-                  <span className="text-[#FB8B24]">
-                    <ShieldIcon size={20} />
-                  </span>
-                  <span style={BODY} className="text-[14px] font-medium leading-[20px] text-[#FFE6A7]">
-                    Disclaimer
-                  </span>
-                </div>
-                <p style={BODY} className="text-[14px] font-medium leading-[20px] text-[#FFFCF2]/75">
-                  This is a rough estimate. Final costs may vary based on site conditions, material selections, and
-                  local regulations.
-                </p>
-              </div>
-
-              {/* CTA */}
-              {ready ? (
-                <a
-                  href="#contact-cta"
-                  onClick={onClose}
-                  style={BODY}
-                  className="flex w-full items-center justify-center gap-2 rounded-[8px] bg-[#FFFCF2] py-[15px] pl-6 pr-5 text-[18px] font-bold leading-[28px] tracking-[-0.36px] text-[#252422] transition-colors hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FFE6A7]"
-                >
-                  Get Detailed Quote
-                  <ChevronRightIcon />
-                </a>
-              ) : (
-                <button
-                  type="button"
-                  disabled
-                  style={BODY}
-                  className="flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-[8px] bg-[#CCC5B9] py-[15px] pl-6 pr-5 text-[18px] font-bold leading-[28px] tracking-[-0.36px] text-[#403D39] opacity-50"
-                >
-                  Get Detailed Quote
-                  <ChevronRightIcon />
-                </button>
-              )}
-            </div>
-          )}
-        </div>
-      </div>,
-      document.body
-    )
-  }
-
-  /* ======================================================================
-     DESKTOP: two panels (unchanged)
-     ====================================================================== */
-  return createPortal(
-    <div
-      className="fixed inset-0 z-[100] overflow-y-auto bg-black/75 backdrop-blur-sm"
-      onMouseDown={(e) => {
-        if (e.target === e.currentTarget) onClose()
-      }}
-    >
-      <div className="flex min-h-full items-center justify-center p-4 sm:p-6">
-        <div
-          ref={dialogRef}
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby={titleId}
-          tabIndex={-1}
-          data-node-id="230:7408"
-          className="relative flex w-full max-w-[1248px] flex-col overflow-hidden rounded-[16px] border border-[#CCC5B9] shadow-[0_2px_6px_rgba(37,36,34,0.06),0_16px_40px_rgba(37,36,34,0.1)] outline-none lg:flex-row"
-        >
-          {/* ========================= Project Details ========================= */}
-          <div data-node-id="230:7409" className="flex min-w-0 flex-1 flex-col gap-8 bg-white p-6 sm:p-10">
-            <div className="flex items-start justify-between gap-4">
-              <h2
-                id={titleId}
-                style={DISPLAY}
-                className="text-[28px] font-semibold leading-[36px] tracking-[-0.36px] text-[#252422] sm:text-[36px] sm:leading-[44px]"
-              >
-                Home Construction Estimator
-              </h2>
-              {/* Close for small screens, where the estimate panel sits below */}
-              <button
-                type="button"
-                onClick={onClose}
-                aria-label="Close estimator"
-                className="flex size-[32px] shrink-0 cursor-pointer items-center justify-center rounded-full bg-[#252422]/10 text-[#252422] lg:hidden"
-              >
-                <CloseIcon />
-              </button>
-            </div>
-
-            <div className="flex w-full flex-col gap-[26px]">
-              <p style={DISPLAY} className="text-[22px] font-semibold leading-[28px] tracking-[-0.11px] text-[#252422]">
-                Project Details
-              </p>
-
-              {/* Project type */}
-              <div className="flex flex-col gap-3" role="radiogroup" aria-label="Project Type">
-                <FieldLabel>Project Type</FieldLabel>
-                <div className="flex gap-3">
-                  {PROJECT_OPTIONS.map((o) => (
-                    <OptionCard
-                      key={o.id}
-                      label={o.label}
-                      icon={o.icon}
-                      selected={type === o.id}
-                      onSelect={() => setType(o.id)}
-                    />
-                  ))}
-                </div>
-              </div>
-
               {/* Total area */}
-              <div className="flex flex-col gap-2">
+              <div ref={areaFieldRef} className="flex flex-col gap-[0.75rem]">
                 <div className="flex items-center justify-between">
                   <FieldLabel id={areaLabelId}>Total Area (Sq Ft)</FieldLabel>
-                  <div className="flex items-baseline gap-[6px] rounded-[8px] border border-[#CCC5B9] bg-[#FFFCF2] px-[14px] py-2 focus-within:border-[#6F1D1B]">
+                  <div
+                    className={cn(
+                      'flex items-baseline gap-[0.375rem] rounded-[0.5rem] border bg-[#FFFCF2] px-[0.875rem] py-[0.5rem] focus-within:border-[#6F1D1B]',
+                      showAreaError ? 'border-[#C0392B]' : 'border-[#CCC5B9]'
+                    )}
+                  >
                     <input
                       type="text"
                       inputMode="numeric"
@@ -941,9 +618,9 @@ function EstimatorModal({ onClose }: { onClose: () => void }) {
                         if (e.key === 'Enter') e.currentTarget.blur()
                       }}
                       style={DISPLAY}
-                      className="w-[64px] bg-transparent text-right text-[22px] font-semibold leading-[28px] tracking-[-0.11px] text-[#252422] outline-none"
+                      className="w-[4.5rem] bg-transparent text-right text-[1.375rem] font-semibold leading-[1.75rem] tracking-[-0.007rem] text-[#252422] outline-none"
                     />
-                    <span style={BODY} className="text-[14px] font-medium leading-[20px] text-[#403D39]">
+                    <span style={BODY} className="text-[0.875rem] font-medium leading-[1.25rem] text-[#403D39]">
                       sq ft
                     </span>
                   </div>
@@ -962,146 +639,196 @@ function EstimatorModal({ onClose }: { onClose: () => void }) {
                     setArea(Number(e.target.value))
                   }}
                 />
-                <div style={BODY} className="flex justify-between text-[14px] font-medium leading-[20px] text-[#403D39]">
+                <div
+                  style={BODY}
+                  className="flex justify-between text-[0.875rem] font-medium leading-[1.25rem] text-[#403D39]"
+                >
                   <span>{AREA_MIN.toLocaleString('en-IN')}</span>
                   <span>{AREA_MAX.toLocaleString('en-IN')}</span>
                 </div>
+                {showAreaError && (
+                  <p role="alert" style={BODY} className="text-[0.8125rem] font-medium leading-[1.125rem] text-[#C0392B]">
+                    Please choose an area of at least {AREA_MIN} sq ft.
+                  </p>
+                )}
               </div>
 
               {/* Floors */}
-              <div className="flex flex-col gap-3" role="radiogroup" aria-labelledby={floorsLabelId}>
+              <div className="flex flex-col gap-[0.625rem]" role="radiogroup" aria-labelledby={floorsLabelId}>
                 <FieldLabel id={floorsLabelId}>Number of Floors</FieldLabel>
-                <div className="flex gap-2">
+                <div className="flex gap-[0.625rem]">
                   {[1, 2, 3, 4].map((f) => (
-                    <ChoicePill key={f} label={String(f)} selected={floors === f} onSelect={() => setFloors(f)} />
+                    <SheetPill key={f} label={String(f)} selected={floors === f} onSelect={() => setFloors(f)} />
                   ))}
                 </div>
               </div>
 
-              {/* Rooms */}
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div className="flex min-w-0 flex-col gap-3">
-                  <FieldLabel>Number of Bedrooms</FieldLabel>
-                  <Stepper label="bedrooms" value={bedrooms} min={COUNT_MIN} max={COUNT_MAX} onChange={setBedrooms} />
-                </div>
-                <div className="flex min-w-0 flex-col gap-3">
-                  <FieldLabel>Number of Bathrooms</FieldLabel>
-                  <Stepper label="bathrooms" value={bathrooms} min={COUNT_MIN} max={COUNT_MAX} onChange={setBathrooms} />
-                </div>
+              {/* Bedrooms */}
+              <div className="flex flex-col gap-[0.625rem]">
+                <FieldLabel>Number of Bedrooms</FieldLabel>
+                <Stepper
+                  compact
+                  label="bedrooms"
+                  value={bedrooms}
+                  min={COUNT_MIN}
+                  max={COUNT_MAX}
+                  onChange={setBedrooms}
+                />
+              </div>
+
+              {/* Bathrooms */}
+              <div className="flex flex-col gap-[0.625rem]">
+                <FieldLabel>Number of Bathrooms</FieldLabel>
+                <Stepper
+                  compact
+                  label="bathrooms"
+                  value={bathrooms}
+                  min={COUNT_MIN}
+                  max={COUNT_MAX}
+                  onChange={setBathrooms}
+                />
               </div>
 
               {/* Interior finishing */}
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-[0.75rem]">
                 <Toggle checked={interior} onChange={setInterior} labelId={interiorLabelId} />
-                <span id={interiorLabelId} style={BODY} className="text-[16px] leading-[24px] text-[#252422]">
+                <span id={interiorLabelId} style={BODY} className="text-[0.875rem] leading-[1.5rem] text-[#252422]">
                   Include Interior Finishing
                 </span>
               </div>
             </div>
-          </div>
 
-          {/* ========================= Rough Estimate ========================= */}
+            {/* Sticky Calculate button (203:4712) */}
+            <div
+              className="shrink-0 bg-white p-[1rem] shadow-[0_-0.5rem_1rem_rgba(37,36,34,0.06)]"
+              style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}
+            >
+              <button
+                type="button"
+                onClick={handleCalculate}
+                style={BODY}
+                className="flex w-full cursor-pointer items-center justify-center gap-[0.5rem] rounded-[0.5rem] bg-[#6F1D1B] py-[0.9375rem] pl-[1.5rem] pr-[1.25rem] text-[1.125rem] font-bold leading-[1.75rem] tracking-[-0.0225rem] text-white transition-colors hover:bg-[#5a1716] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#E06422]"
+              >
+                Calculate
+                <ChevronRightIcon />
+              </button>
+            </div>
+          </>
+        ) : (
+          /* ---------- Page 2: Rough Estimate (203:4201) ---------- */
           <div
-            data-node-id="230:7449"
-            className="flex w-full shrink-0 flex-col gap-6 bg-gradient-to-b from-[#6F1D1B] to-[#3A0F0E] p-6 sm:p-10 lg:w-[560px]"
+            className="flex flex-1 flex-col gap-[1.125rem] overflow-y-auto px-[1.25rem] pt-[1.5rem]"
+            style={{ paddingBottom: 'max(1.5rem, env(safe-area-inset-bottom))' }}
           >
             <div className="flex items-center justify-between">
-              <p style={DISPLAY} className="text-[22px] font-semibold leading-[28px] tracking-[-0.11px] text-[#FFFCF2]">
-                Rough Estimate
-              </p>
+              <div className="flex items-center gap-[0.75rem]">
+                <button
+                  type="button"
+                  onClick={() => setPage(1)}
+                  aria-label="Back to project details"
+                  className="flex size-[2rem] shrink-0 cursor-pointer items-center justify-center rounded-full bg-white/20 text-[#FFFCF2] transition-colors hover:bg-white/30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#FFE6A7]"
+                >
+                  <ChevronLeftIcon />
+                </button>
+                <p
+                  id={titleId}
+                  style={DISPLAY}
+                  className="text-[1.375rem] font-semibold leading-[1.75rem] tracking-[-0.007rem] text-[#FFFCF2]"
+                >
+                  Rough Estimate
+                </p>
+              </div>
               <button
                 ref={closeRef}
                 type="button"
                 onClick={onClose}
                 aria-label="Close estimator"
-                className="hidden size-[32px] cursor-pointer items-center justify-center rounded-full bg-white/20 text-[#FFFCF2] transition-colors hover:bg-white/30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#FFE6A7] lg:flex"
+                className="flex size-[2rem] shrink-0 cursor-pointer items-center justify-center rounded-full bg-white/20 text-[#FFFCF2] transition-colors hover:bg-white/30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#FFE6A7]"
               >
                 <CloseIcon />
               </button>
             </div>
 
-            <div className="flex flex-col gap-1" aria-live="polite">
-              <p style={BODY} className="text-[14px] font-medium leading-[20px] text-[#FFFCF2]/70">
+            <div className="flex flex-col gap-[0.25rem]" aria-live="polite">
+              <p style={BODY} className="text-[0.875rem] font-medium leading-[1.25rem] text-[#FFFCF2]/70">
                 Total Estimated Cost
               </p>
               <p
                 style={DISPLAY}
-                className="whitespace-nowrap text-[40px] font-semibold leading-[48px] tracking-[-1.2px] text-[#FFFCF2] sm:text-[60px] sm:leading-[64px]"
+                className="whitespace-nowrap text-[2.25rem] font-semibold leading-[1.2] tracking-[-0.05rem] text-[#FFFCF2] min-[380px]:text-[2.75rem]"
               >
                 ₹ {ready ? estimate.total.toLocaleString('en-IN') : '00'}
               </p>
             </div>
 
             {/* Split bar */}
-            <div className="flex h-[10px] w-full gap-[2px] overflow-hidden rounded-[3px]" aria-hidden="true">
+            <div className="flex h-[0.625rem] w-full gap-[0.1875rem] overflow-hidden rounded-[0.1875rem]" aria-hidden="true">
               {ready ? (
                 BREAKDOWN.filter((b) => estimate[b.key] > 0).map((b) => (
                   <div
                     key={b.key}
-                    className="h-full rounded-[3px] transition-[width] duration-500 ease-out"
+                    className="h-full rounded-[0.1875rem]"
                     style={{ width: `${(estimate[b.key] / estimate.total) * 100}%`, background: b.color }}
                   />
                 ))
               ) : (
-                <div className="h-full w-full rounded-[3px] bg-[#CCC5B9]" />
+                <div className="h-full w-full rounded-[0.1875rem] bg-[#CCC5B9]" />
               )}
             </div>
 
             {/* Breakdown */}
             <div className="flex w-full flex-col">
               {BREAKDOWN.map((b) => (
-                <div key={b.key} className="flex items-center justify-between border-b border-[#FFFCF2]/[0.14] py-3">
-                  <div className="flex items-center gap-[10px]">
-                    <span className="size-[10px] shrink-0 rounded-[2px]" style={{ background: b.color }} />
-                    <span style={BODY} className="text-[16px] leading-[24px] text-[#FFFCF2]/85">
+                <div key={b.key} className="flex items-center justify-between border-b border-[#FFFCF2]/[0.14] py-[0.75rem]">
+                  <div className="flex items-center gap-[0.625rem]">
+                    <span className="size-[0.625rem] shrink-0 rounded-[0.125rem]" style={{ background: b.color }} />
+                    <span style={BODY} className="text-[1rem] leading-[1.5rem] text-[#FFFCF2]/85">
                       {b.label}
                     </span>
                   </div>
-                  <span style={BODY} className="text-[16px] leading-[24px] text-[#FFFCF2]">
-                    {inr(estimate[b.key])}
+                  <span style={BODY} className="whitespace-nowrap text-[1rem] leading-[1.5rem] text-[#FFFCF2]">
+                    {inrSpaced(estimate[b.key])}
                   </span>
                 </div>
               ))}
             </div>
 
             {/* Locked detail */}
-            <div className="flex w-full items-center gap-3 rounded-[8px] border border-dashed border-[#FFFCF2]/25 bg-white/5 px-[14px] py-3">
+            <div className="flex w-full items-center gap-[0.625rem] rounded-[0.5rem] border border-dashed border-[#FFFCF2]/25 bg-white/5 px-[0.875rem] py-[0.75rem]">
               <span className="text-[#FB8B24]">
-                <LockIcon />
+                <LockIcon size={20} />
               </span>
-              <span style={BODY} className="whitespace-nowrap text-[14px] font-medium leading-[20px] text-[#FFFCF2]/85">
+              <span
+                style={BODY}
+                className="whitespace-nowrap text-[0.875rem] font-medium leading-[1.25rem] text-[#FFFCF2]/85"
+              >
                 Detailed breakdown
               </span>
-              <div className="flex min-w-0 flex-1 items-center justify-end gap-[6px]" aria-hidden="true">
-                <span className="h-[8px] w-[56px] rounded-[4px] bg-[#FFFCF2]/[0.22] blur-[1px]" />
-                <span className="h-[8px] w-[88px] rounded-[4px] bg-[#FFFCF2]/[0.22] blur-[1px]" />
-                <span className="h-[8px] w-[40px] rounded-[4px] bg-[#FFFCF2]/[0.22] blur-[1px]" />
-              </div>
             </div>
 
             {/* Disclaimer */}
-            <div className="flex flex-col gap-[6px] rounded-[8px] bg-white/[0.08] p-[14px]">
-              <div className="flex items-center gap-2">
+            <div className="flex flex-col gap-[0.375rem] rounded-[0.5rem] bg-white/[0.08] p-[0.875rem]">
+              <div className="flex items-center gap-[0.375rem]">
                 <span className="text-[#FB8B24]">
-                  <ShieldIcon size={22} />
+                  <ShieldIcon size={20} />
                 </span>
-                <span style={BODY} className="text-[14px] font-medium leading-[20px] text-[#FFE6A7]">
+                <span style={BODY} className="text-[0.875rem] font-medium leading-[1.25rem] text-[#FFE6A7]">
                   Disclaimer
                 </span>
               </div>
-              <p style={BODY} className="text-[14px] font-medium leading-[20px] text-[#FFFCF2]/75">
-                This is a rough estimate. Final costs may vary based on site conditions, material selections, and local
-                regulations.
+              <p style={BODY} className="text-[0.875rem] font-medium leading-[1.25rem] text-[#FFFCF2]/75">
+                This is a rough estimate. Final costs may vary based on site conditions, material selections, and
+                local regulations.
               </p>
             </div>
 
-            {/* CTA: disabled until an area is chosen */}
+            {/* CTA */}
             {ready ? (
               <a
                 href="#contact-cta"
                 onClick={onClose}
                 style={BODY}
-                className="flex w-full items-center justify-center gap-2 rounded-[8px] bg-[#FFFCF2] py-[14px] pl-6 pr-5 text-[18px] font-bold leading-[28px] tracking-[-0.36px] text-[#252422] transition-colors hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FFE6A7]"
+                className="flex w-full items-center justify-center gap-[0.5rem] rounded-[0.5rem] bg-[#FFFCF2] py-[0.9375rem] pl-[1.5rem] pr-[1.25rem] text-[1.125rem] font-bold leading-[1.75rem] tracking-[-0.0225rem] text-[#252422] transition-colors hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FFE6A7]"
               >
                 Get Detailed Quote
                 <ChevronRightIcon />
@@ -1111,7 +838,272 @@ function EstimatorModal({ onClose }: { onClose: () => void }) {
                 type="button"
                 disabled
                 style={BODY}
-                className="flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-[8px] bg-[#CCC5B9] py-[14px] pl-6 pr-5 text-[18px] font-bold leading-[28px] tracking-[-0.36px] text-[#403D39] opacity-50"
+                className="flex w-full cursor-not-allowed items-center justify-center gap-[0.5rem] rounded-[0.5rem] bg-[#CCC5B9] py-[0.9375rem] pl-[1.5rem] pr-[1.25rem] text-[1.125rem] font-bold leading-[1.75rem] tracking-[-0.0225rem] text-[#403D39] opacity-50"
+              >
+                Get Detailed Quote
+                <ChevronRightIcon />
+              </button>
+            )}
+          </div>
+        )}
+      </div>,
+      document.body
+    )
+  }
+
+  /* ======================================================================
+     DESKTOP: two panels covering the whole viewport with REM scaling
+     ====================================================================== */
+  return createPortal(
+    <div
+      ref={dialogRef}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby={titleId}
+      tabIndex={-1}
+      data-node-id="230:7408"
+      className="gcc-modal-in fixed inset-0 z-[100] w-full h-[100dvh] overflow-y-auto bg-white outline-none"
+    >
+      <div className="flex min-h-full w-full flex-col lg:flex-row">
+        {/* ========================= Project Details (Left) ========================= */}
+        <div
+          data-node-id="230:7409"
+          className="flex min-w-0 flex-1 flex-col gap-[1.75rem] lg:gap-[2rem] bg-white p-[1.5rem] sm:p-[2rem] lg:p-[3rem]"
+        >
+          <div className="flex items-start justify-between gap-[1rem]">
+            <h2
+              id={titleId}
+              style={DISPLAY}
+              className="text-[1.75rem] font-semibold leading-[2.25rem] tracking-[-0.0225rem] text-[#252422] sm:text-[2.25rem] sm:leading-[2.75rem]"
+            >
+              Home Construction Estimator
+            </h2>
+            {/* Close for small screens, where the estimate panel sits below */}
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="Close estimator"
+              className="flex size-[2rem] shrink-0 cursor-pointer items-center justify-center rounded-full bg-[#252422]/10 text-[#252422] transition-colors hover:bg-[#252422]/20 lg:hidden"
+            >
+              <CloseIcon />
+            </button>
+          </div>
+
+          <div className="flex w-full flex-col gap-[1.625rem]">
+            <p style={DISPLAY} className="text-[1.375rem] font-semibold leading-[1.75rem] tracking-[-0.007rem] text-[#252422]">
+              Project Details
+            </p>
+
+            {/* Project type */}
+            <div className="flex flex-col gap-[0.75rem]" role="radiogroup" aria-label="Project Type">
+              <FieldLabel>Project Type</FieldLabel>
+              <div className="flex gap-[0.75rem]">
+                {PROJECT_OPTIONS.map((o) => (
+                  <OptionCard
+                    key={o.id}
+                    label={o.label}
+                    icon={o.icon}
+                    selected={type === o.id}
+                    onSelect={() => setType(o.id)}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* Total area */}
+            <div className="flex flex-col gap-[0.5rem]">
+              <div className="flex items-center justify-between">
+                <FieldLabel id={areaLabelId}>Total Area (Sq Ft)</FieldLabel>
+                <div className="flex items-baseline gap-[0.375rem] rounded-[0.5rem] border border-[#CCC5B9] bg-[#FFFCF2] px-[0.875rem] py-[0.5rem] focus-within:border-[#6F1D1B]">
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    aria-labelledby={areaLabelId}
+                    value={areaDraft ?? (area ? area.toLocaleString('en-IN') : '0')}
+                    onFocus={(e) => {
+                      setAreaDraft(area ? String(area) : '')
+                      e.currentTarget.select()
+                    }}
+                    onChange={(e) => setAreaDraft(e.target.value.replace(/[^\d]/g, '').slice(0, 5))}
+                    onBlur={commitAreaDraft}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') e.currentTarget.blur()
+                    }}
+                    style={DISPLAY}
+                    className="w-[4.5rem] bg-transparent text-right text-[1.375rem] font-semibold leading-[1.75rem] tracking-[-0.007rem] text-[#252422] outline-none"
+                  />
+                  <span style={BODY} className="text-[0.875rem] font-medium leading-[1.25rem] text-[#403D39]">
+                    sq ft
+                  </span>
+                </div>
+              </div>
+              <input
+                type="range"
+                className="gcc-range"
+                aria-labelledby={areaLabelId}
+                min={AREA_MIN}
+                max={AREA_MAX}
+                step={AREA_STEP}
+                value={Math.max(area, AREA_MIN)}
+                style={{ ['--p' as string]: `${sliderPct}%` }}
+                onChange={(e) => {
+                  setAreaDraft(null)
+                  setArea(Number(e.target.value))
+                }}
+              />
+              <div style={BODY} className="flex justify-between text-[0.875rem] font-medium leading-[1.25rem] text-[#403D39]">
+                <span>{AREA_MIN.toLocaleString('en-IN')}</span>
+                <span>{AREA_MAX.toLocaleString('en-IN')}</span>
+              </div>
+            </div>
+
+            {/* Floors */}
+            <div className="flex flex-col gap-[0.75rem]" role="radiogroup" aria-labelledby={floorsLabelId}>
+              <FieldLabel id={floorsLabelId}>Number of Floors</FieldLabel>
+              <div className="flex gap-[0.5rem]">
+                {[1, 2, 3, 4].map((f) => (
+                  <ChoicePill key={f} label={String(f)} selected={floors === f} onSelect={() => setFloors(f)} />
+                ))}
+              </div>
+            </div>
+
+            {/* Rooms */}
+            <div className="grid grid-cols-1 gap-[1rem] sm:grid-cols-2">
+              <div className="flex min-w-0 flex-col gap-[0.75rem]">
+                <FieldLabel>Number of Bedrooms</FieldLabel>
+                <Stepper label="bedrooms" value={bedrooms} min={COUNT_MIN} max={COUNT_MAX} onChange={setBedrooms} />
+              </div>
+              <div className="flex min-w-0 flex-col gap-[0.75rem]">
+                <FieldLabel>Number of Bathrooms</FieldLabel>
+                <Stepper label="bathrooms" value={bathrooms} min={COUNT_MIN} max={COUNT_MAX} onChange={setBathrooms} />
+              </div>
+            </div>
+
+            {/* Interior finishing */}
+            <div className="flex items-center gap-[0.75rem]">
+              <Toggle checked={interior} onChange={setInterior} labelId={interiorLabelId} />
+              <span id={interiorLabelId} style={BODY} className="text-[1rem] leading-[1.5rem] text-[#252422]">
+                Include Interior Finishing
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* ========================= Rough Estimate (Right) ========================= */}
+        <div
+          data-node-id="230:7449"
+          className="flex w-full shrink-0 flex-col justify-between gap-[1.5rem] bg-gradient-to-b from-[#6F1D1B] to-[#3A0F0E] p-[1.5rem] sm:p-[2rem] lg:p-[3rem] lg:w-[35rem]"
+        >
+          <div className="flex flex-col gap-[1.5rem]">
+            <div className="flex items-center justify-between">
+              <p style={DISPLAY} className="text-[1.375rem] font-semibold leading-[1.75rem] tracking-[-0.007rem] text-[#FFFCF2]">
+                Rough Estimate
+              </p>
+              <button
+                ref={closeRef}
+                type="button"
+                onClick={onClose}
+                aria-label="Close estimator"
+                className="flex size-[2rem] cursor-pointer items-center justify-center rounded-full bg-white/20 text-[#FFFCF2] transition-colors hover:bg-white/30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#FFE6A7]"
+              >
+                <CloseIcon />
+              </button>
+            </div>
+
+            <div className="flex flex-col gap-[0.25rem]" aria-live="polite">
+              <p style={BODY} className="text-[0.875rem] font-medium leading-[1.25rem] text-[#FFFCF2]/70">
+                Total Estimated Cost
+              </p>
+              <p
+                style={DISPLAY}
+                className="whitespace-nowrap text-[2.5rem] font-semibold leading-[3rem] tracking-[-0.075rem] text-[#FFFCF2] sm:text-[3.75rem] sm:leading-[4rem]"
+              >
+                ₹ {ready ? estimate.total.toLocaleString('en-IN') : '00'}
+              </p>
+            </div>
+
+            {/* Split bar */}
+            <div className="flex h-[0.625rem] w-full gap-[0.125rem] overflow-hidden rounded-[0.1875rem]" aria-hidden="true">
+              {ready ? (
+                BREAKDOWN.filter((b) => estimate[b.key] > 0).map((b) => (
+                  <div
+                    key={b.key}
+                    className="h-full rounded-[0.1875rem] transition-[width] duration-500 ease-out"
+                    style={{ width: `${(estimate[b.key] / estimate.total) * 100}%`, background: b.color }}
+                  />
+                ))
+              ) : (
+                <div className="h-full w-full rounded-[0.1875rem] bg-[#CCC5B9]" />
+              )}
+            </div>
+
+            {/* Breakdown */}
+            <div className="flex w-full flex-col">
+              {BREAKDOWN.map((b) => (
+                <div key={b.key} className="flex items-center justify-between border-b border-[#FFFCF2]/[0.14] py-[0.75rem]">
+                  <div className="flex items-center gap-[0.625rem]">
+                    <span className="size-[0.625rem] shrink-0 rounded-[0.125rem]" style={{ background: b.color }} />
+                    <span style={BODY} className="text-[1rem] leading-[1.5rem] text-[#FFFCF2]/85">
+                      {b.label}
+                    </span>
+                  </div>
+                  <span style={BODY} className="text-[1rem] leading-[1.5rem] text-[#FFFCF2]">
+                    {inr(estimate[b.key])}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            {/* Locked detail */}
+            <div className="flex w-full items-center gap-[0.75rem] rounded-[0.5rem] border border-dashed border-[#FFFCF2]/25 bg-white/5 px-[0.875rem] py-[0.75rem]">
+              <span className="text-[#FB8B24]">
+                <LockIcon />
+              </span>
+              <span style={BODY} className="whitespace-nowrap text-[0.875rem] font-medium leading-[1.25rem] text-[#FFFCF2]/85">
+                Detailed breakdown
+              </span>
+              <div className="flex min-w-0 flex-1 items-center justify-end gap-[0.375rem]" aria-hidden="true">
+                <span className="h-[0.5rem] w-[3.5rem] rounded-[0.25rem] bg-[#FFFCF2]/[0.22] blur-[1px]" />
+                <span className="h-[0.5rem] w-[5.5rem] rounded-[0.25rem] bg-[#FFFCF2]/[0.22] blur-[1px]" />
+                <span className="h-[0.5rem] w-[2.5rem] rounded-[0.25rem] bg-[#FFFCF2]/[0.22] blur-[1px]" />
+              </div>
+            </div>
+
+            {/* Disclaimer */}
+            <div className="flex flex-col gap-[0.375rem] rounded-[0.5rem] bg-white/[0.08] p-[0.875rem]">
+              <div className="flex items-center gap-[0.5rem]">
+                <span className="text-[#FB8B24]">
+                  <ShieldIcon size={22} />
+                </span>
+                <span style={BODY} className="text-[0.875rem] font-medium leading-[1.25rem] text-[#FFE6A7]">
+                  Disclaimer
+                </span>
+              </div>
+              <p style={BODY} className="text-[0.875rem] font-medium leading-[1.25rem] text-[#FFFCF2]/75">
+                This is a rough estimate. Final costs may vary based on site conditions, material selections, and local
+                regulations.
+              </p>
+            </div>
+          </div>
+
+          {/* CTA: disabled until an area is chosen */}
+          <div className="pt-[1rem]">
+            {ready ? (
+              <a
+                href="#contact-cta"
+                onClick={onClose}
+                style={BODY}
+                className="flex w-full items-center justify-center gap-[0.5rem] rounded-[0.5rem] bg-[#FFFCF2] py-[0.875rem] pl-[1.5rem] pr-[1.25rem] text-[1.125rem] font-bold leading-[1.75rem] tracking-[-0.0225rem] text-[#252422] transition-colors hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FFE6A7]"
+              >
+                Get Detailed Quote
+                <ChevronRightIcon />
+              </a>
+            ) : (
+              <button
+                type="button"
+                disabled
+                style={BODY}
+                className="flex w-full cursor-not-allowed items-center justify-center gap-[0.5rem] rounded-[0.5rem] bg-[#CCC5B9] py-[0.875rem] pl-[1.5rem] pr-[1.25rem] text-[1.125rem] font-bold leading-[1.75rem] tracking-[-0.0225rem] text-[#403D39] opacity-50"
               >
                 Get Detailed Quote
                 <ChevronRightIcon />
@@ -1142,17 +1134,17 @@ export function CostCalculatorSection() {
         aria-label="Home Construction Cost Estimator"
         className="relative w-full bg-[#FFFCF2] pt-[0.5rem] pb-[4.5rem] sm:pt-[3rem] sm:pb-[5rem] lg:py-[3.5rem]"
       >
-        <div ref={bannerRef} className="mx-auto max-w-[78rem] w-full">
+        <div ref={bannerRef} className="mx-auto max-w-[78.25rem] w-full">
           {/* MOBILE CARD LAYOUT (Figma Node 214:6149) */}
           <div
             data-node-id="214:6149"
-            className={`md:hidden relative w-full max-w-[350px] mx-auto h-[464px] rounded-[12px] bg-[#701E1C] overflow-hidden p-[20px] flex flex-col justify-between shadow-md transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none ${bannerIn ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
+            className={`md:hidden relative w-full max-w-[21.875rem] mx-auto h-[29rem] rounded-[0.75rem] bg-[#701E1C] overflow-hidden p-[1.25rem] flex flex-col justify-between shadow-md transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none ${bannerIn ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
               }`}
           >
             {/* Background Arch Pattern (Figma Node 214:6150) */}
             <div
               data-node-id="214:6150"
-              className="pointer-events-none absolute -bottom-[50px] left-0 w-[626px] h-[157px] select-none overflow-hidden"
+              className="pointer-events-none absolute -bottom-[3.125rem] left-0 w-[39.125rem] h-[9.8125rem] select-none overflow-hidden"
               aria-hidden="true"
             >
               <img
@@ -1165,7 +1157,7 @@ export function CostCalculatorSection() {
 
             <div
               data-node-id="214:6180"
-              className="relative z-10 w-full h-[136px] rounded-[8px] overflow-hidden shrink-0 bg-[#E1DCDC] shadow-inner"
+              className="relative z-10 w-full h-[8.5rem] rounded-[0.5rem] overflow-hidden shrink-0 bg-[#E1DCDC] shadow-inner"
             >
               <img
                 src="/assets/images/how-we-build/calculator-img.webp"
@@ -1179,7 +1171,7 @@ export function CostCalculatorSection() {
               <h3
                 data-node-id="214:6184"
                 style={{ fontFamily: '"Bai Jamjuree", sans-serif' }}
-                className="m-0 text-white text-[36px] font-semibold leading-[44px] tracking-[-0.36px] text-left"
+                className="m-0 text-white text-[2.25rem] font-semibold leading-[2.75rem] tracking-[-0.0225rem] text-left"
               >
                 Home <br />
                 Construction <br />
@@ -1193,7 +1185,7 @@ export function CostCalculatorSection() {
                 data-node-id="214:6185"
                 onClick={() => setIsModalOpen(true)}
                 style={{ fontFamily: '"Hanken Grotesk", sans-serif' }}
-                className="w-full h-[56px] rounded-[8px] bg-[#FFFCF2] hover:bg-white active:bg-[#F5F0E6] text-[#252422] text-[18px] font-bold leading-[28px] tracking-[-0.36px] flex items-center justify-center gap-[8px] shadow-sm transition-colors cursor-pointer border-none"
+                className="w-full h-[3.5rem] rounded-[0.5rem] bg-[#FFFCF2] hover:bg-white active:bg-[#F5F0E6] text-[#252422] text-[1.125rem] font-bold leading-[1.75rem] tracking-[-0.0225rem] flex items-center justify-center gap-[0.5rem] shadow-sm transition-colors cursor-pointer border-none"
               >
                 <span>Calculate now</span>
                 <svg
@@ -1205,7 +1197,7 @@ export function CostCalculatorSection() {
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  className="size-[20px]"
+                  className="size-[1.25rem]"
                   aria-hidden="true"
                 >
                   <path d="M9 18l6-6-6-6" />
@@ -1217,7 +1209,7 @@ export function CostCalculatorSection() {
           {/* DESKTOP BANNER LAYOUT (Figma Node 211:6073) */}
           <div
             data-node-id="211:6073"
-            className={`hidden md:flex relative w-full min-h-[160px] rounded-[12px] bg-[#701E1C] overflow-hidden flex-row items-center justify-between py-[12px] pl-[12px] pr-4 sm:pr-[30px] gap-6 md:gap-[30px] shadow-md transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none ${bannerIn ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
+            className={`hidden md:flex relative w-full min-h-[10rem] rounded-[0.75rem] bg-[#701E1C] overflow-hidden flex-row items-center justify-between py-[0.75rem] pl-[0.75rem] pr-[1rem] sm:pr-[1.875rem] gap-[1.5rem] md:gap-[1.875rem] shadow-md transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none ${bannerIn ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
               }`}
           >
             <div
@@ -1232,8 +1224,8 @@ export function CostCalculatorSection() {
               />
             </div>
 
-            <div className="relative z-10 flex flex-row items-center gap-[30px] w-auto">
-              <div className="relative w-[206px] h-[136px] rounded-[12px] overflow-hidden shrink-0 bg-[#E1DCDC] shadow-inner">
+            <div className="relative z-10 flex flex-row items-center gap-[1.875rem] w-auto">
+              <div className="relative w-[12.875rem] h-[8.5rem] rounded-[0.75rem] overflow-hidden shrink-0 bg-[#E1DCDC] shadow-inner">
                 <img
                   src="/assets/images/how-we-build/calculator-img.webp"
                   alt="Home Construction Cost Preview"
@@ -1244,7 +1236,7 @@ export function CostCalculatorSection() {
 
               <h3
                 style={{ fontFamily: '"Bai Jamjuree", sans-serif' }}
-                className="text-white text-[30px] lg:text-[36px] font-semibold leading-[1.2] lg:leading-[44px] tracking-[-0.36px] text-left shrink-0 max-w-[340px]"
+                className="text-white text-[1.875rem] lg:text-[2.25rem] font-semibold leading-[1.2] lg:leading-[2.75rem] tracking-[-0.0225rem] text-left shrink-0 max-w-[21.25rem]"
               >
                 Home Construction <br />
                 Estimator
@@ -1256,7 +1248,7 @@ export function CostCalculatorSection() {
                 variant="on-dark"
                 size="lg"
                 onClick={() => setIsModalOpen(true)}
-                className="w-[226px] h-[56px] text-[18px] font-bold rounded-[8px] tracking-[-0.36px] shadow-sm cursor-pointer"
+                className="w-[14.125rem] h-[3.5rem] text-[1.125rem] font-bold rounded-[0.5rem] tracking-[-0.0225rem] shadow-sm cursor-pointer"
               >
                 Calculate now
               </Button>
